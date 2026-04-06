@@ -1,0 +1,38 @@
+.title {
+    color: rgb(255, 255, 255);
+    background-color: #333;
+    border-radius: 12px;
+}
+.cuerpo{
+    background-color: #d8d8d8;
+}
+.navbar{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #333;
+    padding: 1rem;
+    color: white;
+    border-radius: 12px;
+}
+
+.nav-links {
+    list-style: none;
+    display: flex;
+    gap: 20px;
+}
+
+.nav-links section {
+    text-decoration: none;
+    color: white;
+    font-weight: bold;
+}
+.nav-links section a{
+    text-decoration: none;
+    color: white;
+    font-weight: bold;
+}
+
+.nav-links section:hover {
+    color: #ad4e00;
+}
