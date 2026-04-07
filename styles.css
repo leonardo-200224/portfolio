@@ -1,7 +1,27 @@
+.todo{
+    display: flex;
+    justify-content: center; /* Centrado horizontal */
+    align-items: center; /* Centrado vertical, opcional */
+    min-height: 100vh; /* Para centrado vertical en toda la página */
+    margin: 0;
+
+}
+
+
+
+
+
+
+
 .title {
     color: rgb(255, 255, 255);
     background-color: #333;
     border-radius: 12px;
+    padding: 5px;
+    margin: 2px; 
+    /*border: 2px solid black;*/
+    
+
 }
 .cuerpo{
     background-color: #d8d8d8;
@@ -34,5 +54,5 @@
 }
 
 .nav-links section:hover {
-    color: #ad4e00;
+    -webkit-text-stroke: 0.5px rgba(127, 126, 223, 0.842);
 }
