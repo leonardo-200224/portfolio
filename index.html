@@ -1,5 +1,4 @@
 <!--portfolio-->
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,59 +9,82 @@
 
 </head>
 
-<body class="cuerpo" >
-
-    <header  class="title" >
-        <h1 >Leonardo ivan ayala perez</h1>
+<body  >
+     <!--Encabezado-->
+    <header  >
+        <img src="https://limeup.io/wp-content/uploads/2024/03/Developer.png" alt="">
+        <h1 >Leonardo Ivan Ayala Perez</h1>
+        <p class="newp">Software Developer | Systems Engineer | <a href="https://blog.gudog.com/wp-content/uploads/2014/11/GIF-14.gif">Mascotas</a>  </p>
     </header>
 
     <main > 
-        <nav class="navbar">
-            <ul class="nav-links">
-            <section>
-                <h2>Sobre mi</h2>
-                <p>Soy una persona <p style="color:rgb(134, 134, 134)">apasionada por aprender</p> y crecer cada día. Me gusta resolver <strong>problemas</strong>, colaborar en equipo y aportar valor donde quiera que esté.</p>
+        <nav >
+            <ul >
+            <!--sobre mi-->
+            <section id="bio">
+                <h2>About Me</h2>
+                <p>Soy una persona apasionada por aprender y crecer cada día. Me gusta resolver <strong>problemas</strong>, colaborar en equipo y aportar valor donde quiera que esté.</p>
             </section>
 
-            <section>
-                <h2>Proyectos</h2>
-                <ul>
-                    <li><a href="index.html">Proyecto1</a></li>
-                    <li><a href="index.html">Proyecto2</a></li>
-                    <li><a href="index.html">Proyecto3</a></li>
-                    <li><a href="index.html">Proyecto4</a></li>
-                </ul>
-
-            </section>
-
-            <section> 
+            <!--contacto-->
+            <section id="work"> 
                 <h2>Contacto</h2>
 
-                    <form action="" >
-                    <label for="nombre">Nombre:</label><br>
-                    <input type="text" name="nombre" required><br><br>
+                    <form action="" class="contact-form" >
+                    <label for="nombre" >Nombre:</label><br>
+                    <input type="text" name="nombre" required class="form-input"><br><br>
 
-                    <label for="email">Correo:</label><br>
-                    <input type="email" name="email" required><br><br>
+                    <label for="email" >Correo:</label><br>
+                    <input type="email" name="email" required class="form-input"><br><br>
 
-                    <label for="mensaje">Mensaje:</label><br>
-                    <textarea id="mensaje" name="mensaje" rows="4" required></textarea><br><br>
+                    <label for="mensaje" >Mensaje:</label><br>
+                    <textarea id="mensaje" name="mensaje" rows="4" required class="form-input"></textarea><br><br>
 
-                    <button type="submit">Enviar</button>
+                    <button type="submit" class="form-submit">Enviar</button>
                     </form>
 
             </section>
-
-            <section> 
-            <h2><a href="pets.html">Mascotas</a></h2>
-                <p>------------</p>          
-            </section>
-
-
             </ul>
+
+            <!--proyectos-->
+            <section  >
+                <h2>Proyectos</h2>
+                <ul>
+                    <li class="project" id="project1"><a href="index.html">Proyecto1</a></li>
+                    <li class="project" id="project1"><a href="index.html">Proyecto2</a></li>
+                    <li class="project" id="project1"><a href="index.html">Proyecto3</a></li>
+                    <li class="project" id="project1"><a href="index.html">Proyecto4</a></li>
+                    <li class="project" id="project1"><a href="index.html">Proyecto1</a></li>
+                    <li class="project" id="project1"><a href="index.html">Proyecto2</a></li>
+                    <li class="project" id="project1"><a href="index.html">Proyecto3</a></li>
+                    <li class="project" id="project1"><a href="index.html">Proyecto4</a></li>
+                    <li class="project" id="project1"><a href="index.html">Proyecto1</a></li>
+                    <li class="project" id="project1"><a href="index.html">Proyecto2</a></li>
+                    <li class="project" id="project1"><a href="index.html">Proyecto3</a></li>
+                    <li class="project" id="project1"><a href="index.html">Proyecto4</a></li>
+                    <li class="project" id="project1"><a href="index.html">Proyecto1</a></li>
+                    <li class="project" id="project1"><a href="index.html">Proyecto2</a></li>
+                    <li class="project" id="project1"><a href="index.html">Proyecto3</a></li>
+                    <li class="project" id="project1"><a href="index.html">Proyecto4</a></li>
+                    <li class="project" id="project1"><a href="index.html">Proyecto1</a></li>
+                    <li class="project" id="project1"><a href="index.html">Proyecto2</a></li>
+                    <li class="project" id="project1"><a href="index.html">Proyecto3</a></li>
+                    <li class="project" id="project1"><a href="index.html">Proyecto4</a></li>
+                </ul>
+                
+            <!--Google map-->
+            <section class="contenedor-mapa">
+                <iframe 
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3168.625!2d-122.084!3d37.422!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMzfCsDI1JzE5LjIiTiAxMjLCsDA1JzAyLjQiVw!5e0!3m2!1ses!2ses!4v1600000000000!5m2!1ses!2ses" >
+                </iframe>
+           </section>
+      
         </nav>
     </main>
 
+
+
+    <!--pie de pagina-->
     <footer>
         <p>&copy;Porfolio Leonardo Ayala 2026</p>
     </footer>
