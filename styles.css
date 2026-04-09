@@ -115,3 +115,10 @@ nav{
 .form-submit:hover {
   background-color: #218838; /* Cambio de color al pasar el mouse */
 }
+
+body{
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    margin: 0;
+}
