@@ -9,17 +9,18 @@
     --color-3: #5C4F4A;
     --color-4: #5C766D;
 }
-body{
-    padding: 20vh;
-    padding-top: 15vh;
-}
+
 .title{
+    display: flex;
+    justify-content: center;
+    justify-content:space-between;
     text-align: center;
     background-color: var(--color-3);
-    border-radius: 19px;
     color: var(--color-2);
-    
-
+    padding: 12px;
+}
+.title h1{
+        text-shadow: 2px 12px 6px #000000;
 }
 .title a{
     text-decoration: none;
@@ -27,41 +28,52 @@ body{
     border-radius: 10px;
     padding: 3px;  
 }
-.title h1{
-    font-size: 80px;
-}
 
 
 .galeria{
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    grid-gap: 10px;
-    grid-auto-rows: minmax(100px, auto);
-    place-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 50px;
+    padding: 60px;
 }
-
-.perro img,
-.gato img,
-.conejo img {
-    width: 100%;
-    height: 70%;
-}
-
-.perro,
-.gato,
-.conejo{
-    width: 60% auto;
-    height: 70%;
-
-
-
-
-}
-h2,
-p{
-    background-color: var(--color-4);
-    border-radius: 22px;
+.gato{
+    flex: 1;
+    box-shadow: 12px 12px 3px #b3c1bc;
     padding: 12px;
-    height: 69px;
+    max-width: 300px;
+    min-width: 220px;
+    border-radius: 12px;
+}
+.perro{
+    flex: 1;
+    box-shadow: 12px 12px 3px #9ba6a2;
+    padding: 12px;
+    max-width: 300px;
+    min-width: 220px;
+    border-radius: 12px;
+}
+
+.conejo{
+    flex: 1;
+    box-shadow: 12px 12px 3px #a0ada8;
+    padding: 12px;
+    max-width: 300px;
+    min-width: 220px;
+    border-radius: 12px;
+}
+img{
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 10px;
+
+}
+
+/*Estilo pie de pagina*/
+footer {
+    background-color: var(--color-3);
     color: var(--color-2);
+    text-align: center;
+    padding: 10px;
 }
