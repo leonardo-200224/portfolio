@@ -19,11 +19,37 @@ body{
 }
 
 /* Encabezado*/
-header {
-    text-align: center;
-    padding: 130px;
+.title {
+    display: grid;
+    grid-template-rows: repeat(5,1fr);
+    place-items: center;
+    min-height: 100vh;
     background-color:var(--color-4);   
     color: var(--color-2);
+    text-align: center;
+}
+
+
+.barra_navegacion{
+  display:flex ;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  place-items: center;
+  padding: 12px;
+  background-color: var(--color-2);
+  color: var(--color-4);
+  gap: 12px;
+}
+.barra_navegacion ul li{
+  list-style: none;
+}
+.barra_navegacion ul{
+  display: flex;
+  gap: 12px;
+}
+
+.profecion{
+  font-size: 30px;
 }
 header a{
 
