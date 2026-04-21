@@ -28,6 +28,9 @@
     border-radius: 10px;
     padding: 3px;  
 }
+.title a:hover{
+    color: var(--color-1);
+}
 
 
 .galeria{
