@@ -1,20 +1,23 @@
 <!--portfolio-->
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portfolio</title>
     <link rel="stylesheet" href="styles.css">
-    <link rel="icon" sizes="32x32" href="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSTWtvXafugbAJN3LW1pSWSaKuVtg5W88jRuA&s">
+    <link rel="icon" sizes="32x32"
+        href="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSTWtvXafugbAJN3LW1pSWSaKuVtg5W88jRuA&s">
 
 </head>
 
-<body  >
+<body>
 
-     <!--Encabezado-->
-    <header  >
+    <!--Encabezado-->
+    <header>
         <nav class="barra_navegacion">
+            <button id="bmenu" onclick="showMenu()">☰</button>
             <h2> 𝓐 </h2>
             <ul>
                 <li><a href="index.html">Inicio</a></li>
@@ -25,62 +28,83 @@
         </nav>
 
         <div class="title">
-            <H2>𓆩𓆪</H2>
-            <h1 > Leonardo Ivan Ayala Perez</h1>
-            <p class="profecion">Software Developer | Systems Engineer   </p>
+
+            <nav>
+                <H2>𓆩𓆪</H2>
+                <h1> Leonardo Ivan Ayala Perez</h1>
+                <p class="profecion">Software Developer | Systems Engineer </p>
+            </nav>
+
         </div>
     </header>
 
-    <main class="cuerpo"> 
+    <main class="cuerpo">
 
-            <!--sobre mi-->
-            <section class="descripcion" id="descripcion">
-                <h2>About Me</h2>
-                <p>Soy una persona apasionada por aprender y crecer cada día. Me gusta resolver <strong>problemas</strong>, colaborar en equipo y aportar valor donde quiera que esté.</p>
-            </section>
+        <!--sobre mi-->
+        <section class="descripcion" id="descripcion">
+            <h2>About Me</h2>
+            <p>Soy una persona apasionada por aprender y crecer cada día. Me gusta resolver <strong>problemas</strong>,
+                colaborar en equipo y aportar valor donde quiera que esté.</p>
+        </section>
 
-            <!--contacto-->
-            <section id="contacto"> 
-                <h2>Contacto</h2>
 
-                    <form action="" class="contact-form" >
-                    <label for="nombre" >Nombre:</label><br>
-                    <input type="text" name="nombre" required class="form-input"><br><br>
+        <!--contacto-->
+        <section id="contacto">
+            <h2>Contacto</h2>
 
-                    <label for="email" >Correo:</label><br>
-                    <input type="email" name="email" required class="form-input"><br><br>
+            <form action="" class="contact-form">
+                <label for="nombre">Nombre:</label><br>
+                <input type="text" name="nombre" required class="form-input"><br><br>
 
-                    <label for="mensaje" >Mensaje:</label><br>
-                    <textarea id="mensaje" name="mensaje" rows="4" required class="form-input"></textarea><br><br>
+                <label for="email">Correo:</label><br>
+                <input type="email" name="email" required class="form-input"><br><br>
 
-                    <button type="submit" class="form-submit">Enviar</button>
-                    </form>
+                <label for="mensaje">Mensaje:</label><br>
+                <textarea id="mensaje" name="mensaje" rows="4" required class="form-input"></textarea><br><br>
 
-            </section>
+                <button type="submit" class="form-submit">Enviar</button>
+            </form>
 
-            <!--proyectos-->
-            <section class="proyectos" id="proyectoss" >
-                <h2>Proyectos</h2>
-                    <div class="proyecto1">
-                        
-                        <h2><a href="index.html">Proyecto1</a></h2>
-                        <p>Soy una persona apasionada por aprender y crecer cada día. Me gusta resolver <strong>problemas</strong>, colaborar en equipo y aportar valor donde quiera que esté.</p>
-                        <img src="https://gurusis.com/wp-content/uploads/2025/02/proyecto-desarrollo-software3_11zon.webp" alt="">
-                    </div>
+        </section>
 
-                    <div class="proyecto2">
-                        <h2><a href="index.html">Proyecto2</a></h2>
-                        <p>Soy una persona apasionada por aprender y crecer cada día. Me gusta resolver <strong>problemas</strong>, colaborar en equipo y aportar valor donde quiera que esté.</p>
-                        <img src="https://img.freepik.com/vector-premium/gestion-tiempo-horarios-calendario-negocios_643992-14.jpg" alt="">
-                    </div>
+        <!--proyectos-->
+        
+        <section class="proyectos" id="proyectoss">
+            <h2>Proyectos</h2>
+            <div class="proyecto1">
 
-            </section>
+                <h2><a href="index.html">Proyecto1</a></h2>
+                <p>Soy una persona apasionada por aprender y crecer cada día. Me gusta resolver
+
+                    <strong>problemas</strong>, colaborar en equipo y aportar valor donde quiera que esté.
+                </p>
+                <figure>
+                    <img src="https://gurusis.com/wp-content/uploads/2025/02/proyecto-desarrollo-software3_11zon.webp"
+                        alt="">
+                </figure>
+            </div>
+
+            <div class="proyecto2">
+                <h2><a href="index.html">Proyecto2</a></h2>
+                <p>Soy una persona apasionada por aprender y crecer cada día. Me gusta resolver
+                    <strong>problemas</strong>, colaborar en equipo y aportar valor donde quiera que esté.
+                </p>
+                <figure>
+                    <img src="https://img.freepik.com/vector-premium/gestion-tiempo-horarios-calendario-negocios_643992-14.jpg"
+                        alt="">
+                </figure>
+            </div>
+
+        </section>
     </main>
 
     <!--pie de pagina-->
     <footer>
         <p>&copy;Porfolio Leonardo Ayala 2026</p>
     </footer>
-    
+
+    <script src="script.js"></script>
+
 </body>
+
 </html>
