@@ -27,11 +27,6 @@
   
 }
 
-.title nav {
-  grid-row: 2;
-}
-
-
 .barra_navegacion {
   display: flex;
   justify-content: space-between;
@@ -42,25 +37,21 @@
   color: black;
   gap: 12px;
   border-radius: 22px;
-  border: 2px solid hsl(198, 100%, 10%);
   box-shadow: 3px 4px 9px #525252;
 
 
 }
-.nav {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
 .mascotas{
   border-radius: 20px;
   padding: 7px;
-  margin: 0;
   background-color: rgba(0, 0, 0, 0.9);
-
 }
 .mascotas a{
     color: white;
+}
+
+header a:hover {
+  color: var(--color-3);
 }
 
 .barra_navegacion ul li {
@@ -73,26 +64,20 @@
   gap: 12px;
 }
 
-.profecion {
-  font-size: 30px;
-}
-
 header a,
 header ul{
   text-decoration: none;
   color: black;
-  
 }
+
+/*::::::::*/
 .inicio{
   display: flex;
   flex-direction: column;
   gap: 12px;
-
 }
 
-header a:hover {
-  color: var(--color-3);
-}
+
 #contacta li a{
   color: var(--color-2);
   border: 2px solid ;
@@ -110,6 +95,13 @@ header a:hover {
 h1 {
   font-size: 4em;
 }
+
+.profecion {
+  font-size: 30px;
+}
+
+
+
 
 .cuerpo {
   display: grid;
