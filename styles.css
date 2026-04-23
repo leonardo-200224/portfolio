@@ -109,7 +109,14 @@ h1 {
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
-  padding-left: 4rem;
+
+}
+
+.principal{
+max-width: 400px;
+padding: 20px;
+
+
 
 }
 .descripcion{
@@ -119,7 +126,7 @@ h1 {
 
 .descripcion div{
   max-width: 600px;
-  min-width: 500px;
+  min-width: 400px;
 }
 
 .descripcion h2,
