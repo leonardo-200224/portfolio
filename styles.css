@@ -21,10 +21,10 @@ body {
 /* Encabezado*/
 .title {
   display: grid;
-  grid-template-rows: repeat(6, 1fr);
+  grid-template-rows: repeat(3, 1fr);
   place-items: center;
   min-height: 100vh;
-  background-image: url("https://images.unsplash.com/photo-1531297484001-80022131f5a1?fm=jpg&q=60&w=3000&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8cHJvZ3JhbW1pbmclMjB3YWxscGFwZXJ8ZW58MHx8MHx8fDA%3D");
+  background-image: url("img/pc.jpg");
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center;
@@ -32,6 +32,9 @@ body {
   color: var(--color-2);
   text-align: center;
   
+}
+svg{
+  width: 17px;
 }
 /*-------------*/
 .proyectos,
@@ -62,7 +65,7 @@ body {
 /*-------------*/
 
 .title nav {
-  grid-row: 3;
+  grid-row: 2;
 }
 
 
@@ -71,10 +74,30 @@ body {
   justify-content: space-between;
   flex-wrap: wrap;
   place-items: center;
-  padding: 12px;
-  background-color: var(--color-2);
+  padding: 10px;
+  background-color: white;
   color: black;
   gap: 12px;
+  border-radius: 22px;
+  border: 2px solid hsl(198, 100%, 10%);
+  box-shadow: 3px 4px 9px #525252;
+
+
+}
+.nav {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.mascotas{
+  border-radius: 20px;
+  padding: 7px;
+  margin: 0;
+  background-color: rgba(0, 0, 0, 0.9);
+
+}
+.mascotas a{
+    color: white;
 }
 
 .barra_navegacion ul li {
@@ -83,6 +106,7 @@ body {
 
 .barra_navegacion ul {
   display: flex;
+  align-items: center;    
   gap: 12px;
 }
 
@@ -90,13 +114,34 @@ body {
   font-size: 30px;
 }
 
-header a {
+header a,
+header ul{
   text-decoration: none;
   color: black;
+  
+}
+.inicio{
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
 }
 
 header a:hover {
   color: var(--color-3);
+}
+#contacta li a{
+  color: var(--color-2);
+  border: 2px solid ;
+  border-radius: 12px;
+  padding: 3px;
+  background-color: rgba(0, 0, 0, 0.3);
+}
+#contacta {
+  display: flex;
+  justify-content: center; 
+  gap: 12px;
+  list-style: none;
 }
 
 h1 {
@@ -114,32 +159,35 @@ h1 {
 
 .descripcion {
   display: flex;
-  flex-direction: column;
-   grid-column: 1 / 4;
-  justify-content: center;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  grid-column: 1 / 4;
   align-items: center;
   height: 100vh;
-  background-image: url("https://images.unsplash.com/photo-1531297484001-80022131f5a1?fm=jpg&q=60&w=3000&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8cHJvZ3JhbW1pbmclMjB3YWxscGFwZXJ8ZW58MHx8MHx8fDA%3D");
+  background-image: url("img/sobremi.jpg");
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
-  color: var(--color-2);
-  text-align: center;
+  padding-left: 4rem;
 
-
+}
+.descripcion div{
+  max-width: 600px;
+  min-width: 500px;
 
 }
 
 .descripcion h2,
 .descripcion p {
   color:var(--color-2);
-  font-size: 180%;
+  font-size: 1.2rem;
 
 }
 
 .descripcion h2 {
-  font-size: 300%;
+  font-size: 2.4rem;
 }
 
 #contacto {
@@ -156,25 +204,72 @@ h1 {
 }
 
 .proyectos {
+  display: flex;
+  flex-direction: column;
   grid-column: 1/ 4;
   grid-row: 2;
-  height: 100vh;
-  background-image: url("https://www.shutterstock.com/image-photo/uxui-development-along-web-design-260nw-2607129503.jpg");
+  height: 100%;
+  padding: 22px;
+  background-image: url("img/proyecto.jpg");
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
   color: var(--color-2);
-  text-align: center;
+  gap:17px;
+  place-items: center;
+  
+
+}
+
+.im{
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  width: 70%;
+
+}
+
+
+.proyecto1{
+  display: flex;
+  justify-content:space-around;
+  gap: 12px;
+
+}
+.caracteristicas_proyecto{
+  gap: 12px;
+  display: flex;
+  flex-direction: column;
+}
+.caracteristicas_proyecto h2 a{
+  text-decoration: none;
+  color: white;
+}
+.erramientas ul{
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.erramientas ul li{
+  background-color: rgba(0, 0, 0, 0.7);
+  padding: 5px;
+  border-radius: 12px;
+
+}
+.erramientas2 ul li{
+  background-color: rgba(0, 39, 75, 0.7);
 
 }
 
 .proyectos figure {
-  width: 30%;
+  width: 300px;
 }
 
 .proyectos img {
-  width: 100%;
+  border-radius: 12px;
+  width: 300px;
   height: auto;
 }
 

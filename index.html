@@ -16,23 +16,31 @@
 
     <!--Encabezado-->
     <header>
-        <nav class="barra_navegacion">
+        <div class="title">
+
+        <div class="nav">
+            <nav class="barra_navegacion">
             <button id="bmenu" onclick="showMenu()">☰</button>
             <h2> 𝓐 </h2>
             <ul>
                 <li><a href="index.html">Inicio</a></li>
                 <li><a href="#descripcion">Descripcion</a></li>
                 <li><a href="#proyectoss">Proyectos</a></li>
-                <li> <a href="pets.html">Mascotas</a></li>
+                <li class="mascotas"> <a href="pets.html">Mascotas</a></li>
             </ul>
         </nav>
+        </div>
 
-        <div class="title">
-
-            <nav>
+            <nav class="inicio">
                 <H2>𓆩𓆪</H2>
                 <h1> Leonardo Ivan Ayala Perez</h1>
                 <p class="profecion">Software Developer | Systems Engineer </p>
+
+                <ul id="contacta">
+                    <li><a href="">❏ GitHub</a></li>
+                    <li><a href="">❏ Linkeln</a></li>
+                    <li><a href="">❏ CV</a></li>
+                </ul>
             </nav>
 
         </div>
@@ -42,9 +50,16 @@
 
         <!--sobre mi-->
         <section class="descripcion" id="descripcion">
+            <div>
             <h2>About Me</h2>
-            <p>Soy una persona apasionada por aprender y crecer cada día. Me gusta resolver <strong>problemas</strong>,
-                colaborar en equipo y aportar valor donde quiera que esté.</p>
+            <hr> <br><br>
+            <p>Soy Ingeniero de Sistemas en formación y Coder en Riwi, enfocado en el desarrollo web y la creación de soluciones funcionales. <br><br>
+            Trabajo con tecnologías como HTML, CSS, JavaScript y MySQL, aplicando lógica de programación y resolución de problemas para construir aplicaciones eficientes.<br><br>
+            Tengo conocimientos en análisis de requerimientos y manejo de datos con Excel, y actualmente estoy fortaleciendo mis habilidades en Power BI y análisis de datos.<br><br>
+            Busco crecer como Software Developer participando en proyectos desafiantes donde pueda aportar valor y seguir mejorando mis habilidades técnicas.</p>
+
+            </div>
+            <div></div>
         </section>
 
 
@@ -70,31 +85,72 @@
         <!--proyectos-->
         
         <section class="proyectos" id="proyectoss">
+            <div class="im">
+
+            <div>
             <h2>Proyectos</h2>
+            <hr> <br><br>
+            </div>
+
+
             <div class="proyecto1">
-
-                <h2><a href="index.html">Proyecto1</a></h2>
-                <p>Soy una persona apasionada por aprender y crecer cada día. Me gusta resolver
-
-                    <strong>problemas</strong>, colaborar en equipo y aportar valor donde quiera que esté.
-                </p>
                 <figure>
-                    <img src="https://gurusis.com/wp-content/uploads/2025/02/proyecto-desarrollo-software3_11zon.webp"
-                        alt="">
+                    <img src="img/ingles.jpeg"alt="">
                 </figure>
+                <div class="caracteristicas_proyecto">
+                <h2><a href="index.html">EnglishDeveloper</a></h2>
+                <div class="erramientas">
+                    <ul>
+                        <li>HTML</li>
+                        <li>CSS</li>
+                        <li>PYTHON</li>
+                        <li>JAVASCRIP</li>
+                    </ul>
+                </div>
+                <p>I developed a personal portfolio website using HTML and CSS. The project showcases my skills, projects, and contact information in a clean and responsive layout. I focused on structure, styling, and user-friendly design to present my work as a software developer.</p>
+                
+                <div class="erramientas erramientas2">
+                    <ul>
+                        <li>Ver Demo</li>
+                        <li>Detalles</li>
+                        <li>Codigo</li>
+                    </ul>
+                </div>
+                </div>
+
             </div>
 
-            <div class="proyecto2">
-                <h2><a href="index.html">Proyecto2</a></h2>
-                <p>Soy una persona apasionada por aprender y crecer cada día. Me gusta resolver
-                    <strong>problemas</strong>, colaborar en equipo y aportar valor donde quiera que esté.
-                </p>
+            <div class="proyecto1">
                 <figure>
-                    <img src="https://img.freepik.com/vector-premium/gestion-tiempo-horarios-calendario-negocios_643992-14.jpg"
-                        alt="">
+                    <img src="img/inventario_python.jpeg"alt="">
                 </figure>
+                <div class="caracteristicas_proyecto">
+                <h2><a href="index.html">Weekly Inventory</a></h2>
+                <div class="erramientas">
+                    <ul>
+                        <li>HTML</li>
+                        <li>CSS</li>
+                        <li>PYTHON</li>
+                        <li>JAVASCRIP</li>
+                    </ul>
+                </div>
+                <p>A command-line interface (CLI)-based inventory management system developed in Python as part of a learning process. The system evolves weekly, incorporating new features and improving its structure.</p>
+                
+                <div class="erramientas erramientas2">
+                    <ul>
+                        <li>Ver Demo</li>
+                        <li>Detalles</li>
+                        <li>Codigo</li>
+                    </ul>
+                </div>
+                </div>
+
             </div>
 
+            
+
+
+            </div>
         </section>
     </main>
 
