@@ -5,7 +5,7 @@ function showMenu() {
     menu.classList.toggle("active");
 
     if (menu.classList.contains("active")) {
-        boton.innerText = "X";
+        boton.innerText = "❐";
     } else {
         boton.innerText = "☰";
     }

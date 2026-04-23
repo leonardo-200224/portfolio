@@ -112,6 +112,10 @@ h1 {
   padding-left: 4rem;
 
 }
+.descripcion{
+  transition: all 0.8s ease-in-out;
+}
+
 
 .descripcion div{
   max-width: 600px;
@@ -315,8 +319,12 @@ footer {
     display: flex;
     flex-direction: column;
     place-items: normal;
+    border-radius: 2px 12px 12px ;
 
+  }
 
+  .title {
+    place-items: normal;
   }
 
 }
@@ -331,10 +339,17 @@ footer {
   nav {
     position: absolute;
     border-radius: 0px 4px 4px 4px;
+ 
   }
 
   .barra_navegacion.active ul {
     display: flex;
     flex-direction: column;
+    gap: 10px;
+  }
+  .barra_navegacion.active{
+    width: 30%;
+    height: 20%;
+    z-index: 1;
   }
 }
