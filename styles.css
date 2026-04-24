@@ -351,9 +351,4 @@ footer {
     flex-direction: column;
     gap: 10px;
   }
-  .barra_navegacion.active{
-    width: 30%;
-    height: 20%;
-    z-index: 1;
-  }
 }
