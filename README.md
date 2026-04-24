@@ -1,7 +1,7 @@
 # portfolio
 # My Portfolio Project
 
-Hi! I'm Leonardo Ayala 👋
+Hi! I'm Leonardo Ayala 
 This is my personal portfolio website where I show my projects, skills, and a little about me.
 
 ---
