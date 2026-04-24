@@ -100,14 +100,6 @@ git clone https://github.com/your-username/your-repo.git
 * Make the contact form functional (backend)
 * Add more projects
 
----
-
-## Contact Me
-
-* GitHub: (add your link)
-* LinkedIn: (add your link)
-
----
 
 ##  Author
 
