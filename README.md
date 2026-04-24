@@ -20,11 +20,11 @@ The goal is to present my work as a Software Developer and practice my frontend 
 
 ##  Features
 
-* Responsive navigation menu (mobile friendly 📱)
+* Responsive navigation menu (mobile friendly )
 * About Me section
 * Projects showcase
 * Contact form
-* Extra page about my pets 🐾
+* Extra page about my pets 
 * Clean and modern design
 
 ---
@@ -58,7 +58,7 @@ git clone https://github.com/your-username/your-repo.git
 
 ---
 
-## 💻 What I Learned
+##  What I Learned
 
 * How to structure a web page with HTML
 * Styling using CSS (flexbox, responsive design)
