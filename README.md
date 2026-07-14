@@ -1,4 +1,4 @@
-# portfolio
+## portfolio
 # My Portfolio Project
 
 Hi! I'm Leonardo Ayala 
