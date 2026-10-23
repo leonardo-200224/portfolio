@@ -1,108 +1,41 @@
-## portfolio
-# My Portfolio Project
+# Portafolio de Leonardo Ayala
 
-Hi! I'm Leonardo Ayala 
-This is my personal portfolio website where I show my projects, skills, and a little about me.
-
----
-
-##  About the Project
-
-This project is a simple and responsive portfolio website built with:
-
-* HTML
-* CSS
-* JavaScript
-
-The goal is to present my work as a Software Developer and practice my frontend skills.
-
----
-
-##  Features
-
-* Responsive navigation menu (mobile friendly )
-* About Me section
-* Projects showcase
-* Contact form
-* Extra page about my pets 
-* Clean and modern design
-
----
-
-##  Project Structure
+Sitio estático (HTML, CSS y JavaScript, sin compilar ni instalar nada), en español e inglés.
+Las librerías se cargan desde CDN: Three.js (3D), GSAP con ScrollTrigger (animaciones de scroll) y Lenis (desplazamiento suave).
 
 ```
- project
-│── index.html        # Main page
-│── pets.html         # Secondary page (pets)
-│── styles.css        # Main styles
-│── styles_pets.css   # Styles for pets page
-│── script.js         # JavaScript (menu toggle)
-│── img/              # Images
-│── README.md         # Project documentation
+index.html            La página
+404.html              Página para enlaces que no existen
+assets/styles.css     Estilos (Unbounded, Geist y Geist Mono)
+assets/main.js        Datos de contacto, idioma, terminal, chat, proyectos de GitHub y animaciones
+assets/escena.js      Escena 3D del chip con pulsos de corriente
+assets/mascota.js     Volt, la mascota 3D: cara animada, expresiones, gestos y física de resortes
+assets/favicon.svg    Ícono de la pestaña
+assets/og-image.png   Imagen que sale al compartir el enlace (LinkedIn, WhatsApp)
 ```
 
----
+## Cosas para probar
 
-##  How to Use
+- Haz clic en Volt para abrir el chat. Si le das 5 clics rápidos, se marea.
+- Si no mueves el mouse por 14 segundos, Volt se duerme.
+- En la terminal: `help`, `github` (datos en vivo) y `sudo contratar`.
+- El código Konami (↑ ↑ ↓ ↓ ← → ← → B A) en cualquier parte hace bailar a Volt.
+- El botón del parlante activa sonidos sintetizados (vienen apagados).
 
-1. Clone this repository:
+## Datos de contacto
 
+Están en el bloque `CONTACTO` al principio de `assets/main.js`. Ya tiene LinkedIn y GitHub; lo que quede vacío no aparece.
+Para agregar la hoja de vida, copia el PDF en `assets/` y pon su ruta en `cv`.
+
+## Publicado en
+
+https://leonardo-200224.github.io/portfolio/ (repositorio `leonardo-200224/portfolio`, GitHub Pages desde `main` / raíz).
+Para actualizarlo, sube los cambios a la rama `main` y GitHub Pages lo republica en uno o dos minutos.
+
+## Verlo en tu equipo
+
+```bash
+npx http-server . -p 4321
 ```
-git clone https://github.com/your-username/your-repo.git
-```
 
-2. Open the project folder
-
-3. Run `index.html` in your browser
-
----
-
-##  What I Learned
-
-* How to structure a web page with HTML
-* Styling using CSS (flexbox, responsive design)
-* Basic JavaScript for interactivity
-* Organizing a project for GitHub
-
----
-
-##  Pages
-
-###  Home
-
-* Introduction
-* Navigation menu
-* Contact links
-
-###  About Me
-
-* Information about my skills and goals
-
-###  Projects
-
-* Portfolio projects with description and tools used
-
-### Contact
-
-* Simple contact form
-
-###  Pets Page
-
-* Extra fun page with animals
-
----
-
-## Future Improvements
-
-* Add real links (GitHub, LinkedIn, CV)
-* Improve animations
-* Make the contact form functional (backend)
-* Add more projects
-
-
-##  Author
-
-Leonardo Ayala - 2026
-
-https://leonardo-200224.github.io/portfolio/ 
+Y abre http://localhost:4321.
