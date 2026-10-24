@@ -47,7 +47,7 @@ const EN = {
   'c4.texto':'On a job site, an expired medical exam or heights course means someone can’t work. Now the system checks every day, emails a warning before anything expires and issues employment certificates.',
   'web.etq':'Web design & development','web.titulo':'Sites for real businesses',
   'web.intro':'Designed and built from scratch for small businesses. These are real screenshots; brands are hidden to protect each client’s privacy.',
-  'web.pista':'Hover to pause the scroll','real.sello':'Real screenshot · sample data','real.sello2':'Real workbook · fictional employees',
+  'web.pista':'Hover to pause the scroll','real.sello':'Real screenshot · sample data','real.sello2':'Real workbook · fictional employees','real.sello3':'Real workbook · fictional staff',
   'gh.etq':'Open source','gh.titulo':'On my GitHub','gh.filtrar':'Filter projects','gh.todos':'All','gh.vertodos':'See all 48 repositories',
   'term.etq':'Interactive','term.titulo':'Ask the terminal','term.intro':'Type a command or tap one of the buttons. Try help.',
   'herr.etq':'Tools','herr.titulo':'What I build with',

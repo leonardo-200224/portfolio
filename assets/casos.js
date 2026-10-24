@@ -191,6 +191,8 @@ const CASOS = [
     titulo: ['Alertas de vencimientos', 'Expiration alerts'],
     lema: ['Que nadie se quede sin poder subir a la obra por un papel vencido.', 'So nobody is kept off the job site by an expired document.'],
     stack: 'Excel · VBA · Windows Task Scheduler · Email',
+    captura: 'img/alertas/dashboard.jpg',
+    capturaNota: ['El libro real, con personal ficticio', 'The real workbook, with fictional staff'],
     nodos: [
       {id: 'tarea', t: ['Tarea programada', 'Scheduled task'], s: ['Todos los días', 'Every day'], c: 0, f: 1},
       {id: 'libro', t: ['Libro de personal', 'Staff workbook'], s: ['Excel · VBA', 'Excel · VBA'], c: 1, f: 1, clave: true},
