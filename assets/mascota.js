@@ -380,7 +380,7 @@ const FACETAS = [
   {re: /contact|correo|email|escrib|write|linkedin|contrat|hire|whatsapp|llam|call|reach/, hacer: () => { vestir('audifonos', 6); pantallaModo('icono', 2.5, '✉'); }},
   {re: /magia|magic|abracadabra|secreto|secret|truco|trick/, hacer: () => { vestir('mago', 7); magia(); }},
   {re: /chever|cool|genial|awesome|increible|amazing|wow/, hacer: () => vestir('sol', 6)},
-  {re: /gracias|thank|baila|dance|fiesta|party|celebr|excelente|excellent|bonito|🎉/, hacer: () => { vestir('fiesta', 5); magia(); }},
+  {re: /gracias|thank|baila|dance|fiesta|party|celebr|excelente|excellent|bonito/, hacer: () => { vestir('fiesta', 5); magia(); }},
   {re: /rapid|fast|poder|power|super|heroe|hero|salv|rescue/, hacer: () => vestir('capa', 6)}
 ];
 function reaccionar(texto){
@@ -396,8 +396,8 @@ function reaccionar(texto){
 // Cada tanto, sin que nadie se lo pida, Volt se cambia de ropa por arte de magia.
 const CAMBIOS = ['mago', 'capa', 'admin', 'sol', 'gafas', 'audifonos', 'casco'];
 const FRASES_CAMBIO = {
-  mago: ['¡Abracadabra! ✨', 'Abracadabra! ✨'], capa: ['¡Súper Volt al rescate! 🦸', 'Super Volt to the rescue! 🦸'],
-  admin: ['Modo administrador: revisando el sitio. 🗂️', 'Admin mode: checking the site. 🗂️'], sol: ['Hoy amanecí con estilo. 😎', 'Feeling stylish today. 😎']
+  mago: ['¡Abracadabra!', 'Abracadabra!'], capa: ['¡Súper Volt al rescate!', 'Super Volt to the rescue!'],
+  admin: ['Modo administrador: revisando el sitio.', 'Admin mode: checking the site.'], sol: ['Hoy amanecí con estilo.', 'Feeling stylish today.']
 };
 function cambioDeRopa(){
   const ahora = performance.now();
@@ -497,7 +497,7 @@ function ponerExpresion(nombre, segundos = 2){
 function hacerGesto(nombre){ gesto = nombre; gestoInicio = performance.now(); }
 // Por un rato mira hacia un punto de la pantalla en vez de seguir el puntero.
 let mirada = null, miradaHasta = 0;
-function mirarA(x, y, segundos = 2.5){ mirada = {x, y}; miradaHasta = performance.now() + segundos * 1000; }
+function mirarA(x, y, segundos = 2.5){ mirada = {x, y}; miradaHasta = performance.now() + segundos * 1000; despertar(); }
 
 // ------------------------------------------------------------------ cara
 function rr(x, y, w, h, rad){
@@ -812,7 +812,7 @@ function cuadro(){
 
   // Inactividad: se duerme. De madrugada se duerme casi enseguida.
   const limiteSueno = momento === 'madrugada' ? 4000 : 14000;
-  if(ahora - ultimoMovimiento > limiteSueno && expresion === 'normal' && !hablando) ponerExpresion('dormido', 0);
+  if(ahora - ultimoMovimiento > limiteSueno && expresion === 'normal' && !hablando && !window.Equipo?.ocupado) ponerExpresion('dormido', 0);
   if(expresion !== 'normal' && ahora > expresionHasta) expresion = 'normal';
 
   // Parpadeo natural.
@@ -941,8 +941,8 @@ function saludarSegunLaHora(){
   const saludos = {
     manana: [en ? 'Good morning! I’m Volt, Leonardo’s assistant. Click me to chat.' : '¡Buenos días! Soy Volt, el asistente de Leonardo. Haz clic en mí para hablar.', 'feliz', 'saludar'],
     tarde: [en ? 'Hi! I’m Volt, Leonardo’s assistant. Click me to chat.' : '¡Hola! Soy Volt, el asistente de Leonardo. Haz clic en mí para hablar.', 'feliz', 'saludar'],
-    noche: [en ? `Good evening! It’s ${h} in Colombia and Leonardo is in class at Riwi. I’ve got you covered. 🎓` : `¡Buenas noches! Son las ${h} en Colombia y Leonardo está en clase en Riwi. Yo te atiendo. 🎓`, 'guino', 'saludar'],
-    madrugada: [en ? `Zzz… oh, hi! It’s ${h} in Colombia and Leonardo is asleep. I can still help you. 😴` : `Zzz… ¡ah, hola! Son las ${h} en Colombia y Leonardo duerme. Igual yo te atiendo. 😴`, 'sorpresa', null]
+    noche: [en ? `Good evening! It’s ${h} in Colombia and Leonardo is in class at Riwi. I’ve got you covered.` : `¡Buenas noches! Son las ${h} en Colombia y Leonardo está en clase en Riwi. Yo te atiendo.`, 'guino', 'saludar'],
+    madrugada: [en ? `Zzz… oh, hi! It’s ${h} in Colombia and Leonardo is asleep. I can still help you.` : `Zzz… ¡ah, hola! Son las ${h} en Colombia y Leonardo duerme. Igual yo te atiendo.`, 'sorpresa', null]
   };
   const [texto, ex, ge] = saludos[momento];
   decir(texto, {expresion: ex, gesto: ge, segundos: 6});
@@ -956,7 +956,7 @@ addEventListener('keydown', e => {
   if(konami === KONAMI.length){
     konami = 0;
     hacerGesto('bailar'); explotarChispas(36);
-    decir(esEN() ? 'Secret code unlocked! 🕺' : '¡Código secreto desbloqueado! 🕺', {expresion: 'amor', segundos: 4});
+    decir(esEN() ? 'Secret code unlocked!' : '¡Código secreto desbloqueado!', {expresion: 'amor', segundos: 4});
   }
 });
 

@@ -477,14 +477,14 @@ const COMANDOS = {
     if(!window.Equipo.ocupado) setTimeout(() => window.Equipo.alguna(), 600);
     return [[L('El equipo de Volt:', 'Volt’s team:'), 'acento'], ...window.Equipo.miembros.map(a => `  ▸ ${a.nombre.padEnd(8)} ${L(a.rol[0], a.rol[1])}`), [L('Mira la página: alguno va a salir a trabajar.', 'Watch the page: one of them is about to get to work.'), 'ok']];
   },
-  volt: () => { window.Volt?.decir(L('¿Me llamaste? Estoy aquí abajo. 👋', 'You called? I’m down here. 👋'), {expresion: 'feliz', gesto: 'saludar'}); return [L('Volt fue notificado. Míralo.', 'Volt was notified. Look at him.')]; },
-  whoami: () => [L('un visitante con buen gusto 😎', 'a visitor with great taste 😎')],
+  volt: () => { window.Volt?.decir(L('¿Me llamaste? Estoy aquí abajo.', 'You called? I’m down here.'), {expresion: 'feliz', gesto: 'saludar'}); return [L('Volt fue notificado. Míralo.', 'Volt was notified. Look at him.')]; },
+  whoami: () => [L('un visitante con buen gusto', 'a visitor with great taste')],
   ls: () => ['sobre.txt  proyectos/  stack.json  riwi.log  contacto.md  .secreto'],
   date: () => [new Date().toLocaleString(idioma === 'en' ? 'en-US' : 'es-CO')],
   clear: () => { term.textContent = ''; return []; },
   'sudo contratar': () => {
     window.Volt?.celebrar();
-    window.Volt?.decir(L('¡Excelente decisión! 🎉', 'Excellent decision! 🎉'), {expresion: 'amor'});
+    window.Volt?.decir(L('¡Excelente decisión!', 'Excellent decision!'), {expresion: 'amor'});
     lluviaDeChispas();
     return [['[sudo] ' + L('acceso concedido', 'access granted'), 'ok'], L('Iniciando proceso de contratación…', 'Starting hiring process…'), [L('▸ Siguiente paso: escríbele por LinkedIn.', '▸ Next step: message him on LinkedIn.'), 'acento']];
   },
@@ -560,22 +560,22 @@ const INTENCIONES = [
     }[m];
     return {texto: L(`Aquí son las ${h} en Colombia (UTC-5). ${frase}`, `It’s ${h} in Colombia (UTC-5). ${frase}`), ex: m === 'madrugada' ? 'dormido' : 'feliz'};
   }},
-  {re:/volt|robot|mascota|qui[eé]n eres|who are you|are you/, r: () => ({texto: L('Soy Volt 🤖. Estoy hecho con Three.js: mi cara es un canvas que se redibuja 60 veces por segundo y me muevo con física de resortes. Leonardo me construyó para este portafolio.', 'I’m Volt 🤖. I’m made with Three.js: my face is a canvas redrawn 60 times per second and I move with spring physics. Leonardo built me for this portfolio.'), ex:'feliz'})},
-  {re:/hola|hello|\bhi\b|buenas|hey|saludos/, r: () => ({texto: L('¡Hola! 👋 Pregúntame por los proyectos, las tecnologías o cómo contactar a Leonardo.', 'Hi! 👋 Ask me about projects, tech stack or how to reach Leonardo.'), ex:'feliz', ge:'saludar'})},
+  {re:/volt|robot|mascota|qui[eé]n eres|who are you|are you/, r: () => ({texto: L('Soy Volt. Estoy hecho con Three.js: mi cara es un canvas que se redibuja 60 veces por segundo y me muevo con física de resortes. Leonardo me construyó para este portafolio.', 'I’m Volt. I’m made with Three.js: my face is a canvas redrawn 60 times per second and I move with spring physics. Leonardo built me for this portfolio.'), ex:'feliz'})},
+  {re:/hola|hello|\bhi\b|buenas|hey|saludos/, r: () => ({texto: L('¡Hola! Pregúntame por los proyectos, las tecnologías o cómo contactar a Leonardo.', 'Hi! Ask me about projects, tech stack or how to reach Leonardo.'), ex:'feliz', ge:'saludar'})},
   {re:/proyect|project|trabaj|work|sistema|hizo|built/, r: () => ({texto: L('Tiene 4 sistemas en producción: un cotizador web, un lector de facturas con IA, una nómina de 55 personas y alertas de vencimientos. En GitHub hay más: Dormify, RiwiMediCare API, GestionCall…', 'He has 4 systems in production: a web quoting app, an AI invoice reader, payroll for 55 employees and expiration alerts. More on GitHub: Dormify, RiwiMediCare API, GestionCall…'), ir:'#proyectos', ge:'senalar'})},
   {re:/tecnolog|stack|lenguaj|skill|herramient|tool|sabe|know|language/, r: () => ({texto: L('Backend con Node.js, TypeScript, NestJS, Python, FastAPI y PostgreSQL. Frontend con JavaScript, React y Vite. Y también Linux, Raspberry Pi y Excel con VBA.', 'Backend with Node.js, TypeScript, NestJS, Python, FastAPI and PostgreSQL. Frontend with JavaScript, React and Vite. Plus Linux, Raspberry Pi and Excel with VBA.'), ir:'#herramientas'})},
   {re:/riwi|estudi|study|formaci|educa|universi|ingenier|carrera|aprend/, r: () => ({texto: L('Se forma en Riwi, en la ruta avanzada de Node.js: Python, frontend, JavaScript, bases de datos y ahora Node.js con NestJS. Su perfil es de Ingeniería de Sistemas.', 'He trains at Riwi on the advanced Node.js track: Python, frontend, JavaScript, databases and now Node.js with NestJS. His background is Systems Engineering.'), ir:'#trayectoria'})},
   {re:/contact|contrat|hire|correo|email|mail|linkedin|vacante|escrib|reach|job/, r: () => ({texto: L('¡Gran idea! Lo más rápido es escribirle por LinkedIn. También puedes ver su código en GitHub.', 'Great idea! The fastest way is LinkedIn. You can also check his code on GitHub.'), links: enlaces(), ex:'amor', ge:'celebrar'})},
   {re:/github|repo|c[oó]digo|code/, r: () => ({texto: L(`Tiene ${reposEnVivo?.public_repos || 48} repositorios públicos. Los mejores están en la sección de GitHub.`, `He has ${reposEnVivo?.public_repos || 48} public repositories. The best ones are in the GitHub section.`), ir:'#github'})},
   {re:/chiste|joke|r[ií]e|funny|gracioso/, r: () => { const l = CHISTES[idioma]; return {texto: l[Math.floor(Math.random() * l.length)], ex:'guino'}; }},
-  {re:/baila|dance|fiesta|party/, r: () => { window.Volt?.bailar(); return {texto: L('¡Mira mis pasos! 🕺', 'Check out my moves! 🕺'), ex:'amor'}; }},
-  {re:/gracias|thank|genial|cool|incre[ií]ble|awesome/, r: () => ({texto: L('¡Con gusto! 💙 Si quieres, te llevo a contacto.', 'You’re welcome! 💙 Want me to take you to contact?'), ex:'amor', ir:'#contacto'})},
-  {re:/terminal|comando|command/, r: () => ({texto: L('La terminal está más abajo. Escribe help y prueba sudo contratar 😉', 'The terminal is further down. Type help and try sudo hire 😉'), ir:'#terminal'})}
+  {re:/baila|dance|fiesta|party/, r: () => { window.Volt?.bailar(); return {texto: L('¡Mira mis pasos!', 'Check out my moves!'), ex:'amor'}; }},
+  {re:/gracias|thank|genial|cool|incre[ií]ble|awesome/, r: () => ({texto: L('¡Con gusto! Si quieres, te llevo a contacto.', 'You’re welcome! Want me to take you to contact?'), ex:'amor', ir:'#contacto'})},
+  {re:/terminal|comando|command/, r: () => ({texto: L('La terminal está más abajo. Escribe help y prueba sudo contratar', 'The terminal is further down. Type help and try sudo hire'), ir:'#terminal'})}
 ];
 function responder(pregunta){
   const q = pregunta.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
   const intento = INTENCIONES.find(i => i.re.test(q));
-  return intento ? intento.r() : {texto: L('Mmm, eso no lo sé todavía 🤔. Prueba con: proyectos, tecnologías, Riwi o contacto.', 'Hmm, I don’t know that yet 🤔. Try: projects, tech stack, Riwi or contact.'), ex:'pensando', ge:'pensar'};
+  return intento ? intento.r() : {texto: L('Mmm, eso no lo sé todavía. Prueba con: proyectos, tecnologías, Riwi o contacto.', 'Hmm, I don’t know that yet. Try: projects, tech stack, Riwi or contact.'), ex:'pensando', ge:'pensar'};
 }
 function mensaje(texto, de){
   const m = document.createElement('div');
@@ -724,8 +724,8 @@ const FRASES_SECCION = {
   proyectos:['Estos sistemas los usa una empresa real todos los días.','A real company uses these systems every day.','feliz'],
   web:['Son capturas reales. Toca otro sitio para verlo.','These are real screenshots. Tap another site to see it.','feliz'],
   github:['Puedes filtrar por backend o frontend. ¡Pruébalo!','You can filter by backend or frontend. Try it!','guino'],
-  terminal:['Psst… escribe sudo contratar 😉','Psst… type sudo hire 😉','guino'],
-  contacto:['¿Hablamos? Leonardo responde rápido. 💙','Let’s talk? Leonardo replies fast. 💙','amor']
+  terminal:['Psst… escribe sudo contratar','Psst… type sudo hire','guino'],
+  contacto:['¿Hablamos? Leonardo responde rápido.','Let’s talk? Leonardo replies fast.','amor']
 };
 const dichas = new Set();
 function alEntrarSeccion(nombre){

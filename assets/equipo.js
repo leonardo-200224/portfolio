@@ -513,8 +513,8 @@ async function mantenimiento(objetivo){
   a.mostrar();
   sonar('boing');
   await gsap.to(a.p, {y: -a.p.alto * .5, duration: 1.5, ease: 'bounce.out'});
-  voltDice('¡Tuerca vino a revisar los tornillos! 🔧', 'Tuerca is here to check the screws! 🔧', {expresion: 'feliz'});
-  hablar(a, 'A ver… este tornillo está flojo. 🔧', 'Let’s see… this screw is loose. 🔧', 1900);
+  voltDice('¡Tuerca vino a revisar los tornillos!', 'Tuerca is here to check the screws!', {expresion: 'feliz'});
+  hablar(a, 'A ver… este tornillo está flojo.', 'Let’s see… this screw is loose.', 1900);
   for(let i = 0; i < 3; i++){
     await gsap.to(a.m.brazoDer.rotation, {z: 1.5, x: -.6, duration: .18, ease: 'power2.out'});
     await gsap.to(a.m.llave.rotation, {y: '+=3.14', duration: .25});
@@ -525,7 +525,7 @@ async function mantenimiento(objetivo){
     await gsap.to(a.m.brazoDer.rotation, {z: .2, x: 0, duration: .2});
     await esperar(150);
   }
-  hablar(a, '¡Listo! Funcionando. ✅', 'Done! Working. ✅', 1500);
+  hablar(a, '¡Listo! Funcionando.', 'Done! Working.', 1500);
   await gsap.to(a.p, {giro: Math.PI * 2, duration: .7, ease: 'power2.inOut'});
   a.p.giro = 0;
   await esperar(300);
@@ -545,8 +545,8 @@ async function limpieza(objetivo){
   Object.assign(a.p, {x: desdeIzq ? -r.left - 60 : innerWidth - r.left + 60, y: -a.p.alto * .9, vis: 1, giro: 0, salto: 0});
   a.mostrar();
   await gsap.to(a.p, {x: r.width / 2, duration: 1.6, ease: 'power2.out'});
-  voltDice('Brisa está quitando el polvo. ✨', 'Brisa is dusting things off. ✨', {expresion: 'guino'});
-  hablar(a, 'Fuuu… ¡fuera polvo! 💨', 'Whoosh… dust be gone! 💨', 1800);
+  voltDice('Brisa está quitando el polvo.', 'Brisa is dusting things off.', {expresion: 'guino'});
+  hablar(a, 'Fuuu… ¡fuera polvo!', 'Whoosh… dust be gone!', 1800);
   brillar(el, 1500);
   const fin = performance.now() + 1500;
   while(performance.now() < fin){
@@ -574,7 +574,7 @@ async function pintura(){
   Object.assign(a.p, {x: -40, y: suelo, vis: 0, giro: .6, salto: 0});
   a.mostrar();
   await aparecer(a);
-  hablar(a, 'Un toque de color… 🎨', 'A splash of color… 🎨', 1700);
+  hablar(a, 'Un toque de color…', 'A splash of color…', 1700);
   // El trazo es un SVG que sigue al título y crece detrás de Foco.
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   const ancho = Math.round(r.width + 20);
@@ -602,7 +602,7 @@ async function pintura(){
     soltar(s.x - 8, s.y + a.p.alto * .3, 4, {color, vel: 90, vida: .7, gravedad: 500});
   }
   sonar('pop');
-  voltDice('¡Quedó bonito, Foco! 🎨', 'Looks great, Foco! 🎨', {expresion: 'amor'});
+  voltDice('¡Quedó bonito, Foco!', 'Looks great, Foco!', {expresion: 'amor'});
   await gsap.to(a.p, {giro: -.6, duration: .3});
   gsap.to(a.m.brazoDer.rotation, {z: 2.4, duration: .25, yoyo: true, repeat: 3});
   await gsap.to(a.p, {salto: -24, duration: .25, yoyo: true, repeat: 1, ease: 'power2.out'});
@@ -650,8 +650,8 @@ async function fotos(){
     poner(haz, 'opacity', `${Math.min(est.sube, 1 - est.cae) * .8}`);
   });
   await gsap.to(est, {sube: 1, duration: .6, ease: 'power2.out'});
-  voltDice('Holo está colgando las fotos. 📸', 'Holo is hanging up the photos. 📸', {expresion: 'sorpresa'});
-  hablar(a, 'Proyectando la captura… 📡', 'Projecting the screenshot… 📡', 1900);
+  voltDice('Holo está colgando las fotos.', 'Holo is hanging up the photos.', {expresion: 'sorpresa'});
+  hablar(a, 'Proyectando la captura…', 'Projecting the screenshot…', 1900);
   await esperar(2200);
   await gsap.to(est, {cae: 1, duration: .6, ease: 'power2.in'});
   cHolo.quitar(); cHaz.quitar();
@@ -681,8 +681,8 @@ async function juego(){
     soltar(s.x, s.y + a.p.alto * .4, 12, {color: 0x7FE3FF, vel: 200, vida: .5, angulo: -Math.PI / 2, abanico: 2});
     sonar('boing');
     await gsap.to(a.p, {aplasta: 1, duration: .07, yoyo: true, repeat: 1});
-    if(i === 2) hablar(a, '¡No me alcanzas! ⚡', 'Can’t catch me! ⚡', 1400);
-    if(i === 1) voltDice('¡Chispa, ven acá! 😄', 'Chispa, come back here! 😄', {expresion: 'feliz', gesto: 'saludar'});
+    if(i === 2) hablar(a, '¡No me alcanzas!', 'Can’t catch me!', 1400);
+    if(i === 1) voltDice('¡Chispa, ven acá!', 'Chispa, come back here!', {expresion: 'feliz', gesto: 'saludar'});
   }
   await gsap.to(a.p, {x: izq ? innerWidth + 60 : -60, y: piso - innerHeight * .5, duration: .9, ease: 'power2.in'});
   a.ocultar();
@@ -697,7 +697,7 @@ async function organizar(){
   const r = rect(el);
   const torcida = el.animate([{rotate: '0deg'}, {rotate: '-2.2deg'}], {duration: 700, easing: 'cubic-bezier(.3,1.6,.6,1)', fill: 'forwards'});
   sonar('boing');
-  voltDice('Uy, se torció una tarjeta… ¡equipo! 🛠️', 'Oops, a card got crooked… team! 🛠️', {expresion: 'sorpresa', gesto: 'senalar'});
+  voltDice('Uy, se torció una tarjeta… ¡equipo!', 'Oops, a card got crooked… team!', {expresion: 'sorpresa', gesto: 'senalar'});
   await esperar(800);
   const yBase = Math.min(r.height * .5, innerHeight - r.top - 120);
   tuerca.ancla = foco.ancla = el;
@@ -710,7 +710,7 @@ async function organizar(){
   await gsap.to(foco.p, {x: r.width + foco.p.alto * .35, duration: .8, ease: 'power2.out'});
   hablar(tuerca, '¡A la cuenta de tres!', 'On three!', 1300);
   await esperar(1100);
-  hablar(foco, '¡Uno, dos… tres! 💪', 'One, two… three! 💪', 1400);
+  hablar(foco, '¡Uno, dos… tres!', 'One, two… three!', 1400);
   // Empujan tres veces y la tarjeta vuelve a su lugar con un rebote.
   for(let i = 0; i < 3; i++){
     gsap.to(tuerca.p, {x: '+=10', duration: .15, yoyo: true, repeat: 1});
@@ -733,11 +733,11 @@ async function organizar(){
 
 // ------------------------------------------------------------------ tocar a un ayudante
 const PRESENTACION = {
-  tuerca: ['Ese es Tuerca, nuestro ingeniero de mantenimiento. 🔧', 'That’s Tuerca, our maintenance engineer. 🔧'],
-  brisa: ['Brisa mantiene todo limpio. ¡No le gusta el polvo! 🧹', 'Brisa keeps everything clean. She hates dust! 🧹'],
-  foco: ['Foco es el pintor del equipo. Siempre tiene una idea. 💡', 'Foco is the team’s painter. Always full of ideas. 💡'],
-  chispa: ['¡La atrapaste! Chispa es pura energía. ⚡', 'You caught her! Chispa is pure energy. ⚡'],
-  holo: ['Holo es un holograma: proyecta y cuelga las fotos. 📸', 'Holo is a hologram: he projects and hangs the photos. 📸']
+  tuerca: ['Ese es Tuerca, nuestro ingeniero de mantenimiento.', 'That’s Tuerca, our maintenance engineer.'],
+  brisa: ['Brisa mantiene todo limpio. ¡No le gusta el polvo!', 'Brisa keeps everything clean. She hates dust!'],
+  foco: ['Foco es el pintor del equipo. Siempre tiene una idea.', 'Foco is the team’s painter. Always full of ideas.'],
+  chispa: ['¡La atrapaste! Chispa es pura energía.', 'You caught her! Chispa is pure energy.'],
+  holo: ['Holo es un holograma: proyecta y cuelga las fotos.', 'Holo is a hologram: he projects and hangs the photos.']
 };
 function tocar(a){
   sonar('boing');
@@ -753,15 +753,15 @@ function tocar(a){
 
 // Reunión con Volt: dos ayudantes llegan hasta él, le reportan cómo va todo y él responde.
 const REPORTES = [
-  [tuerca, ['Jefe, revisé los tornillos: todo funcionando. ✅', 'Boss, I checked the screws: all working. ✅'],
-   brisa, ['Y yo dejé todo sin polvo. ✨', 'And I dusted everything off. ✨'],
-   ['¡Gracias, equipo! Así da gusto. 💪', 'Thanks, team! Great work. 💪']],
-  [foco, ['Jefe, ¿pintamos algo hoy? 🎨', 'Boss, shall we paint something today? 🎨'],
-   chispa, ['¡Yo quiero jugar! ⚡', 'I want to play! ⚡'],
-   ['Primero el trabajo… bueno, un ratico. 😄', 'Work first… okay, just for a bit. 😄']],
-  [holo, ['Las capturas de los proyectos están en su sitio. 📸', 'The project screenshots are in place. 📸'],
-   tuerca, ['Y el sistema, al día. 🔧', 'And the system is up to date. 🔧'],
-   ['¡Excelente! Todo en orden. 🚀', 'Excellent! Everything in order. 🚀']]
+  [tuerca, ['Jefe, revisé los tornillos: todo funcionando.', 'Boss, I checked the screws: all working.'],
+   brisa, ['Y yo dejé todo sin polvo.', 'And I dusted everything off.'],
+   ['¡Gracias, equipo! Así da gusto.', 'Thanks, team! Great work.']],
+  [foco, ['Jefe, ¿pintamos algo hoy?', 'Boss, shall we paint something today?'],
+   chispa, ['¡Yo quiero jugar!', 'I want to play!'],
+   ['Primero el trabajo… bueno, un ratico.', 'Work first… okay, just for a bit.']],
+  [holo, ['Las capturas de los proyectos están en su sitio.', 'The project screenshots are in place.'],
+   tuerca, ['Y el sistema, al día.', 'And the system is up to date.'],
+   ['¡Excelente! Todo en orden.', 'Excellent! Everything in order.']]
 ];
 async function reunion(){
   const v = window.Volt?.posicion?.();
@@ -834,7 +834,7 @@ async function letra(){
     Object.assign(a.p, {x: desdeIzq ? -80 : innerWidth + 80, y: piso - 140, vis: 1, giro: 0, salto: 0});
     a.mostrar();
     await gsap.to(a.p, {x: pos.x + rh.width / 2, y: piso - a.p.alto * .55, duration: 1.4, ease: 'power2.out'});
-    hablar(a, '¡La encontré! 🔎', 'Found it! 🔎', 1500);
+    hablar(a, '¡La encontré!', 'Found it!', 1500);
     await esperar(600);
     // La lleva colgando debajo y la encaja en el hueco.
     const colgar = () => { const s = a.pantalla(); pos.x = s.x - rh.width / 2; pos.y = s.y + a.p.alto * .3; };
@@ -847,7 +847,7 @@ async function letra(){
     soltar(d.left + d.width / 2, d.top + d.height / 2, 20, {color: 0x7FE3FF, vel: 230, vida: .6});
     cLetra.quitar(); cLetra = null;
     if(el.isConnected && el.querySelector('.letra-hueco')) el.textContent = texto;
-    hablar(a, 'Listo, en su sitio. ✅', 'Done, back in place. ✅', 1700);
+    hablar(a, 'Listo, en su sitio.', 'Done, back in place.', 1700);
     await esperar(1300);
     await gsap.to(a.p, {x: desdeIzq ? innerWidth + 90 : -90, y: a.p.y - 100, duration: 1.2, ease: 'power2.in'});
     a.ocultar();
@@ -875,7 +875,7 @@ async function color(){
   const pasos = 4;
   gsap.to(a.p, {x: ro.width * .5, duration: 1.4, ease: 'none'});
   for(let k = 0; k < pasos; k++) await gsap.to(a.p, {salto: -16, duration: 1.4 / pasos / 2, yoyo: true, repeat: 1, ease: 'power2.out'});
-  hablar(a, '¿Y si la onda fuera de otro color? 🎨', 'What if the wave had another color? 🎨', 2300);
+  hablar(a, '¿Y si la onda fuera de otro color?', 'What if the wave had another color?', 2300);
   await esperar(1500);
   for(let k = 0; k < 3; k++){
     await gsap.to(a.m.brazoDer.rotation, {z: 1.6, duration: .16, yoyo: true, repeat: 1});
@@ -889,8 +889,8 @@ async function color(){
       camino.style.filter = `drop-shadow(0 0 4px ${nuevo})`;
     }
   }
-  voltDice('¡Me encanta ese color, Foco! 😍', 'Love that color, Foco! 😍', {expresion: 'amor'});
-  hablar(a, '¡Quedó brillante! ✨', 'Nice and shiny! ✨', 1600);
+  voltDice('¡Me encanta ese color, Foco!', 'Love that color, Foco!', {expresion: 'amor'});
+  hablar(a, '¡Quedó brillante!', 'Nice and shiny!', 1600);
   await gsap.to(a.p, {salto: -26, duration: .25, yoyo: true, repeat: 1, ease: 'power2.out'});
   await esperar(900);
   await gsap.to(a.p, {x: -ro.left - 80, giro: -.7, duration: 1.1, ease: 'power2.in'});
