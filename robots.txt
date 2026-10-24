@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://leonardo-200224.github.io/portfolio/sitemap.xml

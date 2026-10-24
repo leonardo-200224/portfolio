@@ -1,0 +1,434 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Leonardo Ayala | Desarrollador de software</title>
+<meta name="description" content="Leonardo Iván Ayala Pérez, desarrollador de software en Colombia. Automatiza procesos reales con Node.js, Python y PostgreSQL, y se forma en Riwi.">
+<meta name="author" content="Leonardo Iván Ayala Pérez">
+<meta name="theme-color" content="#05060A">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Leonardo Ayala | Desarrollador de software">
+<meta property="og:description" content="Sistemas que reemplazan procesos hechos a mano, una mascota 3D que conversa y una terminal interactiva.">
+<link rel="canonical" href="https://leonardo-200224.github.io/portfolio/">
+<meta property="og:url" content="https://leonardo-200224.github.io/portfolio/">
+<meta property="og:image" content="https://leonardo-200224.github.io/portfolio/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="es_CO">
+<meta property="og:locale:alternate" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+<link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.168.0/build/three.module.js" crossorigin>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "name": "Leonardo Iván Ayala Pérez",
+  "alternateName": "Leonardo Ayala",
+  "jobTitle": "Software Developer",
+  "url": "https://leonardo-200224.github.io/portfolio/",
+  "image": "https://leonardo-200224.github.io/portfolio/assets/og-image.png",
+  "email": "mailto:ayalaperezleonardo24@gmail.com",
+  "address": {"@type": "PostalAddress", "addressCountry": "CO"},
+  "sameAs": ["https://github.com/leonardo-200224", "https://www.linkedin.com/in/a-leonardo"],
+  "knowsAbout": ["Node.js", "TypeScript", "NestJS", "Python", "FastAPI", "PostgreSQL", "Process automation", "Three.js"],
+  "alumniOf": {"@type": "EducationalOrganization", "name": "Riwi", "url": "https://riwi.io"}
+}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300..900&family=Geist:wght@300..800&family=Geist+Mono:wght@400..600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300..900&family=Geist:wght@300..800&family=Geist+Mono:wght@400..600&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300..900&family=Geist:wght@300..800&family=Geist+Mono:wght@400..600&display=swap"></noscript>
+<link rel="stylesheet" href="assets/styles.css">
+<script type="importmap">
+{"imports":{
+  "three":"https://cdn.jsdelivr.net/npm/three@0.168.0/build/three.module.js",
+  "three/addons/":"https://cdn.jsdelivr.net/npm/three@0.168.0/examples/jsm/"
+}}
+</script>
+</head>
+<body class="cargando">
+
+<!-- ============ CARGA ============ -->
+<div class="loader" id="loader" aria-hidden="true">
+  <div class="loader-marca">LA</div>
+  <ul class="loader-log" id="loaderLog"></ul>
+  <div class="loader-pie"><span><span id="loaderNum">0</span>%</span><div class="loader-barra"><i id="loaderBarra"></i></div></div>
+</div>
+
+<!-- Capas fijas -->
+<canvas id="escena" aria-hidden="true"></canvas>
+<canvas id="chispas" aria-hidden="true"></canvas>
+<canvas id="volt" aria-hidden="true"></canvas>
+<button class="volt-hit" id="voltHit" type="button" aria-label="Hablar con Volt, el asistente" data-i18n-aria="volt.aria"></button>
+<div class="volt-burbuja" id="voltBurbuja" aria-live="polite"></div>
+<div class="ruido" aria-hidden="true"></div>
+
+<!-- Chat con Volt -->
+<section class="chat" id="chat" aria-label="Chat con Volt" hidden>
+  <header class="chat-cab">
+    <span class="chat-led"></span>
+    <div><b>Volt</b><small data-i18n="chat.sub">Asistente de Leonardo · en línea</small></div>
+    <button class="chat-cerrar" id="chatCerrar" type="button" aria-label="Cerrar chat" data-i18n-aria="chat.cerrar">×</button>
+  </header>
+  <div class="chat-msgs" id="chatMsgs" aria-live="polite"></div>
+  <div class="chat-chips" id="chatChips"></div>
+  <form class="chat-form" id="chatForm" autocomplete="off">
+    <label for="chatInput" class="sr" data-i18n="chat.label">Escribe una pregunta</label>
+    <input id="chatInput" type="text" maxlength="160" placeholder="Pregúntame algo…" data-i18n-ph="chat.ph">
+    <button type="submit" aria-label="Enviar" data-i18n-aria="chat.enviar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.5 21 3l-8.5 18-2-7.5z" fill="currentColor"/></svg></button>
+  </form>
+</section>
+
+<!-- Caso de estudio -->
+<div class="caso" id="caso" role="dialog" aria-modal="true" aria-labelledby="casoTitulo" hidden>
+  <div class="caso-fondo" data-cerrar></div>
+  <article class="caso-panel" data-lenis-prevent>
+    <header class="caso-barra">
+      <div class="caso-id">
+        <span class="caso-tipo" id="casoTipo"></span>
+        <h2 id="casoTitulo"></h2>
+        <p class="caso-lema" id="casoLema"></p>
+      </div>
+      <div class="caso-nav">
+        <a class="redondo caso-codigo" id="casoCodigo" href="#" target="_blank" rel="noopener" hidden><span data-i18n="caso.codigo">Ver código</span> ↗</a>
+        <button type="button" class="redondo" id="casoPrev" aria-label="Caso anterior" data-i18n-aria="caso.prev"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <button type="button" class="redondo" id="casoNext" aria-label="Caso siguiente" data-i18n-aria="caso.next"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <button type="button" class="redondo caso-cerrar" id="casoCerrar" aria-label="Cerrar caso" data-i18n-aria="caso.cerrar">×</button>
+      </div>
+    </header>
+
+    <div class="sim">
+      <!-- Escenario: la arquitectura por donde viajan los datos -->
+      <div class="sim-escenario" id="simEscenario">
+        <span class="sim-sello" id="simSello"></span>
+        <div class="sim-lienzo" id="simLienzo"></div>
+        <span class="sim-stack" id="casoStack"></span>
+      </div>
+      <!-- Relato, inspector de datos y consola -->
+      <aside class="sim-lado">
+        <div class="sim-paso" id="simPaso" aria-live="polite"></div>
+        <div class="sim-acciones" id="simAcciones"></div>
+        <div class="sim-ventana">
+          <div class="sim-tit"><i></i><span data-i18n="sim.datos">Datos en este paso</span></div>
+          <pre class="sim-datos" id="simDatos"></pre>
+        </div>
+        <div class="sim-ventana sim-ventana-log">
+          <div class="sim-tit"><i class="log"></i><span data-i18n="sim.log">Registro del sistema</span></div>
+          <ol class="sim-log" id="simLog"></ol>
+        </div>
+      </aside>
+    </div>
+
+    <footer class="sim-control">
+      <button type="button" class="redondo sim-play" id="simPlay" aria-label="Pausar"></button>
+      <div class="sim-pista" id="simPista"></div>
+      <span class="sim-ayuda" data-i18n="sim.ayuda">← → para avanzar · espacio para pausar</span>
+    </footer>
+  </article>
+</div>
+
+<!-- Circuito de progreso -->
+<nav class="circuito" id="circuito" aria-label="Progreso de la página" data-i18n-aria="circ.aria">
+  <i class="circ-linea"><b id="circProgreso"></b></i>
+</nav>
+
+<a class="saltar" href="#contenido" data-i18n="saltar">Saltar al contenido</a>
+
+<header class="nav" id="nav">
+  <a class="logo" href="#inicio" aria-label="Leonardo Ayala, inicio">
+    <!-- Las iniciales trazadas como una sola pista de circuito, con un pulso que la recorre. -->
+    <svg class="logo-svg" viewBox="0 0 58 38" aria-hidden="true">
+      <defs><linearGradient id="logoGrad" x1="0" x2="1"><stop offset="0" stop-color="#4D7CFF"/><stop offset="1" stop-color="#3FD0FF"/></linearGradient></defs>
+      <g class="logo-pista">
+        <path pathLength="100" d="M6 5V31H27L38 5L49 31"/>
+        <path pathLength="100" d="M32.5 20H43.5"/>
+      </g>
+      <path class="logo-pulso" pathLength="100" d="M6 5V31H27L38 5L49 31"/>
+      <g class="logo-pads"><circle cx="6" cy="5" r="3"/><circle cx="49" cy="31" r="3"/><circle cx="32.5" cy="20" r="2.2"/><circle cx="43.5" cy="20" r="2.2"/></g>
+    </svg>
+    <span class="logo-txt">leonardo<b>.</b>ayala</span>
+  </a>
+  <nav aria-label="Secciones" data-i18n-aria="nav.aria">
+    <a href="#sobre-mi"><span data-i18n="nav.sobre" data-scramble-hover>Sobre mí</span></a>
+    <a href="#trayectoria"><span data-i18n="nav.tray" data-scramble-hover>Trayectoria</span></a>
+    <a href="#proyectos"><span data-i18n="nav.proyectos" data-scramble-hover>Proyectos</span></a>
+    <a href="#terminal"><span data-scramble-hover>Terminal</span></a>
+    <a href="#contacto"><span data-i18n="nav.contacto" data-scramble-hover>Contacto</span></a>
+  </nav>
+  <div class="nav-btns">
+    <button class="redondo idioma" id="idioma" type="button" lang="en" aria-label="Read in English">EN</button>
+  </div>
+</header>
+
+<main id="contenido">
+
+<!-- ============ HERO ============ -->
+<section class="hero" id="inicio" data-seccion="inicio">
+  <div class="hero-txt">
+    <p class="hero-pre" data-anim="sub">
+      <svg class="osc" viewBox="0 0 36 16" aria-hidden="true"><path d="M-20 8q5-8 10 0t10 0t10 0t10 0t10 0t10 0t10 0"/></svg>
+      <span data-i18n="hero.pre">Abierto a nuevos proyectos</span>
+      <span class="hora" id="hora"></span>
+    </p>
+    <h1 class="hero-nombre" aria-label="Leonardo Ayala">
+      <span class="linea" aria-hidden="true" data-split>LEONARDO</span>
+      <span class="linea grad" aria-hidden="true" data-split>AYALA</span>
+    </h1>
+    <p class="hero-rol" data-anim="sub"><span data-i18n="hero.rol" data-scramble>Software Developer · Systems Engineering</span></p>
+    <p class="hero-lead" data-anim="sub">
+      <span data-i18n="hero.lead1">Convierto procesos hechos a mano en</span>
+      <span class="rotador" id="rotador"></span><span data-i18n="hero.lead2"> que corren solos.</span>
+    </p>
+    <div class="hero-btns" data-anim="sub">
+      <a class="btn btn-luz" href="#proyectos" data-magnetic><span data-i18n="hero.ver">Ver proyectos</span></a>
+      <a class="btn btn-borde" href="#terminal" data-magnetic><span data-i18n="hero.terminal">Abrir la terminal</span></a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ MARQUESINA ============ -->
+<div class="marquesina" aria-hidden="true">
+  <div class="mq-fila" id="mq1"></div>
+  <div class="mq-fila invertida" id="mq2"></div>
+</div>
+
+<!-- ============ SOBRE MÍ ============ -->
+<section class="seccion" id="sobre-mi" data-seccion="sobre">
+  <div class="ancho">
+    <p class="etiqueta" data-i18n="sobre.etq">Sobre mí</p>
+    <p class="manifiesto" id="manifiesto" data-i18n="sobre.texto">Soy Leonardo Iván Ayala Pérez, desarrollador de software en Colombia. Trabajo dentro de una empresa de ingeniería eléctrica convirtiendo lo que el equipo hacía a mano en sistemas que corren solos, y me formo en Riwi en la ruta avanzada de Node.js. Me gusta mezclar creatividad y tecnología: muchas ideas me llegan viendo películas o viajando.</p>
+    <div class="cifras">
+      <div class="cifra"><b><span data-contar="48" id="cifraRepos">0</span><small>+</small></b><span data-i18n="cifra.1">repositorios públicos en GitHub</span></div>
+      <div class="cifra"><b><span data-contar="4">0</span></b><span data-i18n="cifra.2">sistemas en producción en una empresa real</span></div>
+      <div class="cifra"><b><span data-contar="55">0</span></b><span data-i18n="cifra.3">personas en la nómina que liquida mi sistema</span></div>
+      <div class="cifra"><b><span data-contar="24">0</span><small>/7</small></b><span data-i18n="cifra.4">un servicio corriendo en una Raspberry Pi</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ LO QUE HAGO ============ -->
+<section class="seccion" id="especialidad" data-seccion="hago">
+  <div class="ancho">
+    <h2 class="titulo-sec"><span data-i18n="esp.titulo" data-scramble>Lo que hago</span></h2>
+    <div class="esp-grid">
+      <article class="esp-card" data-glow data-tilt>
+        <div class="esp-ico"><svg viewBox="0 0 48 48" aria-hidden="true"><rect x="8" y="8" width="32" height="32" rx="4" fill="none" stroke="currentColor" stroke-width="2"/><rect x="16" y="16" width="16" height="16" rx="2" fill="currentColor" opacity=".35"/><path d="M14 2v6M24 2v6M34 2v6M14 40v6M24 40v6M34 40v6M2 14h6M2 24h6M2 34h6M40 14h6M40 24h6M40 34h6" stroke="currentColor" stroke-width="2"/></svg></div>
+        <h3 data-i18n="esp1.titulo">Backend y automatización</h3>
+        <p data-i18n="esp1.texto">APIs con Node.js, Express, NestJS, FastAPI y Flask; bases de datos PostgreSQL; tareas programadas y servicios 24/7 en Linux que leen, calculan y avisan sin que nadie los abra.</p>
+        <ul class="tags"><li>Node.js</li><li>TypeScript</li><li>NestJS</li><li>Python</li><li>FastAPI</li><li>PostgreSQL</li></ul>
+      </article>
+      <article class="esp-card" data-glow data-tilt>
+        <div class="esp-ico"><svg viewBox="0 0 48 48" aria-hidden="true"><rect x="4" y="8" width="40" height="28" rx="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M4 15h40M18 42h12M24 36v6" stroke="currentColor" stroke-width="2"/><rect x="10" y="20" width="12" height="10" rx="2" fill="currentColor" opacity=".35"/><path d="M26 21h12M26 25h9M26 29h11" stroke="currentColor" stroke-width="2"/></svg></div>
+        <h3 data-i18n="esp2.titulo">Interfaces y herramientas</h3>
+        <p data-i18n="esp2.texto">SPAs en JavaScript puro y React, apps de escritorio con Electron, y herramientas que el equipo usa a diario, desde un panel web hasta un libro de Excel con VBA.</p>
+        <ul class="tags"><li>JavaScript</li><li>React</li><li>Vite</li><li>Electron</li><li>Sass</li><li>Excel y VBA</li></ul>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TRAYECTORIA ============ -->
+<section class="seccion" id="trayectoria" data-seccion="trayectoria">
+  <div class="ancho tray-grid">
+    <div class="tray-cab">
+      <p class="etiqueta" data-i18n="tray.etq">Trayectoria</p>
+      <h2 class="titulo-sec"><span data-i18n="tray.titulo" data-scramble>Mi camino</span></h2>
+      <p class="sec-intro" data-i18n="tray.intro">De mis primeras páginas en HTML y PHP a sistemas que hoy usa una empresa todos los días.</p>
+    </div>
+    <ol class="linea-tiempo" id="lineaTiempo">
+      <li class="hito"><span class="hito-n"></span><div><time data-i18n="t1.fecha">2023 – 2025</time><h3 data-i18n="t1.titulo">Ingeniería de Sistemas y primeros proyectos</h3><p data-i18n="t1.texto">Páginas web con HTML, CSS, PHP y MySQL, y un sitio de recursos para estudiantes de Ingeniería de Sistemas.</p></div></li>
+      <li class="hito"><span class="hito-n"></span><div><time data-i18n="t2.fecha">2026 · Riwi</time><h3 data-i18n="t2.titulo">Python y programación orientada a objetos</h3><p data-i18n="t2.texto">Inventarios, manejo de archivos CSV, interfaces con Tkinter y un cajero automático por consola.</p></div></li>
+      <li class="hito"><span class="hito-n"></span><div><time data-i18n="t3.fecha">2026 · Riwi</time><h3 data-i18n="t3.titulo">Frontend, JavaScript y SPAs</h3><p data-i18n="t3.texto">Sass, React, consumo de APIs y aplicaciones de una sola página con router propio, roles y sesiones.</p></div></li>
+      <li class="hito"><span class="hito-n"></span><div><time data-i18n="t4.fecha">2026 · Riwi</time><h3 data-i18n="t4.titulo">Bases de datos y backend</h3><p data-i18n="t4.texto">PostgreSQL, Node.js con TypeScript, Sequelize, Swagger y NestJS en la ruta avanzada de Node.js.</p></div></li>
+      <li class="hito"><span class="hito-n"></span><div><time data-i18n="t5.fecha">2026 – hoy</time><h3 data-i18n="t5.titulo">Desarrollador en una empresa de ingeniería eléctrica</h3><p data-i18n="t5.texto">Cotizador web en la nube, lector de facturas con IA, nómina quincenal y alertas de vencimientos del personal.</p></div></li>
+      <i class="lt-linea" aria-hidden="true"><b id="ltProgreso"></b></i>
+    </ol>
+  </div>
+</section>
+
+<!-- ============ PROYECTOS EN PRODUCCIÓN (pista horizontal) ============ -->
+<section class="proyectos" id="proyectos" data-seccion="proyectos">
+  <div class="proy-pista" id="pista">
+    <div class="proy-intro">
+      <p class="etiqueta" data-i18n="proy.etq">En producción</p>
+      <h2 class="titulo-sec"><span data-i18n="proy.titulo" data-scramble>Sistemas reales</span></h2>
+      <p class="proy-desc" data-i18n="proy.intro">Cuatro sistemas que una empresa de ingeniería eléctrica usa todos los días. El código es privado; aquí cuento qué resolvió cada uno.</p>
+      <div class="proy-flecha" aria-hidden="true"><span data-i18n="proy.desliza">Sigue bajando</span><i></i></div>
+    </div>
+
+    <article class="proy" data-tilt data-glow data-caso="cotizador">
+      <!-- Captura real de la aplicación, con datos de ejemplo y el logo difuminado -->
+      <div class="proy-visual v-real">
+        <div class="navegador">
+          <div class="navegador-barra"><i></i><i></i><i></i><span>cotizador · nueva cotización</span></div>
+          <img src="img/cotizador/cotizacion.jpg" alt="Pantalla real del cotizador con una cotización de ejemplo y su desglose AIU" loading="lazy" decoding="async" width="1400" height="792">
+        </div>
+        <span class="real-sello" data-i18n="real.sello">Captura real · datos de ejemplo</span>
+      </div>
+      <div class="proy-info">
+        <span class="proy-num">01</span>
+        <h3 data-i18n="c1.titulo">Cotizador web</h3>
+        <p class="proy-txt" data-i18n="c1.texto">Antes cada cotización se armaba en Excel y el precio dependía de quién la hiciera. Ahora hay un catálogo único, roles de vendedor y administrador, y el PDF oficial sale en un par de clics.</p>
+        <ul class="tags"><li>Node.js</li><li>Express</li><li>PostgreSQL</li><li>JWT</li><li>pdf-lib</li><li>Render</li></ul>
+        <button type="button" class="btn-caso" data-caso="cotizador"><span data-i18n="caso.ver">Ver caso de estudio</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      </div>
+    </article>
+
+    <article class="proy" data-tilt data-glow data-caso="facturas">
+      <!-- Panel real renderizado con sus plantillas y facturas de ejemplo; logo difuminado -->
+      <div class="proy-visual v-real">
+        <div class="navegador navegador-oscuro">
+          <div class="navegador-barra"><i></i><i></i><i></i><span>panel · facturas por aprobar</span></div>
+          <img src="img/facturas/aprobar.jpg" alt="Panel real del lector de facturas: una factura leída por IA esperando aprobación" loading="lazy" decoding="async" width="1440" height="900">
+        </div>
+        <span class="real-sello" data-i18n="real.sello">Captura real · datos de ejemplo</span>
+      </div>
+      <div class="proy-info">
+        <span class="proy-num">02</span>
+        <h3 data-i18n="c2.titulo">Lector de facturas con IA supervisada</h3>
+        <p class="proy-txt" data-i18n="c2.texto">Cada 15 minutos lee las facturas nuevas y actualiza la hoja de gastos. Los proveedores conocidos se leen con reglas; solo los formatos nuevos pasan por IA, y nada entra sin que una persona lo apruebe.</p>
+        <ul class="tags"><li>Python</li><li>PostgreSQL</li><li>Google APIs</li><li>Gemini</li><li>Raspberry Pi</li></ul>
+        <button type="button" class="btn-caso" data-caso="facturas"><span data-i18n="caso.ver">Ver caso de estudio</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      </div>
+    </article>
+
+    <article class="proy" data-tilt data-glow data-caso="nomina">
+      <!-- Hojas reales del libro (columnas, fórmulas y formato) con empleados ficticios -->
+      <div class="proy-visual v-real">
+        <div class="navegador">
+          <img src="img/nomina/liquidacion.jpg" alt="Hoja LIQUIDACION del libro de nómina con empleados ficticios" loading="lazy" decoding="async" width="1440" height="900">
+        </div>
+        <span class="real-sello" data-i18n="real.sello2">Libro real · empleados ficticios</span>
+        <div class="contador-n"><b>55/55</b><span data-i18n="c3.cuadra">cuadran con la nómina real</span></div>
+      </div>
+      <div class="proy-info">
+        <span class="proy-num">03</span>
+        <h3 data-i18n="c3.titulo">Nómina quincenal</h3>
+        <p class="proy-txt" data-i18n="c3.texto">Se anotan las novedades y el sistema calcula salario, recargos, horas extras, salud, pensión y neto. Comprobado con una quincena real: los 55 netos coinciden, con 50 centavos de diferencia máxima.</p>
+        <ul class="tags"><li>Excel</li><li>VBA</li><li data-i18n="c3.tag">Manual y capacitación</li></ul>
+        <button type="button" class="btn-caso" data-caso="nomina"><span data-i18n="caso.ver">Ver caso de estudio</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      </div>
+    </article>
+
+    <article class="proy" data-tilt data-glow data-caso="alertas">
+      <!-- Hoja ALERTAS del libro real (formato condicional por estado) con personal ficticio -->
+      <div class="proy-visual v-real">
+        <div class="navegador">
+          <img src="img/alertas/hoja.jpg" alt="Hoja ALERTAS del sistema de vencimientos con personal ficticio, coloreada por estado" loading="lazy" decoding="async" width="1440" height="900">
+        </div>
+        <span class="real-sello" data-i18n="real.sello3">Libro real · personal ficticio</span>
+      </div>
+      <div class="proy-info">
+        <span class="proy-num">04</span>
+        <h3 data-i18n="c4.titulo">Alertas de vencimientos</h3>
+        <p class="proy-txt" data-i18n="c4.texto">En obra, un examen médico o un curso de alturas vencido deja a alguien sin poder trabajar. Ahora el sistema revisa la base cada día, avisa por correo antes de que algo venza y genera certificados laborales.</p>
+        <ul class="tags"><li>Excel</li><li>VBA</li><li data-i18n="c4.tag">Tareas programadas</li></ul>
+        <button type="button" class="btn-caso" data-caso="alertas"><span data-i18n="caso.ver">Ver caso de estudio</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      </div>
+    </article>
+  </div>
+  <div class="proy-progreso" aria-hidden="true"><i id="proyBarra"></i></div>
+</section>
+
+<!-- ============ TRABAJOS WEB (capturas reales, marcas ocultas) ============ -->
+<section class="seccion" id="web" data-seccion="web">
+  <div class="ancho">
+    <div class="web-cab">
+      <div>
+        <p class="etiqueta" data-i18n="web.etq">Diseño y desarrollo web</p>
+        <h2 class="titulo-sec"><span data-i18n="web.titulo" data-scramble>Sitios para negocios reales</span></h2>
+      </div>
+      <p class="sec-intro" data-i18n="web.intro">Diseñados y construidos de cero para negocios pequeños. Son capturas reales; las marcas están ocultas por privacidad de cada cliente.</p>
+    </div>
+    <div class="web-vitrina">
+      <div class="web-lista" role="tablist" aria-label="Sitios" id="webLista"></div>
+      <div class="web-escenario" id="webEscenario">
+        <div class="web-laptop">
+          <div class="web-tapa"><div class="web-pantalla"><img id="webEscritorio" alt="" loading="lazy" decoding="async"></div></div>
+          <div class="web-base"></div>
+        </div>
+        <div class="web-celular"><div class="web-pantalla-cel"><img id="webCelular" alt="" loading="lazy" decoding="async"></div></div>
+        <span class="web-pista" data-i18n="web.pista">Pasa el mouse para detener el recorrido</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PROYECTOS EN GITHUB ============ -->
+<section class="seccion" id="github" data-seccion="github">
+  <div class="ancho">
+    <div class="gh-cab">
+      <div>
+        <p class="etiqueta" data-i18n="gh.etq">Código abierto</p>
+        <h2 class="titulo-sec"><span data-i18n="gh.titulo" data-scramble>En mi GitHub</span></h2>
+      </div>
+      <div class="filtros" role="group" aria-label="Filtrar proyectos" data-i18n-aria="gh.filtrar">
+        <button type="button" class="filtro activo" data-filtro="todos" aria-pressed="true" data-i18n="gh.todos">Todos</button>
+        <button type="button" class="filtro" data-filtro="backend" aria-pressed="false">Backend</button>
+        <button type="button" class="filtro" data-filtro="frontend" aria-pressed="false">Frontend</button>
+      </div>
+    </div>
+    <div class="gh-grid" id="ghGrid"></div>
+    <a class="btn btn-borde gh-todos" href="https://github.com/leonardo-200224?tab=repositories" target="_blank" rel="noopener" data-magnetic><span data-i18n="gh.vertodos">Ver los 48 repositorios</span></a>
+  </div>
+</section>
+
+<!-- ============ TERMINAL ============ -->
+<section class="seccion" id="terminal" data-seccion="terminal">
+  <div class="ancho">
+    <p class="etiqueta" data-i18n="term.etq">Interactivo</p>
+    <h2 class="titulo-sec"><span data-i18n="term.titulo" data-scramble>Pregúntale a la terminal</span></h2>
+    <p class="sec-intro" data-i18n="term.intro">Escribe un comando o toca uno de los botones. Prueba con help.</p>
+    <div class="term" id="term" data-glow>
+      <div class="term-barra"><i></i><i></i><i></i><span>leonardo@portafolio: ~</span></div>
+      <div class="term-cuerpo" id="termCuerpo" aria-live="polite"></div>
+      <form class="term-linea" id="termForm" autocomplete="off">
+        <label for="termInput"><span class="term-prompt">leonardo@portafolio:~$</span></label>
+        <input id="termInput" type="text" spellcheck="false" autocapitalize="off" aria-label="Comando">
+      </form>
+    </div>
+    <div class="term-atajos" id="termAtajos"></div>
+  </div>
+</section>
+
+<!-- ============ HERRAMIENTAS ============ -->
+<section class="seccion" id="herramientas" data-seccion="herramientas">
+  <div class="ancho">
+    <p class="etiqueta" data-i18n="herr.etq">Herramientas</p>
+    <h2 class="titulo-sec"><span data-i18n="herr.titulo" data-scramble>Con qué construyo</span></h2>
+    <ul class="iconos" id="iconos"></ul>
+  </div>
+</section>
+
+<!-- ============ CONTACTO ============ -->
+<section class="contacto" id="contacto" data-seccion="contacto">
+  <div class="ancho">
+    <p class="etiqueta" data-i18n="cont.etq">Contacto</p>
+    <h2 class="contacto-grande" aria-label="¿Hablamos?" data-i18n-aria="cont.grande">
+      <span class="linea" aria-hidden="true" data-split data-i18n="cont.grande">¿HABLAMOS?</span>
+    </h2>
+    <p class="contacto-txt" data-i18n="cont.texto">¿Tienes un proceso que todavía se hace a mano, o una vacante de desarrollo? Escríbeme y te respondo qué haría y cuánto tomaría.</p>
+    <div class="canales" id="canales"></div>
+  </div>
+  <footer class="pie">
+    <span>© <span id="anio">2026</span> Leonardo Iván Ayala Pérez</span>
+    <span data-i18n="pie.volt">Volt está hecho con Three.js. Prueba el código Konami.</span>
+    <a href="#inicio" class="arriba"><span data-i18n="pie.arriba">Volver arriba</span> ↑</a>
+  </footer>
+</section>
+
+</main>
+
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
+<script defer src="assets/main.js"></script>
+<script defer src="assets/casos.js"></script>
+<script type="module" src="assets/escena.js"></script>
+</body>
+</html>
