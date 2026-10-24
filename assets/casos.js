@@ -235,6 +235,7 @@ const CASOS = [
     titulo: ['Dormify', 'Dormify'],
     lema: ['Encontrar dónde vivir cerca de la universidad, sin buscar en veinte grupos.', 'Finding a place near campus without searching twenty groups.'],
     stack: 'Python · FastAPI · SQLAlchemy · Pydantic · PostgreSQL · JWT · JavaScript',
+    captura: 'img/github/dormify.jpg',
     codigo: 'https://github.com/leonardo-200224/DORMIFY',
     nodos: [
       {id: 'spa', t: ['SPA', 'SPA'], s: ['JavaScript · Bootstrap', 'JavaScript · Bootstrap'], c: 0, f: 1},
@@ -278,6 +279,7 @@ const CASOS = [
     titulo: ['RiwiMediCare API', 'RiwiMediCare API'],
     lema: ['Cada solicitud de medicamentos con dueño, estado e historial.', 'Every medicine request with an owner, a status and a history.'],
     stack: 'Node.js · TypeScript · Express · Sequelize · PostgreSQL · JWT · Swagger',
+    captura: 'img/github/medicare-respuesta.jpg',
     codigo: 'https://github.com/leonardo-200224/-Prueba-M5_2_NodeJS_Final',
     nodos: [
       {id: 'cli', t: ['Cliente', 'Client'], s: ['Clínica o bodega', 'Clinic or warehouse'], c: 0, f: 0},

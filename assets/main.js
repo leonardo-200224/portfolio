@@ -216,22 +216,22 @@ HERRAMIENTAS.forEach(([slug, nombre, color, txt]) => {
 
 // =================================================================== repositorios de GitHub
 const REPOS = [
-  {nombre:'Dormify', repo:'DORMIFY', tipo:'backend', caso:'dormify', tags:['FastAPI','PostgreSQL','SQLAlchemy','JWT'],
+  {nombre:'Dormify', repo:'DORMIFY', tipo:'backend', caso:'dormify', img:'dormify.jpg', tags:['FastAPI','PostgreSQL','SQLAlchemy','JWT'],
    es:'Plataforma de alojamiento para universitarios: arriendos, directorio de servicios y foro de la comunidad.',
    en:'Student housing platform: rentals, a services directory and a community forum.'},
-  {nombre:'RiwiMediCare API', repo:'-Prueba-M5_2_NodeJS_Final', tipo:'backend', caso:'medicare', tags:['Express','TypeScript','Sequelize','Swagger'],
+  {nombre:'RiwiMediCare API', repo:'-Prueba-M5_2_NodeJS_Final', tipo:'backend', caso:'medicare', img:'medicare.jpg', foco:'center 80%', tags:['Express','TypeScript','Sequelize','Swagger'],
    es:'API REST que reemplaza correos y hojas de cálculo en las solicitudes de medicamentos entre clínicas y bodegas.',
    en:'REST API that replaces emails and spreadsheets for medicine requests between clinics and warehouses.'},
-  {nombre:'GestionCall', repo:'GestionCall', tipo:'backend', estrellas:2, tags:['Flask','Chart.js','JavaScript'],
+  {nombre:'GestionCall', repo:'GestionCall', tipo:'backend', estrellas:2, img:'gestioncall.jpg', tags:['Flask','Chart.js','JavaScript'],
    es:'Gestión de clientes para un call center con estados de cada caso y estadísticas en tiempo real.',
    en:'Customer management for a call center with case tracking and real-time statistics.'},
-  {nombre:'TicketSystem SPA', repo:'ticket-system-spa', tipo:'frontend', tags:['JavaScript','Vite','Axios','json-server'],
+  {nombre:'TicketSystem SPA', repo:'ticket-system-spa', tipo:'frontend', img:'tickets.jpg', tags:['JavaScript','Vite','Axios','json-server'],
    es:'Tickets de soporte técnico con tres roles, sesión persistente y cierre de sesión por inactividad.',
    en:'Tech support tickets with three roles, persistent sessions and inactivity logout.'},
-  {nombre:'API de reservas', nombreEn:'Reservations API', repo:'Actividad_nest_week_5', tipo:'backend', tags:['NestJS','TypeScript','Postman'],
+  {nombre:'API de reservas', nombreEn:'Reservations API', repo:'Actividad_nest_week_5', tipo:'backend', rutas:[['GET', '/reservations'], ['POST', '/reservations']], tags:['NestJS','TypeScript','Postman'],
    es:'API de reservas para un restaurante para dominar el ciclo de NestJS: middleware, guard, pipe, interceptor y filtros.',
    en:'Restaurant reservations API to master the NestJS lifecycle: middleware, guard, pipe, interceptor and filters.'},
-  {nombre:'Rick & Morty SPA', repo:'spa-final', tipo:'frontend', tags:['JavaScript','SPA','localStorage'],
+  {nombre:'Rick & Morty SPA', repo:'spa-final', tipo:'frontend', img:'rick-morty.jpg', tags:['JavaScript','SPA','localStorage'],
    es:'SPA en JavaScript puro con router propio, CRUD de personajes y manejo de errores de la API.',
    en:'Plain JavaScript SPA with its own router, character CRUD and API error handling.'}
 ];
@@ -312,7 +312,11 @@ function pintarRepos(){
     const acciones = r.caso
       ? `<div class="repo-acciones"><button type="button" class="btn-caso" data-caso="${r.caso}">${L('Caso de estudio', 'Case study')}</button><a class="repo-ir" href="${url}" target="_blank" rel="noopener">${L('Código', 'Code')}</a></div>`
       : `<span class="repo-ir">${L('Ver código', 'View code')}</span>`;
-    a.innerHTML = `<div class="repo-top">${ICONO_REPO}${r.estrellas ? `<span class="repo-estrellas">★ ${r.estrellas}</span>` : ''}</div>
+    // Captura del proyecto corriendo en local con los datos de prueba de su propio repositorio.
+    // Sin captura (API sin interfaz): sus rutas reales y el recorrido de cada petición en Nest.
+    const rutas = r.rutas ? `<div class="repo-foto repo-rutas" aria-hidden="true">${r.rutas.map(([v, p]) => `<code><b class="m-${v.toLowerCase()}">${v}</b>${p}</code>`).join('')}<small>middleware → guard → pipe → controller → interceptor</small></div>` : '';
+    const foto = r.img ? `<div class="repo-foto"><img src="img/github/${r.img}" alt="" loading="lazy" decoding="async" width="1440" height="900"${r.foco ? ` style="object-position:${r.foco}"` : ''}></div>` : '';
+    a.innerHTML = `${foto}${rutas}<div class="repo-top">${ICONO_REPO}${r.estrellas ? `<span class="repo-estrellas">★ ${r.estrellas}</span>` : ''}</div>
       <h3></h3><p></p><ul class="tags"></ul>${acciones}`;
     a.querySelector('h3').textContent = idioma === 'en' && r.nombreEn ? r.nombreEn : r.nombre;
     a.querySelector('p').textContent = r[idioma];
