@@ -16,6 +16,7 @@ const CASOS = [
     titulo: ['Cotizador web', 'Web quoting app'],
     lema: ['Del Excel copiado a mano al PDF oficial en dos clics.', 'From a hand-copied Excel file to the official PDF in two clicks.'],
     stack: 'Node.js · Express · PostgreSQL · JWT · pdf-lib · Render · Neon',
+    captura: 'img/cotizador/cotizacion.jpg',
     nodos: [
       {id: 'u', t: ['Vendedor', 'Salesperson'], s: ['Navegador', 'Browser'], c: 0, f: 1},
       {id: 'api', t: ['API Express', 'Express API'], s: ['JWT · límite de intentos', 'JWT · rate limiting'], c: 1, f: 1, clave: true},
@@ -470,7 +471,8 @@ function irAPaso(n){
     $$('#simLienzo .dg-cable').forEach(x => x.classList.add('activa'));
     relato.innerHTML = `<span class="sim-num">${L('Resultado', 'Result')}</span>
       <h3>${tx(c.lema)}</h3>
-      <div class="sim-resultados">${p.resultados.map(([num, t]) => `<div><b>${num}</b><span>${tx(t)}</span></div>`).join('')}</div>`;
+      <div class="sim-resultados">${p.resultados.map(([num, t]) => `<div><b>${num}</b><span>${tx(t)}</span></div>`).join('')}</div>
+      ${c.captura ? `<figure class="sim-captura"><img src="${c.captura}" alt="${L('Pantalla real del sistema con datos de ejemplo', 'Real screen of the system with sample data')}" loading="lazy"><figcaption>${L('La aplicación real, con datos de ejemplo', 'The real app, with sample data')}</figcaption></figure>` : ''}`;
     const sig = CASOS[(casoActual + 1) % CASOS.length];
     const b = document.createElement('button');
     b.type = 'button'; b.className = 'btn btn-luz';

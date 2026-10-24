@@ -45,6 +45,9 @@ const EN = {
   'c3.texto':'You enter the period’s events and the system calculates salary, surcharges, overtime, health, pension and net pay. Checked against a real pay period: all 55 net amounts match, within 50 cents.',
   'c4.titulo':'Expiration alerts','c4.tag':'Scheduled tasks','c4.v1':'Medical exam','c4.v2':'Heights course','c4.v3':'Contract','c4.v4':'Work gear',
   'c4.texto':'On a job site, an expired medical exam or heights course means someone can’t work. Now the system checks every day, emails a warning before anything expires and issues employment certificates.',
+  'web.etq':'Web design & development','web.titulo':'Sites for real businesses',
+  'web.intro':'Designed and built from scratch for small businesses. These are real screenshots; brands are hidden to protect each client’s privacy.',
+  'web.pista':'Hover to pause the scroll','real.sello':'Real screenshot · sample data',
   'gh.etq':'Open source','gh.titulo':'On my GitHub','gh.filtrar':'Filter projects','gh.todos':'All','gh.vertodos':'See all 48 repositories',
   'term.etq':'Interactive','term.titulo':'Ask the terminal','term.intro':'Type a command or tap one of the buttons. Try help.',
   'herr.etq':'Tools','herr.titulo':'What I build with',
@@ -95,6 +98,7 @@ function aplicarIdioma(){
   rotadorIndice = 0;
   $('rotador').innerHTML = `<span class="palabra">${PALABRAS[idioma][0]}</span>`;
   pintarRepos();
+  pintarWeb();
   pintarContacto();
   pintarAtajos();
   pintarChips();
@@ -231,6 +235,65 @@ const REPOS = [
    es:'SPA en JavaScript puro con router propio, CRUD de personajes y manejo de errores de la API.',
    en:'Plain JavaScript SPA with its own router, character CRUD and API error handling.'}
 ];
+// =================================================================== vitrina de sitios web
+// Capturas reales de página completa; la pantalla las recorre sola de arriba a abajo.
+const SITIOS = [
+  {id: 'restaurante', titulo: ['Restaurante de comida rápida', 'Fast-food restaurant'], tipo: ['Prototipo para el cliente', 'Client prototype'],
+   texto: ['Menú con filtros por categoría, combos destacados, horario y cómo llegar. Pensado primero para celular, porque ahí lo abren los clientes.',
+           'Menu with category filters, featured combos, opening hours and directions. Mobile first, because that’s where customers open it.'],
+   stack: ['HTML', 'CSS', 'JavaScript', ['Fotos con IA', 'AI photos']]},
+  {id: 'instalaciones', titulo: ['Empresa de instalaciones a domicilio', 'Home installation company'], tipo: ['Sitio publicado', 'Live site'],
+   texto: ['Galería por categoría con el antes y después de trabajos reales, videos y pedidos por WhatsApp. Sin dependencias, con SEO local, afiche, tarjetas y QR.',
+           'Category gallery with real before-and-after jobs, videos and WhatsApp orders. No dependencies, local SEO, plus poster, cards and QR code.'],
+   stack: ['HTML', 'CSS', 'JavaScript', 'SEO']},
+  {id: 'clinica', titulo: ['Clínica odontológica', 'Dental clinic'], tipo: ['Propuesta de sitio', 'Site proposal'],
+   texto: ['Un sitio cálido y claro: tratamientos, filosofía, preguntas frecuentes y un formulario que deja lista la solicitud de valoración.',
+           'A warm, clear site: treatments, philosophy, FAQs and a form that prepares the consultation request.'],
+   stack: ['HTML', 'CSS', 'JavaScript', 'UX']}
+];
+let sitioActual = 0;
+function pintarWeb(){
+  const lista = $('webLista');
+  lista.textContent = '';
+  SITIOS.forEach((s, i) => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'web-tab'; b.setAttribute('role', 'tab');
+    b.innerHTML = `<span class="web-n">${String(i + 1).padStart(2, '0')}</span><span class="web-tipo"></span><b></b><p></p><ul class="tags"></ul>`;
+    b.querySelector('.web-tipo').textContent = s.tipo[idioma === 'en' ? 1 : 0];
+    b.querySelector('b').textContent = s.titulo[idioma === 'en' ? 1 : 0];
+    b.querySelector('p').textContent = s.texto[idioma === 'en' ? 1 : 0];
+    s.stack.forEach(x => { const li = document.createElement('li'); li.textContent = Array.isArray(x) ? x[idioma === 'en' ? 1 : 0] : x; b.querySelector('ul').appendChild(li); });
+    b.addEventListener('click', () => mostrarSitio(i));
+    lista.appendChild(b);
+  });
+  mostrarSitio(sitioActual, false);
+}
+function mostrarSitio(i, animar = true){
+  sitioActual = i;
+  const s = SITIOS[i];
+  $$('#webLista .web-tab').forEach((b, k) => { b.classList.toggle('activo', k === i); b.setAttribute('aria-selected', k === i); });
+  const esc = $('webEscritorio'), cel = $('webCelular');
+  const cambiar = () => {
+    esc.src = `img/trabajos/${s.id}-escritorio.jpg`;
+    cel.src = `img/trabajos/${s.id}-celular.jpg`;
+    esc.alt = cel.alt = `${s.titulo[idioma === 'en' ? 1 : 0]} — ${L('captura real, marca oculta', 'real screenshot, brand hidden')}`;
+  };
+  if(!animar || !ANIMA || MENOS_MOVIMIENTO){ cambiar(); return; }
+  gsap.to('.web-laptop, .web-celular', {opacity: 0, y: 16, duration: .25, stagger: .05, ease: 'power2.in', onComplete: () => {
+    cambiar();
+    gsap.to('.web-laptop, .web-celular', {opacity: 1, y: 0, duration: .55, stagger: .08, ease: 'power3.out'});
+  }});
+  tono(980, .04);
+}
+// Cuando carga la captura, se calcula cuánto debe recorrer la pantalla y a qué velocidad.
+['webEscritorio', 'webCelular'].forEach(id => $(id).addEventListener('load', e => {
+  const img = e.target, marco = img.parentElement;
+  const recorrido = Math.max(img.getBoundingClientRect().height - marco.clientHeight, 0);
+  img.style.setProperty('--recorrido', `-${recorrido}px`);
+  img.style.setProperty('--duracion', `${Math.max(recorrido / 45, 6)}s`);
+  img.classList.remove('recorre'); void img.offsetWidth; img.classList.add('recorre');
+}));
+
 let filtroActivo = 'todos';
 const ICONO_REPO = '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.8" d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v17H6.5A2.5 2.5 0 0 0 4 21.5zM4 21.5A2.5 2.5 0 0 0 6.5 24H20v-5"/><path d="M8 7h8M8 11h6" stroke="currentColor" stroke-width="1.8"/></svg>';
 function pintarRepos(){
@@ -614,7 +677,7 @@ let lienzoLimpio = true;
 // =================================================================== circuito de progreso
 const NOMBRES_SECCION = {
   inicio:['Inicio','Home'], sobre:['Sobre mí','About'], hago:['Lo que hago','What I do'], trayectoria:['Trayectoria','Journey'],
-  proyectos:['En producción','In production'], github:['GitHub','GitHub'], terminal:['Terminal','Terminal'], herramientas:['Herramientas','Tools'], contacto:['Contacto','Contact']
+  proyectos:['En producción','In production'], web:['Sitios web','Websites'], github:['GitHub','GitHub'], terminal:['Terminal','Terminal'], herramientas:['Herramientas','Tools'], contacto:['Contacto','Contact']
 };
 function construirCircuito(){
   const nav = $('circuito');
@@ -648,6 +711,7 @@ const FRASES_SECCION = {
   sobre:['Este es Leonardo. Créeme, programa más rápido de lo que yo vuelo.','This is Leonardo. Trust me, he codes faster than I fly.','feliz'],
   trayectoria:['De HTML y PHP a NestJS. ¡Qué viaje!','From HTML and PHP to NestJS. What a journey!','sorpresa'],
   proyectos:['Estos sistemas los usa una empresa real todos los días.','A real company uses these systems every day.','feliz'],
+  web:['Son capturas reales. Toca otro sitio para verlo.','These are real screenshots. Tap another site to see it.','feliz'],
   github:['Puedes filtrar por backend o frontend. ¡Pruébalo!','You can filter by backend or frontend. Try it!','guino'],
   terminal:['Psst… escribe sudo contratar 😉','Psst… type sudo hire 😉','guino'],
   contacto:['¿Hablamos? Leonardo responde rápido. 💙','Let’s talk? Leonardo replies fast. 💙','amor']

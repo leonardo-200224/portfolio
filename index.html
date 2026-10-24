@@ -262,16 +262,13 @@
     </div>
 
     <article class="proy" data-tilt data-glow data-caso="cotizador">
-      <div class="proy-visual v-cotizador" aria-hidden="true">
-        <div class="doc">
-          <div class="doc-cab"><i></i><b>COTIZACIÓN</b><span>PDF</span></div>
-          <div class="doc-fila"><i style="--w:62%"></i><em></em></div>
-          <div class="doc-fila"><i style="--w:48%"></i><em></em></div>
-          <div class="doc-fila"><i style="--w:70%"></i><em></em></div>
-          <div class="doc-fila"><i style="--w:40%"></i><em></em></div>
-          <div class="doc-total"><span>TOTAL</span><b>$ 4.945.846</b></div>
+      <!-- Captura real de la aplicación, con datos de ejemplo y el logo difuminado -->
+      <div class="proy-visual v-real">
+        <div class="navegador">
+          <div class="navegador-barra"><i></i><i></i><i></i><span>cotizador · nueva cotización</span></div>
+          <img src="img/cotizador/cotizacion.jpg" alt="Pantalla real del cotizador con una cotización de ejemplo y su desglose AIU" loading="lazy" decoding="async" width="1400" height="792">
         </div>
-        <div class="sello">AIU + IVA</div>
+        <span class="real-sello" data-i18n="real.sello">Captura real · datos de ejemplo</span>
       </div>
       <div class="proy-info">
         <span class="proy-num">01</span>
@@ -344,6 +341,30 @@
     </article>
   </div>
   <div class="proy-progreso" aria-hidden="true"><i id="proyBarra"></i></div>
+</section>
+
+<!-- ============ TRABAJOS WEB (capturas reales, marcas ocultas) ============ -->
+<section class="seccion" id="web" data-seccion="web">
+  <div class="ancho">
+    <div class="web-cab">
+      <div>
+        <p class="etiqueta" data-i18n="web.etq">Diseño y desarrollo web</p>
+        <h2 class="titulo-sec"><span data-i18n="web.titulo" data-scramble>Sitios para negocios reales</span></h2>
+      </div>
+      <p class="sec-intro" data-i18n="web.intro">Diseñados y construidos de cero para negocios pequeños. Son capturas reales; las marcas están ocultas por privacidad de cada cliente.</p>
+    </div>
+    <div class="web-vitrina">
+      <div class="web-lista" role="tablist" aria-label="Sitios" id="webLista"></div>
+      <div class="web-escenario" id="webEscenario">
+        <div class="web-laptop">
+          <div class="web-tapa"><div class="web-pantalla"><img id="webEscritorio" alt="" loading="lazy" decoding="async"></div></div>
+          <div class="web-base"></div>
+        </div>
+        <div class="web-celular"><div class="web-pantalla-cel"><img id="webCelular" alt="" loading="lazy" decoding="async"></div></div>
+        <span class="web-pista" data-i18n="web.pista">Pasa el mouse para detener el recorrido</span>
+      </div>
+    </div>
+  </div>
 </section>
 
 <!-- ============ PROYECTOS EN GITHUB ============ -->
