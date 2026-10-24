@@ -401,17 +401,16 @@
   <div class="ancho">
     <p class="etiqueta" data-i18n="herr.etq">Herramientas</p>
     <h2 class="titulo-sec"><span data-i18n="herr.titulo" data-scramble>Con qué construyo</span></h2>
-    <div class="stack" id="stack">
-      <div class="stack-placa" id="stackPlaca"></div>
-      <aside class="stack-detalle" id="stackDetalle" aria-live="polite">
-        <div class="sd-ic sd-anim"><span class="sd-anillo"></span><span class="sd-icono"></span></div>
-        <p class="sd-cat sd-anim"></p>
-        <h3 class="sd-nombre sd-anim"></h3>
-        <p class="sd-texto sd-anim"></p>
-        <p class="sd-usos-t sd-anim"></p>
-        <div class="sd-usos sd-anim"></div>
-        <span class="sd-progreso" aria-hidden="true"></span>
-      </aside>
+    <div class="circuito-stack" id="stack">
+      <svg class="cs-cables" id="csCables" aria-hidden="true"></svg>
+      <div class="cs-herr" id="csHerr"></div>
+      <div class="cs-proy" id="csProy"></div>
+      <div class="cs-lectura" id="csLectura" aria-live="polite">
+        <div class="cl-ic cl-anim"></div>
+        <div class="cl-info"><p class="cl-cat cl-anim"></p><h3 class="cl-nombre cl-anim"></h3><p class="cl-texto cl-anim"></p></div>
+        <div class="cl-medidor cl-anim"><span class="cl-num">00</span><span class="cl-etq"></span><span class="cl-segmentos"></span></div>
+        <span class="cl-progreso" aria-hidden="true"></span>
+      </div>
     </div>
   </div>
 </section>

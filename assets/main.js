@@ -327,7 +327,12 @@ const HERRAMIENTAS = [
   ['github', 'GitHub', '#ECEFF6', 'infra', ['portafolio', 'dormify', 'medicare'], ['Mis repositorios públicos y este sitio.', 'My public repositories and this site.']]
 ];
 const tx2 = par => par[idioma === 'en' ? 1 : 0];
-let stackSel = 0, stackTocado = 0, stackVisible = false;
+// Circuito vivo: cada herramienta está cableada a los proyectos donde la uso. Por los cables
+// corre "corriente"; al elegir una herramienta se encienden los bombillos de sus proyectos y,
+// al pasar por un proyecto, se iluminan las herramientas con que lo construí.
+const SVG_NS = 'http://www.w3.org/2000/svg';
+const ORDEN_PROYECTOS = ['cotizador', 'facturas', 'nomina', 'alertas', 'dormify', 'medicare', 'tickets', 'gestioncall', 'reservas', 'rick', 'web', 'portafolio', 'riwi', 'inicios'];
+const cs = {sel: {tipo: 'herr', i: 0}, tocado: 0, visible: false, encendido: false, cables: [], pulsos: []};
 
 function iconoStack(h, clase){
   const [slug, , , , , , txt] = h;
@@ -338,77 +343,215 @@ function iconoStack(h, clase){
   else{ ic.classList.add('txt'); ic.textContent = txt; }
   return ic;
 }
+function irAProyecto(p, e){
+  if(p.repo) return;                       // el enlace abre el repositorio
+  e.preventDefault();
+  if(p.caso) window.Casos?.abrir(p.caso);
+  else document.querySelector(p.ancla)?.scrollIntoView({behavior: 'smooth'});
+}
 function pintarStack(){
-  const placa = $('stackPlaca');
-  placa.textContent = '';
-  CATEGORIAS.forEach(([id, nombre], f) => {
-    const fila = document.createElement('div');
-    fila.className = 'stack-fila';
-    fila.style.setProperty('--retraso', `${f * .8}s`);
-    const cab = document.createElement('p');
-    cab.className = 'stack-cat';
+  const herr = $('csHerr'), proy = $('csProy'), svg = $('csCables');
+  herr.textContent = ''; proy.textContent = ''; svg.textContent = '';
+  CATEGORIAS.forEach(([id, nombre]) => {
+    const grupo = document.createElement('div');
+    grupo.className = 'cs-grupo';
     const items = HERRAMIENTAS.map((h, i) => [h, i]).filter(([h]) => h[3] === id);
+    const cab = document.createElement('p');
+    cab.className = 'cs-cat';
     cab.innerHTML = '<i></i>';
     cab.append(tx2(nombre), Object.assign(document.createElement('small'), {textContent: String(items.length).padStart(2, '0')}));
     const chips = document.createElement('div');
-    chips.className = 'stack-chips';
+    chips.className = 'cs-chips';
     items.forEach(([h, i]) => {
       const b = document.createElement('button');
-      b.type = 'button';
-      b.className = 'chip';
-      b.dataset.i = i;
+      b.type = 'button'; b.className = 'chip'; b.dataset.i = i;
       b.style.setProperty('--tc', h[2]);
+      b.style.setProperty('--k', i);
       b.append(iconoStack(h, 'chip-ic'), h[1]);
-      const elegir = () => elegirHerramienta(i, true);
-      b.addEventListener('pointerenter', elegir);
-      b.addEventListener('focus', elegir);
-      b.addEventListener('click', elegir);
+      const elegir = () => csSeleccionar({tipo: 'herr', i}, true);
+      b.addEventListener('pointerenter', elegir); b.addEventListener('focus', elegir); b.addEventListener('click', elegir);
       chips.appendChild(b);
     });
-    fila.append(cab, chips);
-    placa.appendChild(fila);
+    grupo.append(cab, chips);
+    herr.appendChild(grupo);
   });
-  elegirHerramienta(stackSel, false, true);
-}
-function elegirHerramienta(i, desdeUsuario, sinAnimar){
-  if(desdeUsuario) stackTocado = performance.now();
-  if(i === stackSel && !sinAnimar && $('stackDetalle').dataset.i === String(i)) return;
-  stackSel = i;
-  const h = HERRAMIENTAS[i], det = $('stackDetalle');
-  det.dataset.i = i;
-  $('stack').style.setProperty('--c', h[2]);
-  $$('#stackPlaca .chip').forEach(c => c.classList.toggle('activa', +c.dataset.i === i));
-  const icono = det.querySelector('.sd-icono');
-  icono.replaceWith(iconoStack(h, 'sd-icono'));
-  det.querySelector('.sd-cat').textContent = tx2(CATEGORIAS.find(c => c[0] === h[3])[1]);
-  det.querySelector('.sd-nombre').textContent = h[1];
-  det.querySelector('.sd-texto').textContent = tx2(h[5]);
-  det.querySelector('.sd-usos-t').textContent = h[4].length > 1
-    ? L(`Presente en ${h[4].length} proyectos`, `Used in ${h[4].length} projects`) : L('Dónde la uso', 'Where I use it');
-  const usos = det.querySelector('.sd-usos');
-  usos.textContent = '';
-  h[4].forEach(id => {
+  const titulo = document.createElement('p');
+  titulo.className = 'cs-cat cs-cat-proy';
+  titulo.innerHTML = '<i></i>';
+  titulo.append(L('Proyectos que alimentan', 'Projects they power'));
+  proy.appendChild(titulo);
+  ORDEN_PROYECTOS.forEach(id => {
     const p = PROYECTOS[id];
     const a = document.createElement('a');
-    a.className = 'uso';
-    a.textContent = tx2(p.n);
-    if(p.repo){ a.href = `https://github.com/${USUARIO_GITHUB}/${p.repo}`; a.target = '_blank'; a.rel = 'noopener'; }
-    else if(p.caso){ a.href = `#caso-${p.caso}`; a.addEventListener('click', e => { e.preventDefault(); window.Casos?.abrir(p.caso); }); }
-    else{ a.href = p.ancla; }
-    usos.appendChild(a);
+    a.className = 'lampara'; a.dataset.p = id;
+    a.style.setProperty('--k', ORDEN_PROYECTOS.indexOf(id));
+    a.href = p.repo ? `https://github.com/${USUARIO_GITHUB}/${p.repo}` : p.caso ? `#caso-${p.caso}` : p.ancla;
+    if(p.repo){ a.target = '_blank'; a.rel = 'noopener'; }
+    a.innerHTML = '<span class="bombillo" aria-hidden="true"><i></i></span>';
+    a.append(tx2(p.n));
+    a.addEventListener('click', e => irAProyecto(p, e));
+    const elegir = () => csSeleccionar({tipo: 'proy', p: id}, true);
+    a.addEventListener('pointerenter', elegir); a.addEventListener('focus', elegir);
+    proy.appendChild(a);
   });
-  // La barrita de abajo muestra cuánto falta para pasar sola a la siguiente.
-  const barra = det.querySelector('.sd-progreso');
-  barra.classList.remove('corre'); void barra.offsetWidth;
-  if(!desdeUsuario) barra.classList.add('corre');
-  if(!sinAnimar && window.gsap) gsap.fromTo(det.querySelectorAll('.sd-anim'), {y: 14, opacity: 0}, {y: 0, opacity: 1, duration: .45, stagger: .05, ease: 'power3.out', overwrite: true});
+  // Un cable por cada pareja herramienta → proyecto.
+  cs.cables = [];
+  HERRAMIENTAS.forEach((h, i) => h[4].forEach(p => {
+    const c = document.createElementNS(SVG_NS, 'path');
+    c.setAttribute('class', 'cable');
+    c.setAttribute('pathLength', '1');
+    c.style.setProperty('--tc', h[2]);
+    c.style.setProperty('--n', cs.cables.length * 9);
+    svg.appendChild(c);
+    cs.cables.push({el: c, i, p, largo: 1});
+  }));
+  cs.capaPulsos = document.createElementNS(SVG_NS, 'g');
+  svg.appendChild(cs.capaPulsos);
+  cs.pulsos.forEach(p => p.el.remove());
+  cs.pulsos = [];
+  csTrazar();
+  csSeleccionar(cs.sel, false, true);
 }
+
+// Recalcula el recorrido de cada cable según dónde quedó cada pieza (cambia con el ancho).
+function csTrazar(){
+  const caja = $('stack').getBoundingClientRect();
+  const svg = $('csCables');
+  svg.setAttribute('viewBox', `0 0 ${caja.width} ${caja.height}`);
+  const vertical = innerWidth < 760;
+  const chips = new Map($$('#csHerr .chip').map(b => [+b.dataset.i, b.getBoundingClientRect()]));
+  const lamparas = new Map($$('#csProy .lampara').map(a => [a.dataset.p, a.querySelector('.bombillo').getBoundingClientRect()]));
+  for(const c of cs.cables){
+    const a = chips.get(c.i), b = lamparas.get(c.p);
+    if(!a || !b) continue;
+    let d;
+    if(vertical){
+      const x1 = a.left + a.width / 2 - caja.left, y1 = a.bottom - caja.top, x2 = b.left + b.width / 2 - caja.left, y2 = b.top - caja.top;
+      const dy = Math.max((y2 - y1) * .5, 30);
+      d = `M${x1.toFixed(1)} ${y1.toFixed(1)} C${x1.toFixed(1)} ${(y1 + dy).toFixed(1)} ${x2.toFixed(1)} ${(y2 - dy).toFixed(1)} ${x2.toFixed(1)} ${y2.toFixed(1)}`;
+    }else{
+      const x1 = a.right - caja.left, y1 = a.top + a.height / 2 - caja.top, x2 = b.left - caja.left, y2 = b.top + b.height / 2 - caja.top;
+      const dx = Math.max((x2 - x1) * .55, 40);
+      d = `M${x1.toFixed(1)} ${y1.toFixed(1)} C${(x1 + dx).toFixed(1)} ${y1.toFixed(1)} ${(x2 - dx).toFixed(1)} ${y2.toFixed(1)} ${x2.toFixed(1)} ${y2.toFixed(1)}`;
+    }
+    c.el.setAttribute('d', d);
+    c.largo = c.el.getTotalLength();
+  }
+}
+
+function csSeleccionar(sel, desdeUsuario, sinAnimar){
+  if(desdeUsuario) cs.tocado = performance.now();
+  const igual = sel.tipo === cs.sel.tipo && sel.i === cs.sel.i && sel.p === cs.sel.p;
+  cs.sel = sel;
+  const raiz = $('stack');
+  let herrs, proys, color;
+  if(sel.tipo === 'herr'){
+    const h = HERRAMIENTAS[sel.i];
+    herrs = new Set([sel.i]); proys = new Set(h[4]); color = h[2];
+  }else{
+    herrs = new Set(HERRAMIENTAS.map((h, i) => h[4].includes(sel.p) ? i : -1).filter(i => i >= 0));
+    proys = new Set([sel.p]); color = '#3FD0FF';
+  }
+  raiz.style.setProperty('--c', color);
+  raiz.dataset.modo = sel.tipo;
+  $$('#csHerr .chip').forEach(b => b.classList.toggle('activa', herrs.has(+b.dataset.i)));
+  $$('#csProy .lampara').forEach(a => a.classList.toggle('encendida', proys.has(a.dataset.p)));
+  cs.cables.forEach(c => c.el.classList.toggle('vivo', herrs.has(c.i) && proys.has(c.p)));
+  if(!igual || sinAnimar) csLeer(sel, herrs, proys, sinAnimar);
+}
+
+// La lectura de abajo, como la pantalla de un multímetro.
+function csLeer(sel, herrs, proys, sinAnimar){
+  const l = $('csLectura');
+  const ic = l.querySelector('.cl-ic');
+  let nombre, cat, texto, cifra, etiqueta;
+  if(sel.tipo === 'herr'){
+    const h = HERRAMIENTAS[sel.i];
+    ic.replaceChildren(Object.assign(document.createElement('span'), {className: 'cl-anillo'}), iconoStack(h, 'cl-icono'));
+    nombre = h[1]; cat = tx2(CATEGORIAS.find(c => c[0] === h[3])[1]); texto = tx2(h[5]);
+    cifra = proys.size; etiqueta = cifra === 1 ? L('proyecto alimentado', 'project powered') : L('proyectos alimentados', 'projects powered');
+  }else{
+    const p = PROYECTOS[sel.p];
+    ic.replaceChildren(Object.assign(document.createElement('span'), {className: 'cl-anillo'}), Object.assign(document.createElement('span'), {className: 'cl-icono cl-bombillo'}));
+    nombre = tx2(p.n); cat = L('Proyecto', 'Project');
+    texto = L('Construido con ', 'Built with ') + [...herrs].map(i => HERRAMIENTAS[i][1]).join(' · ');
+    cifra = herrs.size; etiqueta = L('herramientas conectadas', 'tools wired in');
+  }
+  l.querySelector('.cl-cat').textContent = cat;
+  l.querySelector('.cl-nombre').textContent = nombre;
+  l.querySelector('.cl-texto').textContent = texto;
+  l.querySelector('.cl-etq').textContent = etiqueta;
+  // La cifra sube contando, como un display que se estabiliza.
+  const num = l.querySelector('.cl-num'), o = {v: sinAnimar ? cifra : 0};
+  if(window.gsap && !sinAnimar) gsap.to(o, {v: cifra, duration: .6, ease: 'power2.out', onUpdate: () => { num.textContent = String(Math.round(o.v)).padStart(2, '0'); }});
+  num.textContent = String(Math.round(o.v)).padStart(2, '0');
+  const seg = l.querySelector('.cl-segmentos');
+  const total = sel.tipo === 'herr' ? ORDEN_PROYECTOS.length : 12;
+  seg.replaceChildren(...Array.from({length: total}, (_, k) => Object.assign(document.createElement('i'), {className: k < cifra ? 'on' : ''})));
+  const barra = l.querySelector('.cl-progreso');
+  barra.classList.remove('corre'); void barra.offsetWidth;
+  if(performance.now() - cs.tocado > 8000) barra.classList.add('corre');
+  if(window.gsap && !sinAnimar) gsap.fromTo(l.querySelectorAll('.cl-anim'), {y: 10, opacity: 0}, {y: 0, opacity: 1, duration: .4, stagger: .04, ease: 'power3.out', overwrite: true});
+}
+
+// Corriente: pulsos de luz que viajan de la herramienta al proyecto. Los cables vivos llevan
+// pulsos seguidos y de su color; el resto, de vez en cuando, uno tenue.
+let ultimoPulso = 0, ultimoAmbiente = 0, tAnterior = performance.now();
+function csSoltarPulso(c, vivo){
+  const g = document.createElementNS(SVG_NS, 'circle');
+  g.setAttribute('r', vivo ? 3.2 : 2.2);
+  g.setAttribute('class', vivo ? 'pulso vivo' : 'pulso');
+  g.style.setProperty('--tc', HERRAMIENTAS[c.i][2]);
+  cs.capaPulsos.appendChild(g);
+  cs.pulsos.push({el: g, c, t: 0, vel: (vivo ? 1.1 : .55) + Math.random() * .3});
+}
+function csCorrer(ahora){
+  requestAnimationFrame(csCorrer);
+  const dt = Math.min((ahora - tAnterior) / 1000, .05);
+  tAnterior = ahora;
+  if(!cs.visible || !cs.encendido || document.hidden) return;
+  const vivos = cs.cables.filter(c => c.el.classList.contains('vivo'));
+  if(vivos.length && ahora - ultimoPulso > 260){ ultimoPulso = ahora; csSoltarPulso(vivos[Math.floor(Math.random() * vivos.length)], true); }
+  if(ahora - ultimoAmbiente > 420){ ultimoAmbiente = ahora; csSoltarPulso(cs.cables[Math.floor(Math.random() * cs.cables.length)], false); }
+  cs.pulsos = cs.pulsos.filter(p => {
+    p.t += dt * p.vel;
+    if(p.t >= 1){
+      p.el.remove();
+      // Al llegar, el bombillo destella.
+      if(p.el.classList.contains('vivo')){
+        const lamp = document.querySelector(`#csProy .lampara[data-p="${p.c.p}"]`);
+        lamp?.classList.remove('destello'); void lamp?.offsetWidth; lamp?.classList.add('destello');
+      }
+      return false;
+    }
+    const pt = p.c.el.getPointAtLength(p.t * p.c.largo);
+    p.el.setAttribute('cx', pt.x.toFixed(1)); p.el.setAttribute('cy', pt.y.toFixed(1));
+    return true;
+  });
+}
+
 pintarStack();
 addEventListener('idioma-cambiado', pintarStack);
-new IntersectionObserver(([e]) => { stackVisible = e.isIntersecting; }, {threshold: .3}).observe($('stack'));
+let esperaTrazo = null;
+const retrazar = () => { cancelAnimationFrame(esperaTrazo); esperaTrazo = requestAnimationFrame(csTrazar); };
+addEventListener('resize', retrazar);
+new ResizeObserver(retrazar).observe($('stack'));
+document.fonts?.ready.then(retrazar);
+// Arranque: la primera vez que se ve, el circuito se enciende como un tablero.
+new IntersectionObserver(([e]) => {
+  cs.visible = e.isIntersecting;
+  if(e.isIntersecting && !cs.encendido){
+    csTrazar();
+    $('stack').classList.add('arrancando');
+    setTimeout(() => { cs.encendido = true; $('stack').classList.add('encendido'); }, 1500);
+  }
+}, {threshold: .25}).observe($('stack'));
+requestAnimationFrame(csCorrer);
+// Recorre sola las herramientas hasta que alguien toca una.
 setInterval(() => {
-  if(!stackVisible || document.hidden || performance.now() - stackTocado < 8000) return;
-  elegirHerramienta((stackSel + 1) % HERRAMIENTAS.length, false);
+  if(!cs.visible || !cs.encendido || document.hidden || performance.now() - cs.tocado < 8000) return;
+  const sig = cs.sel.tipo === 'herr' ? (cs.sel.i + 1) % HERRAMIENTAS.length : 0;
+  csSeleccionar({tipo: 'herr', i: sig}, false);
 }, 3200);
 
 // =================================================================== repositorios de GitHub
@@ -1030,11 +1173,6 @@ function iniciarAnimaciones(){
   gsap.from('.filtros', {x: 40, opacity: 0, duration: .9, ease: 'power3.out', scrollTrigger: {trigger: '.filtros', start: 'top 90%'}});
   gsap.from('#term', {y: 80, opacity: 0, scale: .95, duration: 1.1, ease: 'power3.out', scrollTrigger: {trigger: '#term', start: 'top 88%'}});
   gsap.from('#termAtajos button', {y: 20, opacity: 0, stagger: .05, duration: .6, ease: 'power3.out', scrollTrigger: {trigger: '#termAtajos', start: 'top 95%'}});
-  // Los componentes se "sueldan" a la placa uno por uno y el panel entra desde un lado.
-  gsap.from('#stackPlaca .chip', {y: 26, opacity: 0, scale: .85, stagger: {each: .022}, duration: .6, ease: 'back.out(1.6)',
-    scrollTrigger: {trigger: '#stack', start: 'top 82%'}});
-  gsap.from('#stackPlaca .stack-cat', {x: -30, opacity: 0, stagger: .1, duration: .7, ease: 'power3.out', scrollTrigger: {trigger: '#stack', start: 'top 82%'}});
-  gsap.from('#stackDetalle', {x: 50, opacity: 0, duration: 1, ease: 'power3.out', scrollTrigger: {trigger: '#stack', start: 'top 82%'}});
   gsap.from('.contacto-txt, .canales', {y: 30, opacity: 0, stagger: .15, duration: 1, ease: 'power3.out', scrollTrigger: {trigger: '.contacto-txt', start: 'top 90%'}});
 }
 
