@@ -25,8 +25,14 @@ renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.1;
 
 const escena = new THREE.Scene();
-const pmrem = new THREE.PMREMGenerator(renderer);
-escena.environment = pmrem.fromScene(new RoomEnvironment(), .04).texture;
+// El reflejo ambiental hace que el plástico brille, pero generarlo cuesta. En equipos
+// modestos y celulares se omite y las luces de la escena bastan.
+const MODESTO = (navigator.hardwareConcurrency || 8) <= 4 || (navigator.deviceMemory || 8) <= 4 || matchMedia('(pointer: coarse)').matches;
+if(!MODESTO){
+  const pmrem = new THREE.PMREMGenerator(renderer);
+  escena.environment = pmrem.fromScene(new RoomEnvironment(), .04).texture;
+  pmrem.dispose();
+}
 
 const camara = new THREE.PerspectiveCamera(30, 1, .1, 50);
 camara.position.set(0, 0, 10);
@@ -127,7 +133,9 @@ cabeza.add(visera);
 
 // Pantalla de la cara.
 const caraCanvas = document.createElement('canvas');
-caraCanvas.width = 512; caraCanvas.height = 368;
+// Se dibuja en coordenadas de 512 × 368 pero el canvas real es más pequeño: la cara
+// se ve igual de nítida en la pantalla del robot y cuesta casi la mitad redibujarla.
+caraCanvas.width = 384; caraCanvas.height = 276;
 const cx = caraCanvas.getContext('2d');
 const caraTex = new THREE.CanvasTexture(caraCanvas);
 caraTex.colorSpace = THREE.SRGBColorSpace;
@@ -159,6 +167,54 @@ antena.add(varilla, bombillo);
 const luzBombillo = new THREE.PointLight(0xF5C542, 1.5, 2.5);
 luzBombillo.position.y = .33;
 antena.add(luzBombillo);
+
+// Birrete de graduación: lo lleva en el horario de clase de Riwi (jornada noche).
+const birrete = new THREE.Group();
+birrete.position.set(0, .86, 0);
+const telaBirrete = new THREE.MeshPhysicalMaterial({color: 0x1B2236, roughness: .55, clearcoat: .4});
+const tapa = new THREE.Mesh(new THREE.BoxGeometry(.95, .04, .95), telaBirrete);
+tapa.rotation.y = Math.PI / 4;
+tapa.position.y = .14;
+const copa = new THREE.Mesh(new THREE.CylinderGeometry(.3, .34, .16, 24), telaBirrete);
+copa.position.y = .05;
+const boton = new THREE.Mesh(new THREE.SphereGeometry(.04, 12, 10), luzSenal);
+boton.position.y = .17;
+const cordonArriba = new THREE.Mesh(new THREE.BoxGeometry(.44, .014, .014), luzSenal);
+cordonArriba.position.set(.22, .17, 0);
+const borla = new THREE.Group();            // cuelga del borde y se balancea como la antena
+borla.position.set(.44, .17, 0);
+const cordon = new THREE.Mesh(new THREE.CylinderGeometry(.012, .012, .26, 8), luzSenal);
+cordon.position.y = -.13;
+const punta = new THREE.Mesh(new THREE.ConeGeometry(.045, .1, 10), luzSenal);
+punta.position.y = -.3;
+punta.rotation.x = Math.PI;
+borla.add(cordon, punta);
+birrete.add(tapa, copa, boton, cordonArriba, borla);
+birrete.visible = false;
+cabeza.add(birrete);
+
+// ------------------------------------------------------------------ hora de Colombia
+// Igual que en el perfil de GitHub: de mañana saluda, de noche va a clase, de madrugada duerme.
+// ?hora=23 en la URL permite ver cada momento sin esperar.
+const horaForzada = new URLSearchParams(location.search).get('hora');
+function horaColombia(){
+  return horaForzada !== null ? +horaForzada : +new Intl.DateTimeFormat('en-US', {timeZone: 'America/Bogota', hour: 'numeric', hour12: false}).format(new Date()) % 24;
+}
+function momentoColombia(){
+  const h = horaColombia();
+  return h >= 5 && h < 12 ? 'manana' : h >= 12 && h < 18 ? 'tarde' : h >= 18 && h < 22 ? 'noche' : 'madrugada';
+}
+function horaTexto(){
+  if(horaForzada !== null) return `${horaForzada}:00`;
+  return new Intl.DateTimeFormat(esEN() ? 'en-US' : 'es-CO', {timeZone: 'America/Bogota', hour: 'numeric', minute: '2-digit'}).format(new Date());
+}
+let momento = momentoColombia();
+function aplicarMomento(){
+  birrete.visible = momento === 'noche';
+  antena.visible = !birrete.visible;
+}
+aplicarMomento();
+setInterval(() => { momento = momentoColombia(); aplicarMomento(); }, 60000);
 
 // Sombra suave proyectada debajo.
 const sombraTex = (() => {
@@ -214,7 +270,8 @@ function corazon(x, y, s){
   cx.fill();
 }
 function dibujarCara(t){
-  const W = caraCanvas.width, H = caraCanvas.height;
+  const W = 512, H = 368;
+  cx.setTransform(caraCanvas.width / W, 0, 0, caraCanvas.height / H, 0, 0);
   cx.clearRect(0, 0, W, H);
   // Fondo de la pantalla con brillo y líneas de barrido.
   cx.save();
@@ -227,7 +284,7 @@ function dibujarCara(t){
 
   const c = '#62EEFF';
   cx.fillStyle = c; cx.strokeStyle = c;
-  cx.shadowColor = '#3FD0FF'; cx.shadowBlur = 28;
+  cx.shadowColor = '#3FD0FF'; cx.shadowBlur = 16;
   cx.lineCap = 'round'; cx.lineJoin = 'round';
 
   const mx = r.mirarX.x * 34, my = r.mirarY.x * 22;
@@ -278,14 +335,14 @@ function dibujarCara(t){
       // Brillo en el ojo.
       cx.shadowBlur = 0; cx.fillStyle = 'rgba(255,255,255,.75)';
       if(abierto > .5){ rr(ox - sep - 14, oy - 22, 14, 18, 7); rr(ox + sep - 14, oy - 22, 14, 18, 7); }
-      cx.fillStyle = c; cx.shadowBlur = 28;
+      cx.fillStyle = c; cx.shadowBlur = 16;
   }
 
   // Mejillas.
   if(expresion === 'feliz' || expresion === 'amor' || encima){
     cx.shadowBlur = 0; cx.fillStyle = 'rgba(255,110,170,.35)';
     [-1, 1].forEach(s => { cx.beginPath(); cx.ellipse(ox + s * (sep + 52), oy + 52, 34, 16, 0, 0, Math.PI * 2); cx.fill(); });
-    cx.fillStyle = c; cx.shadowBlur = 28;
+    cx.fillStyle = c; cx.shadowBlur = 16;
   }
 
   // Boca.
@@ -325,12 +382,16 @@ function pitar(){
 }
 
 // ------------------------------------------------------------------ burbuja de diálogo
-let escribiendo = null, ocultarBurbuja = null;
+let escribiendo = null, ocultarBurbuja = null, tamBurbuja = {w: 260, h: 60};
 function decir(texto, {expresion: ex = null, segundos = 4.5, gesto: ge = null} = {}){
   if(!texto) return;
   clearInterval(escribiendo); clearTimeout(ocultarBurbuja);
   if(ex) ponerExpresion(ex, segundos);
   if(ge) hacerGesto(ge);
+  // Se mide el globo con el texto completo una sola vez; así el bucle no fuerza
+  // al navegador a recalcular el diseño en cada cuadro.
+  burbuja.textContent = texto;
+  tamBurbuja = {w: burbuja.offsetWidth || 260, h: burbuja.offsetHeight || 60};
   burbuja.textContent = '';
   burbuja.classList.add('visible');
   let i = 0;
@@ -409,7 +470,8 @@ const objetivoMundo = new THREE.Vector3();
 let pantallaVolt = {x: 0, y: 0, alto: 0};
 
 function ajustar(){
-  renderer.setPixelRatio(Math.min(devicePixelRatio, 1.75));
+  // En equipos modestos Volt se dibuja a menor resolución; casi no se nota y libera la tarjeta gráfica.
+  renderer.setPixelRatio(Math.min(devicePixelRatio, MODESTO ? 1.25 : 1.75));
   renderer.setSize(innerWidth, innerHeight);
   camara.aspect = innerWidth / innerHeight;
   camara.updateProjectionMatrix();
@@ -462,8 +524,9 @@ function cuadro(){
   const dist = Math.hypot(puntero.x - pantallaVolt.x, puntero.y - (pantallaVolt.y - pantallaVolt.alto * .15));
   encima = dist < pantallaVolt.alto * .42;
 
-  // Inactividad: se duerme.
-  if(ahora - ultimoMovimiento > 14000 && expresion === 'normal' && !hablando) ponerExpresion('dormido', 0);
+  // Inactividad: se duerme. De madrugada se duerme casi enseguida.
+  const limiteSueno = momento === 'madrugada' ? 4000 : 14000;
+  if(ahora - ultimoMovimiento > limiteSueno && expresion === 'normal' && !hablando) ponerExpresion('dormido', 0);
   if(expresion !== 'normal' && ahora > expresionHasta) expresion = 'normal';
 
   // Parpadeo natural.
@@ -503,12 +566,15 @@ function cuadro(){
   r.antZ.empujar(-r.yaw.v * .02 - r.x.v * .03);
   r.antX.empujar(r.pitch.v * .02 + r.y.v * .02);
   antena.rotation.set(r.antX.x, 0, r.antZ.x);
+  borla.rotation.set(r.antX.x * 1.4, 0, r.antZ.x * 1.4);
 
-  // Luces vivas.
-  const latido = .5 + .5 * Math.sin(t * 3);
-  pechoNucleo.material.color.setHex(0x3FD0FF).multiplyScalar(.8 + latido * 1.4 + (hablando ? 1 : 0));
-  bombillo.material.color.setHex(0xF5C542).multiplyScalar(1.2 + latido * .8);
-  luzBombillo.intensity = 1 + latido;
+  // Luces vivas. Dormido, todo brilla menos y late más despacio.
+  const dormido = expresion === 'dormido';
+  const latido = .5 + .5 * Math.sin(t * (dormido ? 1.2 : 3));
+  const brillo = dormido ? .35 : 1;
+  pechoNucleo.material.color.setHex(0x3FD0FF).multiplyScalar((.8 + latido * 1.4 + (hablando ? 1 : 0)) * brillo);
+  bombillo.material.color.setHex(0xF5C542).multiplyScalar((1.2 + latido * .8) * brillo);
+  luzBombillo.intensity = (1 + latido) * brillo;
   llama.scale.set(1 + Math.random() * .15, .8 + Math.random() * .5 + Math.abs(r.salto.v) * .02, 1);
   llama.material.opacity = .6 + Math.random() * .3;
   sombra.material.opacity = .5 + bob;
@@ -533,25 +599,33 @@ function cuadro(){
   chispaGeo.attributes.position.needsUpdate = true;
   chispas.material.size = .05 * Math.max(raiz.scale.x, .3);
 
-  dibujarCara(t);
+  // La cara se redibuja a 30 cuadros por segundo: a simple vista es igual y cuesta la mitad.
+  if(++cuadrosCara % 2 === 0) dibujarCara(t);
   renderer.render(escena, camara);
 
-  // Zona clicable y burbuja siguen a Volt.
+  // Zona clicable y burbuja siguen a Volt. Solo se tocan los estilos que cambian.
   const alto = pantallaVolt.alto;
-  hit.style.transform = `translate(${pantallaVolt.x - alto * .36}px, ${pantallaVolt.y - alto * .55}px)`;
-  hit.style.width = hit.style.height = `${alto * .72}px`;
+  poner(hit, 'transform', `translate(${Math.round(pantallaVolt.x - alto * .36)}px, ${Math.round(pantallaVolt.y - alto * .55)}px)`);
+  const lado = `${Math.round(alto * .72)}px`;
+  poner(hit, 'width', lado); poner(hit, 'height', lado);
   // El globo va a la derecha si cabe; si no, a la izquierda. Nunca se sale de la pantalla.
   // En el hero el globo va centrado sobre la cabeza, donde no tapa el texto.
-  const anchoB = burbuja.offsetWidth || 260;
   const enHero = p < .5 && chatPanel.hidden;
-  const izquierda = !enHero && innerWidth - (pantallaVolt.x + alto * .3) < anchoB + 16;
-  const bx = enHero ? pantallaVolt.x - anchoB / 2 : izquierda ? pantallaVolt.x - alto * .3 - anchoB : pantallaVolt.x + alto * .3;
+  const izquierda = !enHero && innerWidth - (pantallaVolt.x + alto * .3) < tamBurbuja.w + 16;
+  const bx = enHero ? pantallaVolt.x - tamBurbuja.w / 2 : izquierda ? pantallaVolt.x - alto * .3 - tamBurbuja.w : pantallaVolt.x + alto * .3;
   const by = enHero ? pantallaVolt.y - alto * .62 : pantallaVolt.y - alto * .3;
   burbuja.classList.toggle('a-la-izquierda', izquierda);
   burbuja.classList.toggle('arriba', enHero);
-  burbuja.style.setProperty('--bx', `${Math.min(Math.max(bx, 12), innerWidth - anchoB - 12)}px`);
-  burbuja.style.setProperty('--by', `${Math.max(by, burbuja.offsetHeight + 76)}px`);
+  poner(burbuja, '--bx', `${Math.round(Math.min(Math.max(bx, 12), innerWidth - tamBurbuja.w - 12))}px`);
+  poner(burbuja, '--by', `${Math.round(Math.max(by, tamBurbuja.h + 76))}px`);
   hit.classList.toggle('encima', encima);
+}
+let cuadrosCara = 0;
+function poner(el, prop, valor){
+  el._ultimo = el._ultimo || {};
+  if(el._ultimo[prop] === valor) return;
+  el._ultimo[prop] = valor;
+  el.style.setProperty(prop, valor);
 }
 cuadro();
 
@@ -562,15 +636,30 @@ hit.addEventListener('click', () => {
 });
 hit.addEventListener('pointerenter', () => { if(expresion === 'normal') ponerExpresion('feliz', 1.5); });
 
-// Entrada: vuela desde abajo, gira y saluda.
-addEventListener('intro', () => {
+// Entrada: vuela desde abajo, gira y saluda. Este módulo se carga cuando termina la
+// intro de la página, así que casi siempre la intro ya ocurrió al llegar aquí.
+function entrar(){
   r.y.x = r.y.meta - 6;
   r.giro.meta = Math.PI * 2;
+  if(momento === 'madrugada') ponerExpresion('dormido', 0);
   setTimeout(() => {
     visibleIntro = true;
-    setTimeout(() => decir(esEN() ? 'Hi! I’m Volt, Leonardo’s assistant. Click me to chat.' : '¡Hola! Soy Volt, el asistente de Leonardo. Haz clic en mí para hablar.', {expresion: 'feliz', gesto: 'saludar', segundos: 5}), 700);
+    setTimeout(saludarSegunLaHora, 700);
   }, 600);
-}, {once: true});
+}
+if(window.__introHecha) entrar(); else addEventListener('intro', entrar, {once: true});
+
+function saludarSegunLaHora(){
+  const en = esEN(), h = horaTexto();
+  const saludos = {
+    manana: [en ? 'Good morning! I’m Volt, Leonardo’s assistant. Click me to chat.' : '¡Buenos días! Soy Volt, el asistente de Leonardo. Haz clic en mí para hablar.', 'feliz', 'saludar'],
+    tarde: [en ? 'Hi! I’m Volt, Leonardo’s assistant. Click me to chat.' : '¡Hola! Soy Volt, el asistente de Leonardo. Haz clic en mí para hablar.', 'feliz', 'saludar'],
+    noche: [en ? `Good evening! It’s ${h} in Colombia and Leonardo is in class at Riwi. I’ve got you covered. 🎓` : `¡Buenas noches! Son las ${h} en Colombia y Leonardo está en clase en Riwi. Yo te atiendo. 🎓`, 'guino', 'saludar'],
+    madrugada: [en ? `Zzz… oh, hi! It’s ${h} in Colombia and Leonardo is asleep. I can still help you. 😴` : `Zzz… ¡ah, hola! Son las ${h} en Colombia y Leonardo duerme. Igual yo te atiendo. 😴`, 'sorpresa', null]
+  };
+  const [texto, ex, ge] = saludos[momento];
+  decir(texto, {expresion: ex, gesto: ge, segundos: 6});
+}
 
 // Código Konami: baile.
 const KONAMI = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
@@ -587,6 +676,7 @@ addEventListener('keydown', e => {
 // API para el resto de la página.
 window.Volt = {
   decir, callar, hacerGesto, ponerExpresion, hablarPor,
+  get momento(){ return momento; }, horaTexto,
   celebrar(){ hacerGesto('celebrar'); explotarChispas(36); r.salto.empujar(-8); },
   bailar(){ hacerGesto('bailar'); explotarChispas(20); }
 };

@@ -19,9 +19,30 @@
 <meta property="og:locale:alternate" content="en_US">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+<link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.168.0/build/three.module.js" crossorigin>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "name": "Leonardo Iván Ayala Pérez",
+  "alternateName": "Leonardo Ayala",
+  "jobTitle": "Software Developer",
+  "url": "https://leonardo-200224.github.io/portfolio/",
+  "image": "https://leonardo-200224.github.io/portfolio/assets/og-image.png",
+  "email": "mailto:ayalaperezleonardo24@gmail.com",
+  "address": {"@type": "PostalAddress", "addressCountry": "CO"},
+  "sameAs": ["https://github.com/leonardo-200224", "https://www.linkedin.com/in/a-leonardo"],
+  "knowsAbout": ["Node.js", "TypeScript", "NestJS", "Python", "FastAPI", "PostgreSQL", "Process automation", "Three.js"],
+  "alumniOf": {"@type": "EducationalOrganization", "name": "Riwi", "url": "https://riwi.io"}
+}
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300..900&family=Geist:wght@300..800&family=Geist+Mono:wght@400..600&display=swap">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300..900&family=Geist:wght@300..800&family=Geist+Mono:wght@400..600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300..900&family=Geist:wght@300..800&family=Geist+Mono:wght@400..600&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300..900&family=Geist:wght@300..800&family=Geist+Mono:wght@400..600&display=swap"></noscript>
 <link rel="stylesheet" href="assets/styles.css">
 <script type="importmap">
 {"imports":{
@@ -62,6 +83,23 @@
     <button type="submit" aria-label="Enviar" data-i18n-aria="chat.enviar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.5 21 3l-8.5 18-2-7.5z" fill="currentColor"/></svg></button>
   </form>
 </section>
+
+<!-- Caso de estudio -->
+<div class="caso" id="caso" role="dialog" aria-modal="true" aria-labelledby="casoTitulo" hidden>
+  <div class="caso-fondo" data-cerrar></div>
+  <article class="caso-panel">
+    <header class="caso-barra">
+      <span class="caso-tipo" id="casoTipo"></span>
+      <div class="caso-nav">
+        <button type="button" class="redondo" id="casoPrev" aria-label="Caso anterior" data-i18n-aria="caso.prev"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <span class="caso-pos" id="casoPos"></span>
+        <button type="button" class="redondo" id="casoNext" aria-label="Caso siguiente" data-i18n-aria="caso.next"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <button type="button" class="redondo caso-cerrar" id="casoCerrar" aria-label="Cerrar caso" data-i18n-aria="caso.cerrar">×</button>
+      </div>
+    </header>
+    <div class="caso-scroll" id="casoScroll" data-lenis-prevent></div>
+  </article>
+</div>
 
 <!-- Circuito de progreso -->
 <nav class="circuito" id="circuito" aria-label="Progreso de la página" data-i18n-aria="circ.aria">
@@ -193,7 +231,7 @@
       <div class="proy-flecha" aria-hidden="true"><span data-i18n="proy.desliza">Sigue bajando</span><i></i></div>
     </div>
 
-    <article class="proy" data-tilt data-glow>
+    <article class="proy" data-tilt data-glow data-caso="cotizador">
       <div class="proy-visual v-cotizador" aria-hidden="true">
         <div class="doc">
           <div class="doc-cab"><i></i><b>COTIZACIÓN</b><span>PDF</span></div>
@@ -210,10 +248,11 @@
         <h3 data-i18n="c1.titulo">Cotizador web</h3>
         <p class="proy-txt" data-i18n="c1.texto">Antes cada cotización se armaba en Excel y el precio dependía de quién la hiciera. Ahora hay un catálogo único, roles de vendedor y administrador, y el PDF oficial sale en un par de clics.</p>
         <ul class="tags"><li>Node.js</li><li>Express</li><li>PostgreSQL</li><li>JWT</li><li>pdf-lib</li><li>Render</li></ul>
+        <button type="button" class="btn-caso" data-caso="cotizador"><span data-i18n="caso.ver">Ver caso de estudio</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
       </div>
     </article>
 
-    <article class="proy" data-tilt data-glow>
+    <article class="proy" data-tilt data-glow data-caso="facturas">
       <div class="proy-visual v-facturas" aria-hidden="true">
         <div class="flujo">
           <div class="nodo"><span class="ico-pdf">PDF</span><small>Drive</small></div>
@@ -229,10 +268,11 @@
         <h3 data-i18n="c2.titulo">Lector de facturas con IA supervisada</h3>
         <p class="proy-txt" data-i18n="c2.texto">Cada 15 minutos lee las facturas nuevas y actualiza la hoja de gastos. Los proveedores conocidos se leen con reglas; solo los formatos nuevos pasan por IA, y nada entra sin que una persona lo apruebe.</p>
         <ul class="tags"><li>Python</li><li>PostgreSQL</li><li>Google APIs</li><li>Gemini</li><li>Raspberry Pi</li></ul>
+        <button type="button" class="btn-caso" data-caso="facturas"><span data-i18n="caso.ver">Ver caso de estudio</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
       </div>
     </article>
 
-    <article class="proy" data-tilt data-glow>
+    <article class="proy" data-tilt data-glow data-caso="nomina">
       <div class="proy-visual v-nomina" aria-hidden="true">
         <div class="tabla-n">
           <div class="tn-cab"><span data-i18n="c3.col1">Persona</span><span data-i18n="c3.col2">Neto</span><span></span></div>
@@ -249,10 +289,11 @@
         <h3 data-i18n="c3.titulo">Nómina quincenal</h3>
         <p class="proy-txt" data-i18n="c3.texto">Se anotan las novedades y el sistema calcula salario, recargos, horas extras, salud, pensión y neto. Comprobado con una quincena real: los 55 netos coinciden, con 50 centavos de diferencia máxima.</p>
         <ul class="tags"><li>Excel</li><li>VBA</li><li data-i18n="c3.tag">Manual y capacitación</li></ul>
+        <button type="button" class="btn-caso" data-caso="nomina"><span data-i18n="caso.ver">Ver caso de estudio</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
       </div>
     </article>
 
-    <article class="proy" data-tilt data-glow>
+    <article class="proy" data-tilt data-glow data-caso="alertas">
       <div class="proy-visual v-alertas" aria-hidden="true">
         <div class="campana"><svg viewBox="0 0 24 24"><path d="M6 17V11a6 6 0 0 1 12 0v6l2 2H4z M10 21h4" fill="none" stroke="currentColor" stroke-width="1.8"/></svg><i></i></div>
         <div class="vencimientos">
@@ -268,6 +309,7 @@
         <h3 data-i18n="c4.titulo">Alertas de vencimientos</h3>
         <p class="proy-txt" data-i18n="c4.texto">En obra, un examen médico o un curso de alturas vencido deja a alguien sin poder trabajar. Ahora el sistema revisa la base cada día, avisa por correo antes de que algo venza y genera certificados laborales.</p>
         <ul class="tags"><li>Excel</li><li>VBA</li><li data-i18n="c4.tag">Tareas programadas</li></ul>
+        <button type="button" class="btn-caso" data-caso="alertas"><span data-i18n="caso.ver">Ver caso de estudio</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
       </div>
     </article>
   </div>
@@ -339,11 +381,11 @@
 
 </main>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
-<script src="assets/main.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
+<script defer src="assets/main.js"></script>
+<script defer src="assets/casos.js"></script>
 <script type="module" src="assets/escena.js"></script>
-<script type="module" src="assets/mascota.js"></script>
 </body>
 </html>

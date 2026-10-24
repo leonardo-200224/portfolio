@@ -2,7 +2,7 @@
 // DATOS DE CONTACTO: lo que quede vacío ('') no se muestra en la página.
 // ===================================================================
 const CONTACTO = {
-  correo:   '',   // ej. 'leonardo.ayala@gmail.com'
+  correo:   'ayalaperezleonardo24@gmail.com',
   linkedin: 'https://www.linkedin.com/in/a-leonardo',
   github:   'https://github.com/leonardo-200224',
   whatsapp: '',   // solo números con indicativo, ej. '573001234567'
@@ -51,7 +51,8 @@ const EN = {
   'cont.etq':'Contact','cont.grande':'LET’S TALK',
   'cont.texto':'Got a process that’s still done by hand, or a developer role? Write to me and I’ll tell you what I’d build and how long it would take.',
   'pie.volt':'Volt is made with Three.js. Try the Konami code.','pie.arriba':'Back to top',
-  'canal.correo':'Email me','canal.linkedin':'LinkedIn','canal.github':'GitHub','canal.whatsapp':'WhatsApp','canal.cv':'Download CV'
+  'canal.correo':'Email me','canal.linkedin':'LinkedIn','canal.github':'GitHub','canal.whatsapp':'WhatsApp','canal.cv':'Download CV',
+  'caso.ver':'View case study','caso.prev':'Previous case','caso.next':'Next case','caso.cerrar':'Close case'
 };
 const ES = {'canal.correo':'Escríbeme','canal.linkedin':'LinkedIn','canal.github':'GitHub','canal.whatsapp':'WhatsApp','canal.cv':'Descargar hoja de vida'};
 const PALABRAS = {es:['sistemas','APIs','automatizaciones','apps','flujos'], en:['systems','APIs','automations','apps','workflows']};
@@ -98,6 +99,7 @@ function aplicarIdioma(){
   pintarChips();
   construirCircuito();
   if(ANIMA){ animarManifiesto(); animarContacto(); ScrollTrigger.refresh(); }
+  dispatchEvent(new Event('idioma-cambiado'));
 }
 
 // =================================================================== utilidades de texto
@@ -209,10 +211,10 @@ HERRAMIENTAS.forEach(([slug, nombre, color, txt]) => {
 
 // =================================================================== repositorios de GitHub
 const REPOS = [
-  {nombre:'Dormify', repo:'DORMIFY', tipo:'backend', tags:['FastAPI','PostgreSQL','SQLAlchemy','JWT'],
+  {nombre:'Dormify', repo:'DORMIFY', tipo:'backend', caso:'dormify', tags:['FastAPI','PostgreSQL','SQLAlchemy','JWT'],
    es:'Plataforma de alojamiento para universitarios: arriendos, directorio de servicios y foro de la comunidad.',
    en:'Student housing platform: rentals, a services directory and a community forum.'},
-  {nombre:'RiwiMediCare API', repo:'-Prueba-M5_2_NodeJS_Final', tipo:'backend', tags:['Express','TypeScript','Sequelize','Swagger'],
+  {nombre:'RiwiMediCare API', repo:'-Prueba-M5_2_NodeJS_Final', tipo:'backend', caso:'medicare', tags:['Express','TypeScript','Sequelize','Swagger'],
    es:'API REST que reemplaza correos y hojas de cálculo en las solicitudes de medicamentos entre clínicas y bodegas.',
    en:'REST API that replaces emails and spreadsheets for medicine requests between clinics and warehouses.'},
   {nombre:'GestionCall', repo:'GestionCall', tipo:'backend', estrellas:2, tags:['Flask','Chart.js','JavaScript'],
@@ -234,14 +236,20 @@ function pintarRepos(){
   const caja = $('ghGrid');
   caja.textContent = '';
   REPOS.forEach(r => {
-    const a = document.createElement('a');
+    const url = `https://github.com/${USUARIO_GITHUB}/${r.repo}`;
+    // Con caso de estudio la tarjeta abre el caso y el código va en su propio enlace;
+    // sin caso, toda la tarjeta es el enlace al repositorio.
+    const a = document.createElement(r.caso ? 'article' : 'a');
     a.className = 'repo';
-    a.href = `https://github.com/${USUARIO_GITHUB}/${r.repo}`;
-    a.target = '_blank'; a.rel = 'noopener';
+    if(r.caso){ a.dataset.caso = r.caso; }
+    else{ a.href = url; a.target = '_blank'; a.rel = 'noopener'; }
     a.dataset.tipo = r.tipo;
     a.setAttribute('data-glow', ''); a.setAttribute('data-tilt', '');
+    const acciones = r.caso
+      ? `<div class="repo-acciones"><button type="button" class="btn-caso" data-caso="${r.caso}">${L('Caso de estudio', 'Case study')}</button><a class="repo-ir" href="${url}" target="_blank" rel="noopener">${L('Código', 'Code')}</a></div>`
+      : `<span class="repo-ir">${L('Ver código', 'View code')}</span>`;
     a.innerHTML = `<div class="repo-top">${ICONO_REPO}${r.estrellas ? `<span class="repo-estrellas">★ ${r.estrellas}</span>` : ''}</div>
-      <h3></h3><p></p><ul class="tags"></ul><span class="repo-ir">${L('Ver código', 'View code')}</span>`;
+      <h3></h3><p></p><ul class="tags"></ul>${acciones}`;
     a.querySelector('h3').textContent = idioma === 'en' && r.nombreEn ? r.nombreEn : r.nombre;
     a.querySelector('p').textContent = r[idioma];
     r.tags.forEach(tg => { const li = document.createElement('li'); li.textContent = tg; a.querySelector('ul').appendChild(li); });
@@ -345,6 +353,7 @@ const COMANDOS = {
     L('  stack        tecnologías que usa', '  stack        technologies he uses'),
     L('  riwi         su formación', '  riwi         his training'),
     L('  github       datos en vivo de su GitHub', '  github       live data from his GitHub'),
+    L('  casos        casos de estudio de sus proyectos', '  cases        case studies of his projects'),
     L('  contacto     cómo escribirle', '  contact      how to reach him'),
     L('  volt         habla con la mascota', '  volt         talk to the mascot'),
     '  whoami · ls · date · clear',
@@ -405,9 +414,15 @@ const COMANDOS = {
     lluviaDeChispas();
     return [['[sudo] ' + L('acceso concedido', 'access granted'), 'ok'], L('Iniciando proceso de contratación…', 'Starting hiring process…'), [L('▸ Siguiente paso: escríbele por LinkedIn.', '▸ Next step: message him on LinkedIn.'), 'acento']];
   },
+  casos: () => {
+    const ids = window.Casos?.lista || [];
+    return [[L('Casos de estudio disponibles:', 'Available case studies:'), 'acento'],
+      ...ids.map(id => [`  ▸ <a href="#caso-${id}" data-caso="${id}">${id}</a>`, 'sal', true]),
+      L('Escribe: caso <nombre>  (por ejemplo: caso facturas)', 'Type: case <name>  (for example: case facturas)')];
+  },
   'cat .secreto': () => [L('Prueba el código Konami en cualquier parte: ↑ ↑ ↓ ↓ ← → ← → B A', 'Try the Konami code anywhere: ↑ ↑ ↓ ↓ ← → ← → B A')]
 };
-const ALIAS = {about:'sobre', projects:'proyectos', contact:'contacto', ayuda:'help', 'sudo hire':'sudo contratar', 'sudo contratar-leonardo':'sudo contratar', limpiar:'clear', cls:'clear'};
+const ALIAS = {about:'sobre', projects:'proyectos', contact:'contacto', cases:'casos', ayuda:'help', 'sudo hire':'sudo contratar', 'sudo contratar-leonardo':'sudo contratar', limpiar:'clear', cls:'clear'};
 async function ejecutar(texto){
   const cmd = texto.trim().toLowerCase().replace(/\s+/g, ' ');
   if(!cmd) return;
@@ -415,6 +430,13 @@ async function ejecutar(texto){
   linea(texto.trim(), 'cmd');
   const nombre = ALIAS[cmd] || cmd;
   if(nombre.startsWith('echo ')){ linea(texto.trim().slice(5)); return; }
+  const pedido = /^(caso|case) (.+)$/.exec(nombre);
+  if(pedido){
+    const id = pedido[2].trim();
+    if(window.Casos?.lista.includes(id)){ linea(L(`Abriendo el caso ${id}…`, `Opening case ${id}…`), 'ok'); window.Casos.abrir(id); }
+    else linea(L(`No existe el caso "${id}". Escribe casos para ver la lista.`, `There’s no case "${id}". Type cases to see the list.`), 'err');
+    return;
+  }
   const fn = COMANDOS[nombre];
   if(!fn){ linea(L(`comando no encontrado: ${cmd}. Escribe help.`, `command not found: ${cmd}. Type help.`), 'err'); return; }
   const salida = await fn();
@@ -454,6 +476,16 @@ const CHISTES = {
   en:['Why do programmers mix up Halloween and Christmas? Because OCT 31 = DEC 25.','There are 10 kinds of people: those who understand binary and those who don’t.','My code has no bugs. It has surprise features.','How many programmers does it take to change a light bulb? None, that’s a hardware problem.']
 };
 const INTENCIONES = [
+  {re:/hora|time|zona|timezone|despiert|awake|duerme|sleep/, r: () => {
+    const m = window.Volt?.momento || 'tarde', h = window.Volt?.horaTexto?.() || '';
+    const frase = {
+      manana: L('Leonardo está arrancando el día.', 'Leonardo is starting his day.'),
+      tarde: L('Leonardo está trabajando ahora mismo.', 'Leonardo is at work right now.'),
+      noche: L('Leonardo está en clase en Riwi; te responde al salir.', 'Leonardo is in class at Riwi; he’ll reply after.'),
+      madrugada: L('Leonardo duerme; te responde en la mañana.', 'Leonardo is asleep; he’ll reply in the morning.')
+    }[m];
+    return {texto: L(`Aquí son las ${h} en Colombia (UTC-5). ${frase}`, `It’s ${h} in Colombia (UTC-5). ${frase}`), ex: m === 'madrugada' ? 'dormido' : 'feliz'};
+  }},
   {re:/volt|robot|mascota|qui[eé]n eres|who are you|are you/, r: () => ({texto: L('Soy Volt 🤖. Estoy hecho con Three.js: mi cara es un canvas que se redibuja 60 veces por segundo y me muevo con física de resortes. Leonardo me construyó para este portafolio.', 'I’m Volt 🤖. I’m made with Three.js: my face is a canvas redrawn 60 times per second and I move with spring physics. Leonardo built me for this portfolio.'), ex:'feliz'})},
   {re:/hola|hello|\bhi\b|buenas|hey|saludos/, r: () => ({texto: L('¡Hola! 👋 Pregúntame por los proyectos, las tecnologías o cómo contactar a Leonardo.', 'Hi! 👋 Ask me about projects, tech stack or how to reach Leonardo.'), ex:'feliz', ge:'saludar'})},
   {re:/proyect|project|trabaj|work|sistema|hizo|built/, r: () => ({texto: L('Tiene 4 sistemas en producción: un cotizador web, un lector de facturas con IA, una nómina de 55 personas y alertas de vencimientos. En GitHub hay más: Dormify, RiwiMediCare API, GestionCall…', 'He has 4 systems in production: a web quoting app, an AI invoice reader, payroll for 55 employees and expiration alerts. More on GitHub: Dormify, RiwiMediCare API, GestionCall…'), ir:'#proyectos', ge:'senalar'})},
@@ -557,8 +589,15 @@ if(PUNTERO_FINO && !MENOS_MOVIMIENTO){
 }
 addEventListener('pointerdown', e => { if(!MENOS_MOVIMIENTO) for(let i = 0; i < 18; i++) chispa(e.clientX, e.clientY, 1.4); });
 function lluviaDeChispas(){ for(let i = 0; i < 120; i++) setTimeout(() => chispa(Math.random() * innerWidth, -10, 1.2), i * 12); }
+let lienzoLimpio = true;
 (function animarChispas(){
   requestAnimationFrame(animarChispas);
+  // Sin chispas no hay nada que borrar ni dibujar.
+  if(!particulas.length){
+    if(!lienzoLimpio){ c2d.clearRect(0, 0, innerWidth, innerHeight); lienzoLimpio = true; }
+    return;
+  }
+  lienzoLimpio = false;
   c2d.clearRect(0, 0, innerWidth, innerHeight);
   c2d.globalCompositeOperation = 'lighter';
   for(let i = particulas.length - 1; i >= 0; i--){
@@ -733,6 +772,11 @@ function intro(){
   setInterval(rotar, 2600);
 }
 
+// Volt se carga después de la intro: así no compite con la escena 3D en la carga inicial.
+function cargarVolt(){
+  import('./mascota.js').catch(() => { $('voltHit')?.remove(); });
+}
+
 // Pantalla de carga con registro de arranque.
 function cargar(){
   const num = $('loaderNum'), barra = $('loaderBarra'), log = $('loaderLog');
@@ -760,7 +804,9 @@ function cargar(){
     $('loader')?.remove();
     document.body.classList.remove('cargando');
     if(lenis) lenis.start();
+    window.__introHecha = true;
     dispatchEvent(new Event('intro'));
+    cargarVolt();
     intro();
     ScrollTrigger.refresh();
   }
@@ -836,6 +882,8 @@ if(ANIMA){
   aplicarIdioma();
   $('loader').remove();
   document.body.classList.remove('cargando');
+  window.__introHecha = true;
+  cargarVolt();
   setInterval(rotar, 2600);
   new IntersectionObserver(es => es.forEach(e => { if(e.isIntersecting) iniciarTerminal(); })).observe($('term'));
 }

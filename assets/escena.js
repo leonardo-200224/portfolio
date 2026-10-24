@@ -23,7 +23,14 @@ try{
 const COLORES = {fondo: 0x06080D, azul: 0x4D7CFF, cian: 0x3FD0FF, senal: 0xF5C542, pista: 0x1A2A52, pistaViva: 0x2C4A9A};
 const movil = () => innerWidth / innerHeight < 0.8;
 
-renderer.setPixelRatio(Math.min(devicePixelRatio, movil() ? 1.25 : 1.5));
+// Calidad adaptable: los equipos modestos arrancan sin brillo y con menos resolución,
+// y cualquier equipo que no sostenga ~35 cuadros por segundo baja la calidad solo.
+const GAMA_BAJA = (navigator.hardwareConcurrency || 8) <= 4 || (navigator.deviceMemory || 8) <= 4 || matchMedia('(pointer: coarse)').matches;
+let usarBloom = !GAMA_BAJA;
+let topeDpr = GAMA_BAJA ? 1 : 1.5;
+const dpr = () => Math.min(devicePixelRatio, movil() ? Math.min(topeDpr, 1.25) : topeDpr);
+
+renderer.setPixelRatio(dpr());
 renderer.setSize(innerWidth, innerHeight);
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.05;
@@ -200,13 +207,14 @@ function crearPista(puntos2d, conPulso, colorPulso){
   pistas.push(p);
 }
 
-function puntoEn(p, d){
+// Escribe en "destino" el punto a distancia d sobre la pista (sin crear objetos en cada cuadro).
+function puntoEn(p, d, destino){
   let resto = d;
   for(let i = 0; i < p.tramos.length; i++){
-    if(resto <= p.tramos[i]) return new THREE.Vector3().lerpVectors(p.puntos[i], p.puntos[i + 1], resto / p.tramos[i]);
+    if(resto <= p.tramos[i]) return destino.lerpVectors(p.puntos[i], p.puntos[i + 1], resto / p.tramos[i]);
     resto -= p.tramos[i];
   }
-  return p.puntos[p.puntos.length - 1].clone();
+  return destino.copy(p.puntos[p.puntos.length - 1]);
 }
 
 // Pistas que salen de cada pata con quiebres a 45°, como en una placa real.
@@ -233,7 +241,7 @@ LADOS.forEach(([dx, dz]) => {
 });
 
 // Pistas sueltas en la placa, lejos del chip, para dar profundidad.
-for(let i = 0; i < 46; i++){
+for(let i = 0; i < (GAMA_BAJA ? 20 : 46); i++){
   const ang = Math.random() * Math.PI * 2, r = aleat(4.5, 11);
   let x = Math.cos(ang) * r, z = Math.sin(ang) * r;
   const pts = [[x, z]];
@@ -256,7 +264,7 @@ for(let i = 0; i < 46; i++){
 }
 
 // Partículas que flotan sobre la placa.
-const PART = movil() ? 140 : 260;
+const PART = GAMA_BAJA ? 90 : movil() ? 140 : 260;
 const partGeo = new THREE.BufferGeometry();
 const partPos = new Float32Array(PART * 3), partVel = new Float32Array(PART);
 for(let i = 0; i < PART; i++){
@@ -279,7 +287,7 @@ compositor.addPass(new OutputPass());
 
 function ajustar(){
   const w = innerWidth, h = innerHeight;
-  renderer.setPixelRatio(Math.min(devicePixelRatio, movil() ? 1.25 : 1.5));
+  renderer.setPixelRatio(dpr());
   renderer.setSize(w, h);
   compositor.setSize(w, h);
   bloom.setSize(w, h);
@@ -303,6 +311,21 @@ let introInicio = null;
 addEventListener('intro', () => { introInicio = performance.now(); }, {once: true});
 const suave = x => 1 - Math.pow(1 - Math.min(Math.max(x, 0), 1), 3);
 
+// Promedia el tiempo por cuadro durante ~2 s; si va lento, quita el brillo y luego baja la resolución.
+// Solo cuenta con la pestaña visible, para no castigar al equipo mientras está en segundo plano.
+let muestras = 0, sumaDt = 0;
+function vigilarRendimiento(dt){
+  if(document.hidden || (!usarBloom && topeDpr <= 1)) return;
+  sumaDt += dt; muestras++;
+  if(muestras < 120) return;
+  const fps = muestras / sumaDt;
+  muestras = 0; sumaDt = 0;
+  if(fps >= 35) return;
+  if(usarBloom) usarBloom = false;
+  else{ topeDpr = 1; ajustar(); }
+}
+
+let opacidadPrevia = '';
 const reloj = new THREE.Clock();
 let primerCuadro = true;
 
@@ -314,7 +337,9 @@ function cuadro(){
   // Progreso del scroll en alturas de pantalla.
   const s = scrollY / innerHeight;
   const visible = 1 - THREE.MathUtils.smoothstep(s, .85, 1.7);
-  canvas.style.opacity = visible;
+  // Solo se escribe la opacidad si cambió: escribir estilos en cada cuadro obliga al navegador a recalcular.
+  const opacidad = visible.toFixed(2);
+  if(opacidad !== opacidadPrevia){ canvas.style.opacity = opacidad; opacidadPrevia = opacidad; }
   if(visible <= 0 && !primerCuadro) return;
 
   const ip = introInicio === null ? 0 : (performance.now() - introInicio) / 2400;
@@ -357,8 +382,8 @@ function cuadro(){
       p.t += p.vel * factor * dt;
       if(p.t > p.largo){ p.t = 0; p.espera = aleat(.2, 1.6); p.flash = 1; }
       p.pulso.visible = p.cola.visible = encendido > .5;
-      p.pulso.position.copy(puntoEn(p, p.t)).setY(.06);
-      p.cola.position.copy(puntoEn(p, Math.max(p.t - .28, 0))).setY(.06);
+      puntoEn(p, p.t, p.pulso.position).setY(.06);
+      puntoEn(p, Math.max(p.t - .28, 0), p.cola.position).setY(.06);
     }
     // El pad del extremo destella cuando llega un pulso.
     p.flash = Math.max((p.flash || 0) - dt * 1.6, 0);
@@ -374,7 +399,8 @@ function cuadro(){
   partGeo.attributes.position.needsUpdate = true;
   particulas.material.opacity = .55 * ei;
 
-  compositor.render();
+  if(usarBloom) compositor.render(); else renderer.render(escena, camara);
+  vigilarRendimiento(dt);
   if(primerCuadro){ primerCuadro = false; avisarLista(); }
 }
 cuadro();

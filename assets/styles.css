@@ -448,4 +448,78 @@ main,.nav{position:relative;z-index:2}
 .arriba{text-decoration:none;color:var(--suave)}
 .arriba:hover{color:var(--cian)}
 
+/* ---------- botones de caso de estudio ---------- */
+.btn-caso{display:inline-flex;align-items:center;gap:8px;margin-top:18px;font:inherit;font-size:14.5px;font-weight:700;cursor:pointer;
+  padding:10px 16px;border-radius:99px;border:1px solid rgba(63,208,255,.4);background:rgba(63,208,255,.08);color:#BDF1FF;transition:background .25s,gap .25s,border-color .25s}
+.btn-caso svg{width:16px;height:16px;transition:transform .25s var(--ease)}
+.btn-caso:hover{background:rgba(63,208,255,.18);border-color:var(--cian)}
+.btn-caso:hover svg{transform:translateX(3px)}
+.proy[data-caso],.repo[data-caso]{cursor:pointer}
+.repo-acciones{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.repo-acciones .btn-caso{margin-top:0;padding:8px 14px;font-size:13.5px}
+.repo-acciones .repo-ir{text-decoration:none}
+
+/* ---------- panel del caso de estudio ---------- */
+html.con-caso{overflow:hidden}
+.caso{position:fixed;inset:0;z-index:85;display:grid;align-items:end;justify-items:center}
+.caso-fondo{position:absolute;inset:0;background:rgba(3,4,8,.72);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.caso-panel{position:relative;width:min(1100px,100%);height:min(92vh,100%);display:grid;grid-template-rows:auto 1fr;
+  background:var(--bg2);border:1px solid var(--linea2);border-bottom:0;border-radius:26px 26px 0 0;overflow:hidden;
+  box-shadow:0 -30px 100px rgba(0,0,0,.6),0 0 80px rgba(77,124,255,.12)}
+.caso-panel::before{content:"";position:absolute;left:0;right:0;top:0;height:2px;background:linear-gradient(90deg,var(--azul),var(--cian),var(--senal))}
+.caso-barra{display:flex;align-items:center;gap:16px;padding:16px clamp(18px,4vw,40px);border-bottom:1px solid var(--linea)}
+.caso-tipo{font-family:var(--f-mono);font-size:13px;color:var(--cian)}
+.caso-nav{margin-left:auto;display:flex;align-items:center;gap:8px}
+.caso-nav svg{width:18px;height:18px}
+.caso-pos{font-family:var(--f-mono);font-size:13px;color:var(--suave);min-width:44px;text-align:center}
+.caso-cerrar{font-size:22px;line-height:1}
+.caso-scroll{overflow-y:auto;overscroll-behavior:contain;padding:clamp(28px,5vw,56px) clamp(18px,5vw,64px) 64px}
+.caso-scroll section,.caso-dos{margin-top:clamp(40px,5vw,60px)}
+.caso-scroll h3{font-family:var(--f-mono);font-size:13.5px;font-weight:500;color:var(--cian);margin-bottom:16px}
+.caso-scroll h3::before{content:"// ";color:var(--tenue)}
+.caso-cab h2{font-family:var(--f-titulo);font-weight:800;font-size:clamp(32px,5vw,64px);line-height:1.02;letter-spacing:-.045em;max-width:18ch}
+.caso-resumen{margin-top:18px;font-size:clamp(18px,1.8vw,22px);line-height:1.5;color:var(--suave);max-width:60ch}
+.caso-meta{margin-top:28px;display:flex;flex-wrap:wrap;align-items:center;gap:18px 32px}
+.caso-meta > div:first-child{display:grid;gap:2px}
+.caso-meta span{font-family:var(--f-mono);font-size:12.5px;color:var(--tenue)}
+.caso-meta b{font-weight:600}
+.caso-meta .tags{margin-top:0}
+.caso-enlaces .btn{padding:11px 20px;font-size:14px}
+.caso-dos{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(28px,4vw,56px)}
+@media (max-width:760px){.caso-dos{grid-template-columns:1fr}}
+.caso-dos section{margin-top:0}
+.caso-scroll p{color:var(--suave);max-width:62ch}
+.caso-lista{display:grid;gap:12px;max-width:72ch}
+.caso-lista li{position:relative;padding-left:30px;color:var(--suave)}
+.caso-lista li::before{content:"";position:absolute;left:0;top:.45em;width:16px;height:16px;border-radius:5px;border:1.5px solid var(--cian);
+  background:linear-gradient(var(--cian),var(--cian)) center/6px 6px no-repeat;box-shadow:0 0 10px rgba(63,208,255,.35)}
+.caso-dos section:last-child .caso-lista li::before{border-color:#FF7B7B;background:linear-gradient(#FF7B7B,#FF7B7B) center/8px 2px no-repeat;box-shadow:none}
+
+.dg-caja{overflow-x:auto;padding:24px;border-radius:20px;background:var(--bg);border:1px solid var(--linea);
+  background-image:radial-gradient(var(--linea2) 1px,transparent 1px);background-size:22px 22px}
+.diagrama{display:block;margin-inline:auto;max-width:100%;height:auto;min-width:560px}
+.dg-cable{fill:none;stroke:#2A3A5E;stroke-width:2}
+.dg-pulso{fill:none;stroke:var(--cian);stroke-width:3;stroke-linecap:round;stroke-dasharray:8 92;stroke-dashoffset:100;
+  filter:drop-shadow(0 0 4px var(--cian));animation:dg-corre 2.4s linear infinite}
+@keyframes dg-corre{to{stroke-dashoffset:0}}
+.dg-nodo rect{fill:var(--panel2);stroke:var(--linea2);stroke-width:1.5}
+.dg-nodo.clave rect{stroke:var(--cian);fill:#10213A}
+.dg-nodo{opacity:0;animation:dg-entra .5s var(--ease) forwards;animation-delay:calc(.5s + var(--d))}
+@keyframes dg-entra{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.dg-t{font-family:var(--f-texto);font-size:14px;font-weight:700;fill:var(--texto)}
+.dg-s{font-family:var(--f-mono);font-size:11px;fill:var(--suave)}
+
+.caso-resultados{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+.caso-resultados div{padding:22px;border-radius:18px;background:var(--panel);border:1px solid var(--linea)}
+.caso-resultados b{display:block;font-family:var(--f-titulo);font-weight:800;font-size:clamp(34px,4vw,48px);line-height:1;letter-spacing:-.04em;
+  background:linear-gradient(180deg,#fff 30%,var(--azul));-webkit-background-clip:text;background-clip:text;color:transparent}
+.caso-resultados span{display:block;margin-top:10px;color:var(--suave);font-size:15px}
+
+.caso-siguiente{margin-top:clamp(48px,6vw,72px);width:100%;display:grid;gap:6px;text-align:left;cursor:pointer;font:inherit;color:var(--texto);
+  padding:26px 28px;border-radius:20px;background:var(--panel);border:1px solid var(--linea2);transition:border-color .3s,background .3s}
+.caso-siguiente:hover{border-color:var(--cian);background:#0F1828}
+.caso-siguiente span{font-family:var(--f-mono);font-size:13px;color:var(--tenue)}
+.caso-siguiente b{font-family:var(--f-titulo);font-size:clamp(20px,2.4vw,30px);letter-spacing:-.03em}
+@media (prefers-reduced-motion:reduce){.dg-pulso{animation-duration:6s}.dg-nodo{animation:none;opacity:1}}
+
 @media print{.loader,#escena,#chispas,#volt,.volt-hit,.volt-burbuja,.chat,.circuito,.ruido,.nav,.marquesina{display:none}}

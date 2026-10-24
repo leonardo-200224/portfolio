@@ -9,7 +9,9 @@ index.html            La página
 assets/styles.css     Estilos (Unbounded, Geist y Geist Mono)
 assets/main.js        Datos de contacto, idioma, terminal, chat, proyectos de GitHub y animaciones
 assets/escena.js      Escena 3D del chip con pulsos de corriente
-assets/mascota.js     Volt, la mascota 3D: cara animada, expresiones, gestos y física de resortes
+assets/mascota.js     Volt, la mascota 3D: cara animada, expresiones, gestos, física de resortes y hora de Colombia
+assets/casos.js       Casos de estudio con diagramas de arquitectura animados (enlace directo: #caso-<id>)
+sitemap.xml           Mapa del sitio para Google
 assets/favicon.svg    Ícono de la pestaña
 assets/og-image.png   Imagen que sale al compartir el enlace (LinkedIn, WhatsApp)
 ```
