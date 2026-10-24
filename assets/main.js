@@ -270,28 +270,146 @@ llenarMarquesina('mq1', MARQUESINA_1);
 llenarMarquesina('mq2', MARQUESINA_2);
 
 const SI = 'https://cdn.jsdelivr.net/npm/simple-icons@13.21.0/icons/';
+// =================================================================== consola del stack
+// Las herramientas agrupadas por área, como componentes en una placa. Al elegir una se ve para
+// qué la uso y en qué proyectos reales está, con enlace a cada uno. Recorre sola hasta que el
+// visitante toca una.
+const PROYECTOS = {
+  cotizador: {n: ['Cotizador web', 'Web quoting app'], caso: 'cotizador'},
+  facturas: {n: ['Lector de facturas', 'Invoice reader'], caso: 'facturas'},
+  nomina: {n: ['Nómina quincenal', 'Biweekly payroll'], caso: 'nomina'},
+  alertas: {n: ['Alertas de vencimientos', 'Expiration alerts'], caso: 'alertas'},
+  dormify: {n: ['Dormify', 'Dormify'], caso: 'dormify'},
+  medicare: {n: ['RiwiMediCare API', 'RiwiMediCare API'], caso: 'medicare'},
+  tickets: {n: ['TicketSystem SPA', 'TicketSystem SPA'], repo: 'ticket-system-spa'},
+  gestioncall: {n: ['GestionCall', 'GestionCall'], repo: 'GestionCall'},
+  reservas: {n: ['API de reservas', 'Reservations API'], repo: 'Actividad_nest_week_5'},
+  rick: {n: ['Rick & Morty SPA', 'Rick & Morty SPA'], repo: 'spa-final'},
+  web: {n: ['Sitios para negocios', 'Business websites'], ancla: '#web'},
+  portafolio: {n: ['Este portafolio', 'This portfolio'], ancla: '#inicio'},
+  riwi: {n: ['Formación en Riwi', 'Riwi training'], ancla: '#trayectoria'},
+  inicios: {n: ['Primeros proyectos', 'First projects'], ancla: '#trayectoria'}
+};
+const CATEGORIAS = [['backend', ['Backend', 'Backend']], ['datos', ['Datos', 'Data']], ['frontend', ['Frontend', 'Frontend']], ['infra', ['Infraestructura e IA', 'Infrastructure & AI']]];
+// [ícono, nombre, color, área, proyectos donde la uso, para qué, texto si no hay ícono]
 const HERRAMIENTAS = [
-  ['nodedotjs','Node.js','#5FA04E'],['typescript','TypeScript','#3178C6'],['javascript','JavaScript','#F7DF1E'],['nestjs','NestJS','#E0234E'],
-  ['express','Express','#9BA4B7'],['python','Python','#3776AB'],['fastapi','FastAPI','#009688'],['flask','Flask','#9BA4B7'],
-  ['postgresql','PostgreSQL','#4169E1'],['mysql','MySQL','#4479A1'],['sqlite','SQLite','#3FA9F5'],['sequelize','Sequelize','#52B0E7'],
-  ['react','React','#61DAFB'],['vite','Vite','#646CFF'],['html5','HTML5','#E34F26'],['css3','CSS3','#1572B6'],
-  ['sass','Sass','#CC6699'],['bootstrap','Bootstrap','#7952B3'],['php','PHP','#777BB4'],['electron','Electron','#47848F'],
-  ['cplusplus','C++','#00599C'],[null,'Excel y VBA','#21A366','XLS'],['linux','Linux','#FCC624'],['raspberrypi','Raspberry Pi','#E3245A'],
-  ['googlegemini','Gemini','#8E75B2'],['swagger','Swagger','#85EA2D'],['postman','Postman','#FF6C37'],['jsonwebtokens','JWT','#D63AFF'],
-  ['render','Render','#9BA4B7'],['git','Git','#F05032'],['github','GitHub','#ECEFF6'],['threedotjs','Three.js','#ECEFF6']
+  ['nodedotjs', 'Node.js', '#5FA04E', 'backend', ['cotizador', 'medicare', 'tickets'], ['Mi base para APIs y automatizaciones.', 'My go-to for APIs and automations.']],
+  ['typescript', 'TypeScript', '#3178C6', 'backend', ['medicare', 'reservas'], ['Tipos que atrapan errores antes de llegar a producción.', 'Types that catch bugs before they reach production.']],
+  ['express', 'Express', '#9BA4B7', 'backend', ['cotizador', 'medicare'], ['APIs REST livianas con middlewares propios.', 'Lightweight REST APIs with custom middleware.']],
+  ['nestjs', 'NestJS', '#E0234E', 'backend', ['reservas'], ['Arquitectura por módulos: guards, pipes e interceptors.', 'Modular architecture: guards, pipes and interceptors.']],
+  ['python', 'Python', '#3776AB', 'backend', ['facturas', 'dormify', 'gestioncall'], ['Automatización, lectura de PDF y backends.', 'Automation, PDF parsing and backends.']],
+  ['fastapi', 'FastAPI', '#009688', 'backend', ['facturas', 'dormify'], ['APIs rápidas con validación y documentación automática.', 'Fast APIs with validation and automatic docs.']],
+  ['flask', 'Flask', '#9BA4B7', 'backend', ['gestioncall'], ['Aplicaciones web pequeñas y directas.', 'Small, straightforward web apps.']],
+  ['php', 'PHP', '#777BB4', 'backend', ['inicios'], ['Donde empecé: mis primeras páginas dinámicas.', 'Where I started: my first dynamic pages.']],
+  ['cplusplus', 'C++', '#00599C', 'backend', ['inicios'], ['Los fundamentos de programación de la carrera.', 'Programming fundamentals from college.']],
+  ['postgresql', 'PostgreSQL', '#4169E1', 'datos', ['cotizador', 'facturas', 'dormify', 'medicare'], ['Mi base de datos principal en producción.', 'My main production database.']],
+  ['mysql', 'MySQL', '#4479A1', 'datos', ['inicios'], ['Bases de datos de mis primeros proyectos web.', 'Databases for my first web projects.']],
+  ['sqlite', 'SQLite', '#3FA9F5', 'datos', ['riwi'], ['Bases livianas para prototipos y pruebas.', 'Lightweight databases for prototypes and tests.']],
+  ['sequelize', 'Sequelize', '#52B0E7', 'datos', ['medicare'], ['Modelos y relaciones con un ORM.', 'Models and relations with an ORM.']],
+  [null, 'Excel y VBA', '#21A366', 'datos', ['nomina', 'alertas'], ['Sistemas completos dentro de Excel, con macros.', 'Full systems inside Excel, with macros.'], 'XLS'],
+  ['javascript', 'JavaScript', '#F7DF1E', 'frontend', ['cotizador', 'tickets', 'rick', 'web'], ['Interfaces sin frameworks cuando no hacen falta.', 'Framework-free interfaces when none are needed.']],
+  ['html5', 'HTML5', '#E34F26', 'frontend', ['web', 'portafolio'], ['Estructura semántica y accesible.', 'Semantic, accessible structure.']],
+  ['css3', 'CSS3', '#1572B6', 'frontend', ['web', 'portafolio'], ['Diseño, animaciones y versiones para celular.', 'Design, animation and mobile layouts.']],
+  ['threedotjs', 'Three.js', '#ECEFF6', 'frontend', ['portafolio'], ['El 3D de este portafolio: Volt y su equipo.', 'The 3D in this portfolio: Volt and his team.']],
+  ['react', 'React', '#61DAFB', 'frontend', ['riwi'], ['Componentes y estado en mi formación en Riwi.', 'Components and state in my Riwi training.']],
+  ['vite', 'Vite', '#646CFF', 'frontend', ['tickets'], ['Entorno de desarrollo rápido para SPAs.', 'Fast dev environment for SPAs.']],
+  ['bootstrap', 'Bootstrap', '#7952B3', 'frontend', ['tickets'], ['Interfaces ordenadas en poco tiempo.', 'Tidy interfaces in little time.']],
+  ['sass', 'Sass', '#CC6699', 'frontend', ['riwi'], ['Estilos organizados por partes.', 'Styles organized into parts.']],
+  ['electron', 'Electron', '#47848F', 'frontend', ['riwi'], ['Aplicaciones de escritorio con tecnología web.', 'Desktop apps with web technology.']],
+  ['jsonwebtokens', 'JWT', '#D63AFF', 'infra', ['cotizador', 'medicare', 'dormify'], ['Sesiones seguras y roles de usuario.', 'Secure sessions and user roles.']],
+  ['swagger', 'Swagger', '#85EA2D', 'infra', ['medicare'], ['Documentación viva de cada endpoint.', 'Living documentation for every endpoint.']],
+  ['postman', 'Postman', '#FF6C37', 'infra', ['reservas', 'medicare'], ['Pruebas de cada ruta de la API.', 'Testing every API route.']],
+  ['googlegemini', 'Gemini', '#8E75B2', 'infra', ['facturas'], ['IA que lee facturas nuevas, siempre con aprobación humana.', 'AI that reads new invoices, always with human approval.']],
+  ['raspberrypi', 'Raspberry Pi', '#E3245A', 'infra', ['facturas'], ['Un servidor pequeño que trabaja día y noche.', 'A tiny server working day and night.']],
+  ['linux', 'Linux', '#FCC624', 'infra', ['facturas'], ['Servicios con systemd y respaldos diarios.', 'systemd services and daily backups.']],
+  ['render', 'Render', '#9BA4B7', 'infra', ['cotizador', 'dormify'], ['Despliegue en la nube.', 'Cloud deployment.']],
+  ['git', 'Git', '#F05032', 'infra', ['cotizador', 'dormify', 'medicare', 'portafolio'], ['Control de versiones en todos mis proyectos.', 'Version control in every project.']],
+  ['github', 'GitHub', '#ECEFF6', 'infra', ['portafolio', 'dormify', 'medicare'], ['Mis repositorios públicos y este sitio.', 'My public repositories and this site.']]
 ];
-HERRAMIENTAS.forEach(([slug, nombre, color, txt]) => {
-  const li = document.createElement('li');
-  li.style.setProperty('--c', color);
+const tx2 = par => par[idioma === 'en' ? 1 : 0];
+let stackSel = 0, stackTocado = 0, stackVisible = false;
+
+function iconoStack(h, clase){
+  const [slug, , , , , , txt] = h;
   const ic = document.createElement('span');
-  if(slug){ ic.className = 'ic'; ic.style.setProperty('--i', `url(${SI}${slug}.svg)`); }
-  else{ ic.className = 'ic ic-txt'; ic.textContent = txt; }
+  ic.className = clase;
   ic.setAttribute('aria-hidden', 'true');
-  const n = document.createElement('span');
-  n.textContent = nombre;
-  li.append(ic, n);
-  $('iconos').appendChild(li);
-});
+  if(slug) ic.style.setProperty('--i', `url(${SI}${slug}.svg)`);
+  else{ ic.classList.add('txt'); ic.textContent = txt; }
+  return ic;
+}
+function pintarStack(){
+  const placa = $('stackPlaca');
+  placa.textContent = '';
+  CATEGORIAS.forEach(([id, nombre], f) => {
+    const fila = document.createElement('div');
+    fila.className = 'stack-fila';
+    fila.style.setProperty('--retraso', `${f * .8}s`);
+    const cab = document.createElement('p');
+    cab.className = 'stack-cat';
+    const items = HERRAMIENTAS.map((h, i) => [h, i]).filter(([h]) => h[3] === id);
+    cab.innerHTML = '<i></i>';
+    cab.append(tx2(nombre), Object.assign(document.createElement('small'), {textContent: String(items.length).padStart(2, '0')}));
+    const chips = document.createElement('div');
+    chips.className = 'stack-chips';
+    items.forEach(([h, i]) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'chip';
+      b.dataset.i = i;
+      b.style.setProperty('--tc', h[2]);
+      b.append(iconoStack(h, 'chip-ic'), h[1]);
+      const elegir = () => elegirHerramienta(i, true);
+      b.addEventListener('pointerenter', elegir);
+      b.addEventListener('focus', elegir);
+      b.addEventListener('click', elegir);
+      chips.appendChild(b);
+    });
+    fila.append(cab, chips);
+    placa.appendChild(fila);
+  });
+  elegirHerramienta(stackSel, false, true);
+}
+function elegirHerramienta(i, desdeUsuario, sinAnimar){
+  if(desdeUsuario) stackTocado = performance.now();
+  if(i === stackSel && !sinAnimar && $('stackDetalle').dataset.i === String(i)) return;
+  stackSel = i;
+  const h = HERRAMIENTAS[i], det = $('stackDetalle');
+  det.dataset.i = i;
+  $('stack').style.setProperty('--c', h[2]);
+  $$('#stackPlaca .chip').forEach(c => c.classList.toggle('activa', +c.dataset.i === i));
+  const icono = det.querySelector('.sd-icono');
+  icono.replaceWith(iconoStack(h, 'sd-icono'));
+  det.querySelector('.sd-cat').textContent = tx2(CATEGORIAS.find(c => c[0] === h[3])[1]);
+  det.querySelector('.sd-nombre').textContent = h[1];
+  det.querySelector('.sd-texto').textContent = tx2(h[5]);
+  det.querySelector('.sd-usos-t').textContent = h[4].length > 1
+    ? L(`Presente en ${h[4].length} proyectos`, `Used in ${h[4].length} projects`) : L('Dónde la uso', 'Where I use it');
+  const usos = det.querySelector('.sd-usos');
+  usos.textContent = '';
+  h[4].forEach(id => {
+    const p = PROYECTOS[id];
+    const a = document.createElement('a');
+    a.className = 'uso';
+    a.textContent = tx2(p.n);
+    if(p.repo){ a.href = `https://github.com/${USUARIO_GITHUB}/${p.repo}`; a.target = '_blank'; a.rel = 'noopener'; }
+    else if(p.caso){ a.href = `#caso-${p.caso}`; a.addEventListener('click', e => { e.preventDefault(); window.Casos?.abrir(p.caso); }); }
+    else{ a.href = p.ancla; }
+    usos.appendChild(a);
+  });
+  // La barrita de abajo muestra cuánto falta para pasar sola a la siguiente.
+  const barra = det.querySelector('.sd-progreso');
+  barra.classList.remove('corre'); void barra.offsetWidth;
+  if(!desdeUsuario) barra.classList.add('corre');
+  if(!sinAnimar && window.gsap) gsap.fromTo(det.querySelectorAll('.sd-anim'), {y: 14, opacity: 0}, {y: 0, opacity: 1, duration: .45, stagger: .05, ease: 'power3.out', overwrite: true});
+}
+pintarStack();
+addEventListener('idioma-cambiado', pintarStack);
+new IntersectionObserver(([e]) => { stackVisible = e.isIntersecting; }, {threshold: .3}).observe($('stack'));
+setInterval(() => {
+  if(!stackVisible || document.hidden || performance.now() - stackTocado < 8000) return;
+  elegirHerramienta((stackSel + 1) % HERRAMIENTAS.length, false);
+}, 3200);
 
 // =================================================================== repositorios de GitHub
 const REPOS = [
@@ -912,8 +1030,11 @@ function iniciarAnimaciones(){
   gsap.from('.filtros', {x: 40, opacity: 0, duration: .9, ease: 'power3.out', scrollTrigger: {trigger: '.filtros', start: 'top 90%'}});
   gsap.from('#term', {y: 80, opacity: 0, scale: .95, duration: 1.1, ease: 'power3.out', scrollTrigger: {trigger: '#term', start: 'top 88%'}});
   gsap.from('#termAtajos button', {y: 20, opacity: 0, stagger: .05, duration: .6, ease: 'power3.out', scrollTrigger: {trigger: '#termAtajos', start: 'top 95%'}});
-  gsap.from('#iconos li', {y: 50, opacity: 0, scale: .8, rotate: () => gsap.utils.random(-12, 12), stagger: {each: .03, from: 'random'}, duration: .8, ease: 'back.out(1.7)',
-    scrollTrigger: {trigger: '#iconos', start: 'top 85%'}});
+  // Los componentes se "sueldan" a la placa uno por uno y el panel entra desde un lado.
+  gsap.from('#stackPlaca .chip', {y: 26, opacity: 0, scale: .85, stagger: {each: .022}, duration: .6, ease: 'back.out(1.6)',
+    scrollTrigger: {trigger: '#stack', start: 'top 82%'}});
+  gsap.from('#stackPlaca .stack-cat', {x: -30, opacity: 0, stagger: .1, duration: .7, ease: 'power3.out', scrollTrigger: {trigger: '#stack', start: 'top 82%'}});
+  gsap.from('#stackDetalle', {x: 50, opacity: 0, duration: 1, ease: 'power3.out', scrollTrigger: {trigger: '#stack', start: 'top 82%'}});
   gsap.from('.contacto-txt, .canales', {y: 30, opacity: 0, stagger: .15, duration: 1, ease: 'power3.out', scrollTrigger: {trigger: '.contacto-txt', start: 'top 90%'}});
 }
 
@@ -1045,3 +1166,69 @@ if(ANIMA){
   setInterval(rotar, 2600);
   new IntersectionObserver(es => es.forEach(e => { if(e.isIntersecting) iniciarTerminal(); })).observe($('term'));
 }
+
+// =================================================================== visor de imágenes
+// Un clic en cualquier captura y Holo la proyecta en grande, como holograma: entra en cian
+// con líneas de barrido y luego se ve a todo color. Las capturas de página completa se pueden
+// recorrer hacia abajo dentro del visor.
+const IMAGENES_AMPLIABLES = '.proy-visual img, .repo-foto img, .sim-captura img, #webEscritorio, #webCelular';
+const visor = document.createElement('div');
+visor.className = 'visor';
+visor.hidden = true;
+visor.setAttribute('role', 'dialog');
+visor.setAttribute('aria-modal', 'true');
+visor.innerHTML = `<div class="visor-fondo"></div>
+  <figure class="visor-holo">
+    <i class="visor-esquina"></i><i class="visor-esquina"></i><i class="visor-esquina"></i><i class="visor-esquina"></i>
+    <div class="visor-marco"><img alt=""></div>
+    <figcaption class="visor-pie"></figcaption>
+    <button type="button" class="visor-cerrar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></button>
+  </figure>`;
+document.body.appendChild(visor);
+const visorImg = visor.querySelector('img'), visorPie = visor.querySelector('.visor-pie'), visorHolo = visor.querySelector('.visor-holo');
+let cerrarHolo = null, focoPrevio = null;
+
+function abrirVisor(img){
+  const src = img.currentSrc || img.src;
+  if(!src) return;
+  focoPrevio = document.activeElement;
+  visorImg.src = src;
+  visorImg.alt = img.alt || '';
+  // Sin texto alternativo, el pie toma el nombre del proyecto de la tarjeta.
+  const titulo = img.closest('.repo, .proy, .caso-panel')?.querySelector('h3, .caso-barra h2, #casoTitulo')?.textContent?.trim();
+  visorPie.textContent = img.alt || titulo || L('Captura del proyecto', 'Project screenshot');
+  visor.setAttribute('aria-label', L('Imagen ampliada', 'Enlarged image'));
+  visor.querySelector('.visor-cerrar').setAttribute('aria-label', L('Cerrar', 'Close'));
+  // Las capturas muy altas (páginas completas) se recorren con scroll dentro del marco.
+  visor.classList.toggle('alta', (img.naturalHeight / Math.max(img.naturalWidth, 1)) > 1.2);
+  visor.querySelector('.visor-marco').scrollTop = 0;
+  visor.hidden = false;
+  document.documentElement.classList.add('con-visor');
+  lenis?.stop();
+  requestAnimationFrame(() => visor.classList.add('abierto'));
+  tono(1100, .08, 'sine', .03);
+  visor.querySelector('.visor-cerrar').focus({preventScroll: true});
+  // Holo llega a proyectarla cuando el visor terminó de abrirse (si el equipo ya cargó y está libre).
+  clearTimeout(abrirVisor.holo);
+  abrirVisor.holo = setTimeout(() => { if(!visor.hidden && visor.classList.contains('abierto')) cerrarHolo = window.Equipo?.proyectar?.(() => visorHolo.getBoundingClientRect()) || null; }, 700);
+}
+function cerrarVisor(){
+  if(visor.hidden) return;
+  visor.classList.remove('abierto');
+  clearTimeout(abrirVisor.holo);
+  cerrarHolo?.(); cerrarHolo = null;
+  document.documentElement.classList.remove('con-visor');
+  lenis?.start();
+  setTimeout(() => { visor.hidden = true; visorImg.removeAttribute('src'); }, 320);
+  focoPrevio?.focus?.({preventScroll: true});
+}
+// Se escucha en captura para que el clic en la imagen no abra también el caso de estudio de la tarjeta.
+document.addEventListener('click', e => {
+  const img = e.target.closest?.(IMAGENES_AMPLIABLES);
+  if(!img || visor.contains(img)) return;
+  e.preventDefault(); e.stopPropagation();
+  abrirVisor(img);
+}, true);
+visor.querySelector('.visor-fondo').addEventListener('click', cerrarVisor);
+visor.querySelector('.visor-cerrar').addEventListener('click', cerrarVisor);
+addEventListener('keydown', e => { if(e.key === 'Escape' && !visor.hidden){ e.stopPropagation(); cerrarVisor(); } }, true);

@@ -437,17 +437,62 @@ main,.nav{position:relative;z-index:2}
 .term-atajos button:hover{color:var(--cian);border-color:var(--cian);transform:translateY(-2px)}
 
 /* ---------- herramientas ---------- */
-.iconos{margin-top:clamp(40px,5vw,60px);display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:14px}
-.iconos li{position:relative;aspect-ratio:1;border-radius:18px;background:var(--panel);border:1px solid var(--linea);
-  display:grid;place-items:center;align-content:center;gap:12px;padding:12px;overflow:hidden;isolation:isolate;transition:border-color .3s,transform .3s var(--ease)}
-.iconos li:hover{border-color:var(--c,var(--azul));transform:translateY(-6px) rotate(-2deg)}
-.iconos li::before{content:"";position:absolute;inset:0;z-index:-1;background:radial-gradient(circle at 50% 30%,var(--c,var(--azul)),transparent 70%);opacity:0;transition:opacity .3s}
-.iconos li:hover::before{opacity:.22}
-.iconos .ic{width:38px;height:38px;background:var(--texto);-webkit-mask:var(--i) center/contain no-repeat;mask:var(--i) center/contain no-repeat;transition:background .3s}
-.iconos li:hover .ic{background:var(--c,var(--cian))}
-.iconos .ic-txt{width:auto;height:38px;display:grid;place-items:center;font-family:var(--f-mono);font-weight:700;font-size:14px;color:var(--texto);background:none;-webkit-mask:none;mask:none;border:2px solid currentColor;border-radius:8px;padding:0 6px}
-.iconos li:hover .ic-txt{color:var(--c);background:none}
-.iconos span:last-child{font-size:12.5px;font-weight:600;color:var(--suave);text-align:center}
+/* ---------- consola del stack: herramientas como componentes en una placa ---------- */
+.stack{--c:#3FD0FF;margin-top:clamp(40px,5vw,60px);display:grid;grid-template-columns:minmax(0,1.6fr) minmax(300px,1fr);gap:18px;align-items:stretch}
+@media (max-width:980px){.stack{grid-template-columns:1fr}}
+.stack-placa{position:relative;display:grid;gap:6px;padding:clamp(16px,2.2vw,26px);border-radius:22px;border:1px solid var(--linea);overflow:hidden;
+  background:radial-gradient(circle at 1px 1px,rgba(63,208,255,.13) 1px,transparent 1.5px) 0 0/18px 18px,linear-gradient(180deg,var(--panel),#070B13)}
+.stack-placa::after{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(60% 50% at 20% 0%,rgba(63,208,255,.07),transparent 70%)}
+.stack-fila{position:relative;display:grid;grid-template-columns:170px minmax(0,1fr);align-items:center;gap:14px;padding:8px 0;border-bottom:1px dashed rgba(255,255,255,.07)}
+.stack-fila:last-child{border-bottom:0}
+@media (max-width:640px){.stack-fila{grid-template-columns:1fr;gap:6px}}
+.stack-cat{display:flex;align-items:center;gap:9px;font-family:var(--f-mono);font-size:11.5px;letter-spacing:.09em;text-transform:uppercase;color:#9FE8FF}
+.stack-cat i{width:7px;height:7px;border-radius:50%;background:var(--cian);box-shadow:0 0 10px var(--cian);animation:led-stack 2.4s ease-in-out infinite;animation-delay:var(--retraso)}
+.stack-cat small{margin-left:auto;color:var(--suave);font-size:10.5px;letter-spacing:.05em}
+@media (max-width:640px){.stack-cat small{margin-left:4px}}
+@keyframes led-stack{50%{opacity:.35;box-shadow:none}}
+/* Bus de la fila: una pista con un pulso de luz que la recorre. */
+.stack-chips{position:relative;display:flex;flex-wrap:wrap;gap:9px;padding:6px 0}
+.stack-chips::before,.stack-chips::after{content:"";position:absolute;left:0;right:0;top:50%;height:1px;pointer-events:none}
+.stack-chips::before{background:linear-gradient(90deg,rgba(63,208,255,.35),rgba(63,208,255,.08))}
+.stack-chips::after{height:2px;margin-top:-.5px;background:linear-gradient(90deg,transparent,#7FE3FF,transparent) no-repeat;background-size:90px 100%;
+  background-position:-90px 0;filter:drop-shadow(0 0 4px #3FD0FF);animation:bus-stack 3.6s linear infinite;animation-delay:var(--retraso)}
+@keyframes bus-stack{to{background-position:calc(100% + 90px) 0}}
+.chip{position:relative;z-index:1;display:inline-flex;align-items:center;gap:8px;padding:8px 13px 8px 9px;border-radius:11px;cursor:pointer;
+  font:600 13px/1 var(--f-texto);color:var(--suave);background:rgba(11,16,27,.94);border:1px solid var(--linea2);
+  transition:transform .25s var(--ease),border-color .25s,box-shadow .25s,color .25s}
+.chip::after{content:"";position:absolute;top:-3px;right:-3px;width:7px;height:7px;border-radius:50%;background:#1C2433;border:1px solid var(--linea2);transition:background .25s,box-shadow .25s}
+.chip-ic{width:18px;height:18px;flex:none;background:var(--suave);-webkit-mask:var(--i) center/contain no-repeat;mask:var(--i) center/contain no-repeat;transition:background .25s}
+.chip-ic.txt,.sd-icono.txt{-webkit-mask:none;mask:none;background:none;display:grid;place-items:center;font-family:var(--f-mono);font-weight:700}
+.chip-ic.txt{width:auto;font-size:9.5px;border:1.5px solid currentColor;border-radius:4px;padding:0 3px;height:16px}
+.chip:hover,.chip:focus-visible,.chip.activa{color:var(--texto);border-color:var(--tc);transform:translateY(-3px);outline:none;
+  box-shadow:0 10px 26px -10px var(--tc),inset 0 0 0 1px color-mix(in srgb,var(--tc) 35%,transparent)}
+.chip:hover .chip-ic,.chip.activa .chip-ic{background:var(--tc)}
+.chip.activa .chip-ic.txt,.chip:hover .chip-ic.txt{background:none;color:var(--tc)}
+.chip.activa::after{background:var(--tc);border-color:var(--tc);box-shadow:0 0 10px var(--tc)}
+/* Panel de detalle de la herramienta elegida. */
+.stack-detalle{position:relative;display:flex;flex-direction:column;gap:10px;padding:clamp(22px,2.6vw,32px);border-radius:22px;overflow:hidden;
+  border:1px solid color-mix(in srgb,var(--c) 38%,var(--linea));transition:border-color .6s;
+  background:radial-gradient(120% 70% at 50% 0%,color-mix(in srgb,var(--c) 16%,transparent),transparent 62%),var(--panel)}
+.sd-ic{position:relative;width:112px;height:112px;display:grid;place-items:center;margin-bottom:6px}
+.sd-anillo{position:absolute;inset:0;border-radius:50%;background:conic-gradient(from 0deg,transparent 0 55%,var(--c) 85%,transparent);
+  -webkit-mask:radial-gradient(circle,transparent 62%,#000 63%);mask:radial-gradient(circle,transparent 62%,#000 63%);animation:girar-stack 3.2s linear infinite}
+.sd-ic::before{content:"";position:absolute;inset:14px;border-radius:50%;background:radial-gradient(circle,color-mix(in srgb,var(--c) 22%,transparent),transparent 70%);border:1px solid color-mix(in srgb,var(--c) 30%,transparent)}
+@keyframes girar-stack{to{transform:rotate(1turn)}}
+.sd-icono{position:relative;width:46px;height:46px;background:var(--c);-webkit-mask:var(--i) center/contain no-repeat;mask:var(--i) center/contain no-repeat;filter:drop-shadow(0 0 12px var(--c))}
+.sd-icono.txt{width:auto;height:auto;font-size:17px;color:var(--c);border:2px solid currentColor;border-radius:8px;padding:6px 8px;filter:none}
+.sd-cat{font-family:var(--f-mono);font-size:11.5px;letter-spacing:.09em;text-transform:uppercase;color:#9FE8FF}
+.sd-nombre{font-family:var(--f-titulo);font-weight:800;font-size:clamp(26px,3vw,38px);letter-spacing:-.03em;line-height:1.05}
+.sd-texto{color:var(--suave);font-size:15.5px;max-width:42ch}
+.sd-usos-t{margin-top:8px;font-family:var(--f-mono);font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--suave)}
+.sd-usos{display:flex;flex-wrap:wrap;gap:8px}
+.uso{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border-radius:99px;font-size:13px;font-weight:600;color:var(--texto);text-decoration:none;
+  background:rgba(255,255,255,.04);border:1px solid var(--linea2);transition:border-color .25s,background .25s,transform .25s var(--ease)}
+.uso::after{content:"↗";font-size:12px;color:var(--c)}
+.uso:hover{border-color:var(--c);background:color-mix(in srgb,var(--c) 12%,transparent);transform:translateY(-2px)}
+.sd-progreso{position:absolute;left:0;bottom:0;height:2px;width:100%;transform-origin:left;transform:scaleX(0);background:var(--c);opacity:.7}
+.sd-progreso.corre{animation:progreso-stack 3.2s linear forwards}
+@keyframes progreso-stack{from{transform:scaleX(0)}to{transform:scaleX(1)}}
 
 /* ---------- contacto ---------- */
 .contacto{position:relative;z-index:2;background:var(--bg);padding-top:clamp(90px,12vw,160px);overflow:hidden}
@@ -665,3 +710,45 @@ html.con-caso{overflow:hidden}
 .equipo-letra{position:fixed;left:0;top:0;z-index:58;pointer-events:none;white-space:pre;letter-spacing:-.04em;transform-origin:50% 60%;will-change:transform}
 .letra-hueco{color:transparent}
 @media (max-width:760px){.equipo-globo{max-width:190px;font-size:12px;padding:6px 10px}}
+/* ---------- visor de imágenes: Holo proyecta la captura en grande ---------- */
+.proy-visual img,.repo-foto img,.sim-captura img,#webEscritorio,#webCelular{cursor:zoom-in}
+.visor{position:fixed;inset:0;z-index:92;display:grid;place-items:center;padding:clamp(12px,3vw,40px)}
+.visor[hidden]{display:none}
+.visor-fondo{position:absolute;inset:0;background:rgba(3,5,10,.82);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);opacity:0;transition:opacity .3s}
+.visor.abierto .visor-fondo{opacity:1}
+.visor-holo{position:relative;margin:0;width:min(1180px,100%);max-height:100%;display:flex;flex-direction:column;gap:10px;padding:14px;border-radius:16px;
+  background:linear-gradient(180deg,rgba(10,22,34,.92),rgba(5,10,18,.94));border:1px solid rgba(63,208,255,.5);
+  box-shadow:0 0 0 1px rgba(63,208,255,.12),0 0 60px rgba(63,208,255,.22),inset 0 0 40px rgba(63,208,255,.08);
+  transform-origin:50% 100%;opacity:0;transform:scaleY(.02) scaleX(.6)}
+.visor.abierto .visor-holo{animation:holo-entra .75s cubic-bezier(.2,.9,.25,1.15) forwards}
+@keyframes holo-entra{0%{opacity:0;transform:scaleY(.02) scaleX(.6)}35%{opacity:1;transform:scaleY(.02) scaleX(1)}100%{opacity:1;transform:none}}
+/* Esquinas de visor, como en una pantalla de holograma. */
+.visor-esquina{position:absolute;width:22px;height:22px;border:2px solid #3FD0FF;pointer-events:none;filter:drop-shadow(0 0 6px #3FD0FF)}
+.visor-esquina:nth-child(1){top:-6px;left:-6px;border-right:0;border-bottom:0;border-radius:8px 0 0 0}
+.visor-esquina:nth-child(2){top:-6px;right:-6px;border-left:0;border-bottom:0;border-radius:0 8px 0 0}
+.visor-esquina:nth-child(3){bottom:-6px;left:-6px;border-right:0;border-top:0;border-radius:0 0 0 8px}
+.visor-esquina:nth-child(4){bottom:-6px;right:-6px;border-left:0;border-top:0;border-radius:0 0 8px 0}
+.visor-marco{position:relative;overflow:hidden;border-radius:10px;background:#03070D;max-height:calc(100vh - 150px);max-height:calc(100svh - 150px)}
+.visor.alta .visor-marco{overflow-y:auto;overscroll-behavior:contain}
+.visor-marco img{display:block;width:100%;height:auto;max-height:calc(100vh - 150px);max-height:calc(100svh - 150px);object-fit:contain}
+.visor.alta .visor-marco img{max-height:none;object-fit:initial}
+/* Entra como holograma (cian y con barrido) y se "enfoca" a todo color. */
+.visor.abierto .visor-marco img{animation:holo-color 1.2s .35s ease-out both}
+@keyframes holo-color{0%{filter:grayscale(1) sepia(1) hue-rotate(155deg) saturate(3) brightness(1.1);opacity:.5}100%{filter:none;opacity:1}}
+.visor-marco::after{content:"";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(63,208,255,.10) 0 2px,transparent 2px 5px);
+  opacity:0;animation:holo-lineas 1.6s .3s ease-out}
+@keyframes holo-lineas{0%{opacity:1}100%{opacity:0}}
+.visor-marco::before{content:"";position:absolute;left:0;right:0;height:60px;z-index:1;pointer-events:none;top:-60px;
+  background:linear-gradient(180deg,transparent,rgba(63,208,255,.35),transparent)}
+.visor.abierto .visor-marco::before{animation:holo-barrido 1.1s .4s ease-in-out}
+@keyframes holo-barrido{to{top:100%}}
+.visor-pie{font-family:var(--f-mono);font-size:12.5px;color:#9FE8FF;padding:2px 44px 2px 4px;line-height:1.4}
+.visor-cerrar{position:absolute;top:-16px;right:-16px;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;cursor:pointer;
+  background:#0A1422;color:#E8EEF8;border:1px solid rgba(63,208,255,.6);box-shadow:0 0 18px rgba(63,208,255,.35);transition:transform .2s,background .2s}
+.visor-cerrar:hover{transform:rotate(90deg);background:#12263A}
+.visor-cerrar svg{width:18px;height:18px}
+@media (max-width:640px){.visor-cerrar{top:-12px;right:-6px}.visor-holo{padding:10px}}
+/* Mientras Holo proyecta, él y su haz quedan por encima del visor. */
+.proyectando #equipo{z-index:96}
+.proyectando .equipo-haz,.proyectando .equipo-globo{z-index:97}
+.proyectando .equipo-hit{display:none}

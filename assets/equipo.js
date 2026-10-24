@@ -895,6 +895,60 @@ async function color(){
   return true;
 }
 
+// Holo proyecta el visor de imágenes: se materializa junto al panel y lo alumbra con su haz
+// mientras está abierto. Devuelve la función que lo despide.
+function proyectar(obtenerRect){
+  if(ocupado) return () => {};
+  ocupado = true; dichoEnEscena = true;
+  document.documentElement.classList.add('proyectando');
+  const a = holo;
+  a.ancla = null;
+  // Si hay espacio, Holo se para a la izquierda del visor y proyecta de lado; si no (celular),
+  // se queda en la esquina de abajo sin haz.
+  const r0 = obtenerRect();
+  const alLado = r0.left > a.p.alto * .75;
+  const colocar = () => {
+    const r = obtenerRect();
+    return {x: alLado ? r.left - a.p.alto * .32 : r.left + a.p.alto * .4, y: Math.min(r.bottom - a.p.alto * .62, innerHeight - a.p.alto * .6)};
+  };
+  const inicio = colocar();
+  Object.assign(a.p, {x: inicio.x, y: inicio.y, vis: 0, giro: .6, salto: 0, aplasta: 0});
+  a.mostrar();
+  sonar('zap');
+  gsap.to(a.p, {vis: 1, duration: .7, ease: 'elastic.out(1, .5)'});
+  // El haz va de los ojos de Holo a todo el borde izquierdo del panel.
+  const haz = document.createElement('div');
+  haz.style.background = 'linear-gradient(90deg,rgba(63,208,255,.55),rgba(63,208,255,.08))';
+  const est = {luz: 0};
+  if(alLado) gsap.to(est, {luz: 1, duration: .5, delay: .25});
+  const cHaz = capa(haz, 'equipo-haz', null, () => {
+    // Holo sigue el borde del visor aunque cambie el tamaño de la ventana.
+    const lugar = colocar();
+    a.p.x = lugar.x; a.p.y = lugar.y;
+    const r = obtenerRect(), s = a.pantalla();
+    const ox = s.x, oy = s.y - a.p.alto * .2;
+    const minX = Math.min(ox, r.left), minY = Math.min(oy, r.top), maxX = Math.max(ox, r.right), maxY = Math.max(oy, r.bottom);
+    poner(haz, 'transform', `translate(${Math.round(minX)}px, ${Math.round(minY)}px)`);
+    poner(haz, 'width', `${Math.round(maxX - minX) || 1}px`); poner(haz, 'height', `${Math.round(maxY - minY) || 1}px`);
+    const px = v => `${Math.round(v - minX)}px`, py = v => `${Math.round(v - minY)}px`;
+    poner(haz, 'clip-path', `polygon(${px(ox)} ${py(oy)}, ${px(r.left)} ${py(r.top + 12)}, ${px(r.left)} ${py(r.bottom - 12)})`);
+    poner(haz, 'opacity', `${(est.luz * .7).toFixed(2)}`);
+  });
+  setTimeout(() => { if(a.visible) hablar(a, 'Proyectando en alta resolución…', 'Projecting in high resolution…', 1800); }, 650);
+  let cerrado = false;
+  return () => {
+    if(cerrado) return;
+    cerrado = true;
+    cHaz.quitar();
+    gsap.to(a.p, {vis: 0, duration: .35, ease: 'power2.in', onComplete: () => {
+      a.ocultar();
+      ocupado = false;
+      finUltima = performance.now();
+      document.documentElement.classList.remove('proyectando');
+    }});
+  };
+}
+
 // ------------------------------------------------------------------ agenda
 // No salen por reloj: reaccionan a lo que hace el visitante. Llegar a una sección, quedarse
 // leyendo, detenerse sobre una tarjeta. Nunca de madrugada, con el chat o un caso abiertos.
@@ -999,7 +1053,7 @@ if(forzada === 'todas'){
 setInterval(vigilar, 700);
 
 window.Equipo = {
-  escena: correr, alguna,
+  escena: correr, alguna, proyectar,
   get ocupado(){ return ocupado; }, registro,
   diagnostico: () => ({seccion: seccionActual, visitadas: [...visitadas], tarjeta: tarjetaBajo?.className || null, puede: puedeActuar(), desdeFin: Math.round(performance.now() - finUltima)}),
   miembros: ACTORES.map(a => ({id: a.id, nombre: a.nombre, rol: a.rol}))
