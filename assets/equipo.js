@@ -266,11 +266,25 @@ function rect(el){
 }
 const ALTO = MOVIL ? 60 : 86;
 
+// Resplandor suave debajo de cada ayudante, como el de Volt.
+const matSombra = new THREE.MeshBasicMaterial({map: (() => {
+  const c = document.createElement('canvas'); c.width = c.height = 64;
+  const g = c.getContext('2d'), gr = g.createRadialGradient(32, 32, 0, 32, 32, 32);
+  gr.addColorStop(0, 'rgba(63,208,255,.5)'); gr.addColorStop(1, 'rgba(63,208,255,0)');
+  g.fillStyle = gr; g.fillRect(0, 0, 64, 64);
+  return new THREE.CanvasTexture(c);
+})(), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending});
+const geoSombra = new THREE.PlaneGeometry(1, 1);
+
 class Actor{
   constructor(id, nombre, rol, modelo){
     this.id = id; this.nombre = nombre; this.rol = rol; this.m = modelo;
     this.g = new THREE.Group();
     this.g.add(modelo.g);
+    const sombra = new THREE.Mesh(geoSombra, matSombra);
+    sombra.scale.set(modelo.alto * .95, modelo.alto * .22, 1);
+    sombra.position.set(0, -modelo.alto * .53, -40);
+    this.g.add(sombra);
     this.g.visible = false;
     escena.add(this.g);
     this.p = {x: 0, y: 0, alto: ALTO, vis: 0, giro: 0, inclina: 0, salto: 0, aplasta: 0};
@@ -466,6 +480,19 @@ function sonar(tipo){
     o.start(); o.stop(ahora + dur + .03);
   }catch(e){}
 }
+// Globitos de diálogo de los ayudantes: siguen a quien habla y nunca se salen de la pantalla.
+function hablar(a, es, en, ms = 2200){
+  const el = document.createElement('div');
+  el.textContent = L(es, en);
+  const c = capa(el, 'equipo-globo', null, () => {
+    if(!a.visible) return;
+    const s = a.pantalla(), mitad = el.offsetWidth / 2 || 80;
+    const x = Math.min(Math.max(s.x, mitad + 10), innerWidth - mitad - 10);
+    poner(el, 'transform', `translate(${Math.round(x - mitad)}px, ${Math.round(s.y + a.p.salto - a.p.alto * .62)}px) translateY(-100%)`);
+  });
+  sonar('pop');
+  setTimeout(() => { el.classList.add('fuera'); setTimeout(() => c.quitar(), 260); }, ms);
+}
 const aparecer = (a, d = .5) => gsap.to(a.p, {vis: 1, duration: d, ease: 'back.out(2)'});
 const desaparecer = (a, d = .35) => gsap.to(a.p, {vis: 0, duration: d, ease: 'back.in(2)'});
 // Animaciones del DOM con las propiedades sueltas translate/rotate: se suman al transform
@@ -485,6 +512,7 @@ async function mantenimiento(objetivo){
   sonar('boing');
   await gsap.to(a.p, {y: -a.p.alto * .5, duration: 1.5, ease: 'bounce.out'});
   voltDice('¡Tuerca vino a revisar los tornillos! 🔧', 'Tuerca is here to check the screws! 🔧', {expresion: 'feliz'});
+  hablar(a, 'A ver… este tornillo está flojo. 🔧', 'Let’s see… this screw is loose. 🔧', 1900);
   for(let i = 0; i < 3; i++){
     await gsap.to(a.m.brazoDer.rotation, {z: 1.5, x: -.6, duration: .18, ease: 'power2.out'});
     await gsap.to(a.m.llave.rotation, {y: '+=3.14', duration: .25});
@@ -495,6 +523,7 @@ async function mantenimiento(objetivo){
     await gsap.to(a.m.brazoDer.rotation, {z: .2, x: 0, duration: .2});
     await esperar(150);
   }
+  hablar(a, '¡Listo! Funcionando. ✅', 'Done! Working. ✅', 1500);
   await gsap.to(a.p, {giro: Math.PI * 2, duration: .7, ease: 'power2.inOut'});
   a.p.giro = 0;
   await esperar(300);
@@ -515,6 +544,7 @@ async function limpieza(objetivo){
   a.mostrar();
   await gsap.to(a.p, {x: r.width / 2, duration: 1.6, ease: 'power2.out'});
   voltDice('Brisa está quitando el polvo. ✨', 'Brisa is dusting things off. ✨', {expresion: 'guino'});
+  hablar(a, 'Fuuu… ¡fuera polvo! 💨', 'Whoosh… dust be gone! 💨', 1800);
   brillar(el, 1500);
   const fin = performance.now() + 1500;
   while(performance.now() < fin){
@@ -542,6 +572,7 @@ async function pintura(){
   Object.assign(a.p, {x: -40, y: suelo, vis: 0, giro: .6, salto: 0});
   a.mostrar();
   await aparecer(a);
+  hablar(a, 'Un toque de color… 🎨', 'A splash of color… 🎨', 1700);
   // El trazo es un SVG que sigue al título y crece detrás de Foco.
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   const ancho = Math.round(r.width + 20);
@@ -618,6 +649,7 @@ async function fotos(){
   });
   await gsap.to(est, {sube: 1, duration: .6, ease: 'power2.out'});
   voltDice('Holo está colgando las fotos. 📸', 'Holo is hanging up the photos. 📸', {expresion: 'sorpresa'});
+  hablar(a, 'Proyectando la captura… 📡', 'Projecting the screenshot… 📡', 1900);
   await esperar(2200);
   await gsap.to(est, {cae: 1, duration: .6, ease: 'power2.in'});
   cHolo.quitar(); cHaz.quitar();
@@ -647,6 +679,7 @@ async function juego(){
     soltar(s.x, s.y + a.p.alto * .4, 12, {color: 0x7FE3FF, vel: 200, vida: .5, angulo: -Math.PI / 2, abanico: 2});
     sonar('boing');
     await gsap.to(a.p, {aplasta: 1, duration: .07, yoyo: true, repeat: 1});
+    if(i === 2) hablar(a, '¡No me alcanzas! ⚡', 'Can’t catch me! ⚡', 1400);
     if(i === 1) voltDice('¡Chispa, ven acá! 😄', 'Chispa, come back here! 😄', {expresion: 'feliz', gesto: 'saludar'});
   }
   await gsap.to(a.p, {x: izq ? innerWidth + 60 : -60, y: piso - innerHeight * .5, duration: .9, ease: 'power2.in'});
@@ -673,6 +706,9 @@ async function organizar(){
   aparecer(tuerca); await aparecer(foco);
   gsap.to(tuerca.p, {x: -tuerca.p.alto * .35, duration: .8, ease: 'power2.out'});
   await gsap.to(foco.p, {x: r.width + foco.p.alto * .35, duration: .8, ease: 'power2.out'});
+  hablar(tuerca, '¡A la cuenta de tres!', 'On three!', 1300);
+  await esperar(1100);
+  hablar(foco, '¡Uno, dos… tres! 💪', 'One, two… three! 💪', 1400);
   // Empujan tres veces y la tarjeta vuelve a su lugar con un rebote.
   for(let i = 0; i < 3; i++){
     gsap.to(tuerca.p, {x: '+=10', duration: .15, yoyo: true, repeat: 1});
@@ -713,34 +749,157 @@ function tocar(a){
   }
 }
 
-// El equipo saluda: tres o cuatro asoman desde el borde de abajo, saludan y se van.
-async function saludo(){
-  const elenco = MOVIL ? [tuerca, foco, chispa] : [tuerca, brisa, foco, chispa, holo];
-  const ancho = Math.min(innerWidth - 60, elenco.length * (MOVIL ? 90 : 120));
-  const x0 = (innerWidth - ancho) / 2 - (MOVIL ? 0 : 60);
-  elenco.forEach((a, i) => {
-    Object.assign(a.p, {x: x0 + ancho * (i + .5) / elenco.length, y: innerHeight + a.p.alto, vis: 1, giro: 0, salto: 0, aplasta: 0});
+// Reunión con Volt: dos ayudantes llegan hasta él, le reportan cómo va todo y él responde.
+const REPORTES = [
+  [tuerca, ['Jefe, revisé los tornillos: todo funcionando. ✅', 'Boss, I checked the screws: all working. ✅'],
+   brisa, ['Y yo dejé todo sin polvo. ✨', 'And I dusted everything off. ✨'],
+   ['¡Gracias, equipo! Así da gusto. 💪', 'Thanks, team! Great work. 💪']],
+  [foco, ['Jefe, ¿pintamos algo hoy? 🎨', 'Boss, shall we paint something today? 🎨'],
+   chispa, ['¡Yo quiero jugar! ⚡', 'I want to play! ⚡'],
+   ['Primero el trabajo… bueno, un ratico. 😄', 'Work first… okay, just for a bit. 😄']],
+  [holo, ['Las capturas de los proyectos están en su sitio. 📸', 'The project screenshots are in place. 📸'],
+   tuerca, ['Y el sistema, al día. 🔧', 'And the system is up to date. 🔧'],
+   ['¡Excelente! Todo en orden. 🚀', 'Excellent! Everything in order. 🚀']]
+];
+async function reunion(){
+  const v = window.Volt?.posicion?.();
+  if(!v || !v.alto) return false;
+  const [a1, t1, a2, t2, respuesta] = elegir(REPORTES);
+  // Se paran a los lados de Volt, a la altura de su pecho, donde haya espacio.
+  const cerca = v.alto * .42 + ALTO * .55, lejos = cerca + ALTO * 1.05;
+  const cabe = x => x > ALTO * .6 && x < innerWidth - ALTO * .6;
+  const lado = v.x > innerWidth / 2 ? -1 : 1;
+  let x1 = v.x + lado * cerca, x2 = v.x + lado * lejos;
+  if(!cabe(x2)) x2 = v.x - lado * cerca;
+  const y = Math.min(v.y + v.alto * .12, innerHeight - ALTO * .7);
+  [[a1, x1], [a2, x2]].forEach(([a, x]) => {
+    const desde = x < v.x ? -ALTO : innerWidth + ALTO;
+    Object.assign(a.p, {x: desde, y, vis: 1, giro: x < v.x ? .7 : -.7, salto: 0, aplasta: 0});
+    a.ancla = null;
     a.mostrar();
   });
-  voltDice('¡Te presento a mi equipo! Tuerca, Brisa, Foco, Chispa y Holo. 👋', 'Meet my team! Tuerca, Brisa, Foco, Chispa and Holo. 👋', {expresion: 'amor', gesto: 'saludar'});
-  await Promise.all(elenco.map((a, i) => gsap.to(a.p, {y: innerHeight - a.p.alto * (a === holo ? .7 : .58), duration: .7, delay: i * .12, ease: 'back.out(1.8)'})));
+  await Promise.all([gsap.to(a1.p, {x: x1, duration: 1.3, ease: 'power2.out'}), gsap.to(a2.p, {x: x2, duration: 1.5, delay: .25, ease: 'power2.out'})]);
+  // Volt los ve llegar: se despierta y los saluda.
+  window.Volt?.ponerExpresion?.('sorpresa', 1.2);
+  window.Volt?.hacerGesto?.('saludar');
+  hablar(a1, ...t1, 2600);
+  await esperar(2700);
+  hablar(a2, ...t2, 2300);
+  await esperar(2400);
+  voltDice(...respuesta, {expresion: 'feliz', segundos: 3});
+  await esperar(1100);
+  gsap.to(a1.p, {salto: -26, duration: .25, yoyo: true, repeat: 1, ease: 'power2.out'});
+  await gsap.to(a2.p, {salto: -26, duration: .25, yoyo: true, repeat: 1, ease: 'power2.out'});
+  soltar((a1.pantalla().x + a2.pantalla().x) / 2, y - ALTO * .5, 22, {color: 0xF5C542, vel: 240, vida: .7});
   sonar('pop');
-  // Cada uno saluda a su manera.
-  for(const a of elenco){
-    if(a.m.brazoDer) gsap.to(a.m.brazoDer.rotation, {z: 2.4, duration: .18, yoyo: true, repeat: 5});
-    gsap.to(a.p, {salto: -22, duration: .22, yoyo: true, repeat: 1, ease: 'power2.out'});
-    await esperar(160);
+  await esperar(1200);
+  await Promise.all([a1, a2].map((a, i) => gsap.to(a.p, {x: a.p.x < v.x ? -ALTO * 1.5 : innerWidth + ALTO * 1.5, duration: 1.1, delay: i * .15, ease: 'power2.in'})));
+  a1.ocultar(); a2.ocultar();
+  return true;
+}
+
+// A un título se le cae una letra; Brisa la encuentra y la vuelve a poner en su sitio.
+async function letra(){
+  const titulos = visibles('.titulo-sec span', {minAncho: 120});
+  const el = elegir(titulos.filter(t => t.children.length === 0 && t.textContent.trim().length > 3));
+  if(!el) return false;
+  const texto = el.textContent;
+  const posibles = [...texto].map((ch, i) => /\p{L}/u.test(ch) ? i : -1).filter(i => i >= 0);
+  const i = elegir(posibles);
+  // La letra queda en su lugar pero invisible, para que el título no se descuadre.
+  const hueco = document.createElement('span');
+  hueco.className = 'letra-hueco';
+  hueco.textContent = texto[i];
+  el.textContent = '';
+  el.append(texto.slice(0, i), hueco, texto.slice(i + 1));
+  let cLetra = null;
+  try{
+    const cs = getComputedStyle(el), rh = hueco.getBoundingClientRect();
+    const suelta = document.createElement('div');
+    suelta.textContent = texto[i];
+    Object.assign(suelta.style, {fontFamily: cs.fontFamily, fontSize: cs.fontSize, fontWeight: cs.fontWeight, color: cs.color,
+      lineHeight: `${rh.height}px`, height: `${rh.height}px`});
+    const pos = {x: rh.left, y: rh.top, rot: 0};
+    cLetra = capa(suelta, 'equipo-letra', null, () => poner(suelta, 'transform', `translate(${Math.round(pos.x)}px, ${Math.round(pos.y)}px) rotate(${pos.rot.toFixed(1)}deg)`));
+    sonar('boing');
+    const piso = Math.min(innerHeight - rh.height - 30, rh.bottom + 240);
+    await gsap.to(pos, {y: piso, x: pos.x + azar(-60, 60), rot: azar(120, 260), duration: 1.2, ease: 'bounce.out'});
+    voltDice(`¡Ups! A «${texto.trim()}» se le cayó la «${texto[i]}». ¡Brisa, ayúdanos!`,
+      `Oops! «${texto.trim()}» dropped its «${texto[i]}». Brisa, help!`, {expresion: 'sorpresa', gesto: 'senalar', segundos: 3});
+    const a = brisa;
+    a.ancla = null;
+    const desdeIzq = pos.x > innerWidth / 2;
+    Object.assign(a.p, {x: desdeIzq ? -80 : innerWidth + 80, y: piso - 140, vis: 1, giro: 0, salto: 0});
+    a.mostrar();
+    await gsap.to(a.p, {x: pos.x + rh.width / 2, y: piso - a.p.alto * .55, duration: 1.4, ease: 'power2.out'});
+    hablar(a, '¡La encontré! 🔎', 'Found it! 🔎', 1500);
+    await esperar(600);
+    // La lleva colgando debajo y la encaja en el hueco.
+    const colgar = () => { const s = a.pantalla(); pos.x = s.x - rh.width / 2; pos.y = s.y + a.p.alto * .3; };
+    gsap.to(pos, {rot: 0, duration: .6});
+    const d0 = hueco.getBoundingClientRect();
+    await gsap.to(a.p, {x: d0.left + d0.width / 2, y: d0.top - a.p.alto * .45, duration: 1.6, ease: 'power2.inOut', onUpdate: colgar});
+    const d = hueco.getBoundingClientRect();
+    await gsap.to(pos, {x: d.left, y: d.top, rot: 0, duration: .35, ease: 'back.out(2)'});
+    sonar('clic');
+    soltar(d.left + d.width / 2, d.top + d.height / 2, 20, {color: 0x7FE3FF, vel: 230, vida: .6});
+    cLetra.quitar(); cLetra = null;
+    if(el.isConnected && el.querySelector('.letra-hueco')) el.textContent = texto;
+    hablar(a, 'Listo, en su sitio. ✅', 'Done, back in place. ✅', 1700);
+    await esperar(1300);
+    await gsap.to(a.p, {x: desdeIzq ? innerWidth + 90 : -90, y: a.p.y - 100, duration: 1.2, ease: 'power2.in'});
+    a.ocultar();
+    return true;
+  }finally{
+    // Pase lo que pase, el título vuelve a quedar completo.
+    cLetra?.quitar();
+    if(el.isConnected && el.querySelector('.letra-hueco')) el.textContent = texto;
   }
-  await esperar(1800);
-  await Promise.all(elenco.map((a, i) => gsap.to(a.p, {y: innerHeight + a.p.alto, duration: .5, delay: i * .08, ease: 'back.in(1.6)'})));
-  elenco.forEach(a => a.ocultar());
+}
+
+// Foco le cambia el color a la onda de «Abierto a nuevos proyectos».
+const COLORES_ONDA = ['#FF6FB5', '#F5C542', '#49CC90', '#9B8CFF', '#FF8A3D', '#3FD0FF'];
+let colorOnda = '#3FD0FF';
+async function color(){
+  const onda = document.querySelector('.hero-pre .osc');
+  if(!onda || !visibles('.hero-pre', {arriba: 60, minAncho: 100, hasta: .85}).length) return false;
+  const camino = onda.querySelector('path');
+  const nuevo = elegir(COLORES_ONDA.filter(c => c !== colorOnda));
+  const a = foco, ro = rect(onda);
+  a.m.pintura.color.set(nuevo);
+  a.ancla = onda;
+  Object.assign(a.p, {x: -ro.left - 60, y: -a.p.alto * .42, vis: 1, giro: .7, salto: 0});
+  a.mostrar();
+  const pasos = 4;
+  gsap.to(a.p, {x: ro.width * .5, duration: 1.4, ease: 'none'});
+  for(let k = 0; k < pasos; k++) await gsap.to(a.p, {salto: -16, duration: 1.4 / pasos / 2, yoyo: true, repeat: 1, ease: 'power2.out'});
+  hablar(a, '¿Y si la onda fuera de otro color? 🎨', 'What if the wave had another color? 🎨', 2300);
+  await esperar(1500);
+  for(let k = 0; k < 3; k++){
+    await gsap.to(a.m.brazoDer.rotation, {z: 1.6, duration: .16, yoyo: true, repeat: 1});
+    const r2 = rect(onda);
+    soltar(r2.left + r2.width / 2, r2.top + r2.height / 2, 8, {color: nuevo, vel: 120, vida: .7, gravedad: 300});
+    sonar('pop');
+    if(k === 1){
+      colorOnda = nuevo;
+      camino.style.transition = 'stroke .5s, filter .5s';
+      camino.style.stroke = nuevo;
+      camino.style.filter = `drop-shadow(0 0 4px ${nuevo})`;
+    }
+  }
+  voltDice('¡Me encanta ese color, Foco! 😍', 'Love that color, Foco! 😍', {expresion: 'amor'});
+  hablar(a, '¡Quedó brillante! ✨', 'Nice and shiny! ✨', 1600);
+  await gsap.to(a.p, {salto: -26, duration: .25, yoyo: true, repeat: 1, ease: 'power2.out'});
+  await esperar(900);
+  await gsap.to(a.p, {x: -ro.left - 80, giro: -.7, duration: 1.1, ease: 'power2.in'});
+  a.ocultar();
   return true;
 }
 
 // ------------------------------------------------------------------ agenda
 // No salen por reloj: reaccionan a lo que hace el visitante. Llegar a una sección, quedarse
 // leyendo, detenerse sobre una tarjeta. Nunca de madrugada, con el chat o un caso abiertos.
-const ESCENAS = {mantenimiento, limpieza, pintura, fotos, juego, organizar, saludo};
+const ESCENAS = {mantenimiento, limpieza, pintura, fotos, juego, organizar, reunion, letra, color};
 const CALMA = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const PAUSA_MIN = (MOVIL ? 16000 : 11000) * (CALMA ? 1.25 : 1);   // descanso mínimo entre escenas
 let ultima = null, finUltima = 0;
@@ -764,7 +923,7 @@ async function correr(nombre, objetivo){
   }
   return hecho;
 }
-async function alguna(preferidas = Object.keys(ESCENAS).filter(n => n !== 'saludo')){
+async function alguna(preferidas = Object.keys(ESCENAS)){
   const orden = [...preferidas].sort(() => Math.random() - .5).sort((a, b) => (a === ultima) - (b === ultima));
   for(const n of orden) if(await correr(n)) return n;
   return null;
@@ -772,10 +931,10 @@ async function alguna(preferidas = Object.keys(ESCENAS).filter(n => n !== 'salud
 
 // Qué hace el equipo en cada sección: lo que tiene sentido con lo que hay en pantalla.
 const POR_SECCION = {
-  sobre: ['pintura'], hago: ['limpieza', 'organizar'], trayectoria: ['mantenimiento', 'organizar'],
+  inicio: ['color', 'reunion'], sobre: ['letra', 'pintura'], hago: ['limpieza', 'organizar'], trayectoria: ['mantenimiento', 'letra', 'organizar'],
   proyectos: ['limpieza', 'fotos', 'mantenimiento'], web: ['limpieza', 'juego'],
   github: ['fotos', 'organizar', 'mantenimiento'], terminal: ['juego'],
-  herramientas: ['pintura', 'juego'], contacto: ['saludo', 'juego']
+  herramientas: ['pintura', 'letra'], contacto: ['reunion', 'juego']
 };
 const visitadas = new Set();
 let seccionActual = null, desdeSeccion = 0;
@@ -802,11 +961,11 @@ const inicio = performance.now();
 function vigilar(){
   if(!puedeActuar()) return;
   const ahora = performance.now();
-  // 1. La primera vez, el equipo se presenta después del saludo de Volt.
+  // 1. La primera vez, dos ayudantes van donde Volt a reportarle cómo va todo.
   if(!presentados && ahora - inicio > 6000){
     presentados = true;
     try{ sessionStorage.setItem('equipo-presentado', '1'); }catch(e){}
-    correr('saludo');
+    correr('reunion');
     return;
   }
   // 2. El puntero lleva un rato sobre una tarjeta: Tuerca viene a revisarla.

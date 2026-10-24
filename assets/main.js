@@ -602,6 +602,7 @@ async function preguntar(texto){
   window.Volt?.hablarPor(Math.min(res.texto.length * 22, 3500));
   if(res.ex) window.Volt?.ponerExpresion(res.ex, 3);
   if(res.ge) window.Volt?.hacerGesto(res.ge);
+  window.Volt?.reaccionar?.(res.texto);
   // Escribe la respuesta letra por letra.
   for(let i = 1; i <= res.texto.length; i += 2){
     m.textContent = res.texto.slice(0, i);

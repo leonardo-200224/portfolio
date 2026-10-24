@@ -193,6 +193,182 @@ birrete.add(tapa, copa, boton, cordonArriba, borla);
 birrete.visible = false;
 cabeza.add(birrete);
 
+// ------------------------------------------------------------------ facetas
+// Volt no se ve siempre igual: según lo que dice se pone algo encima (casco, gafas,
+// audífonos, gorro de fiesta), saca un portátil y programa, cambia la pantalla por código
+// o da una vueltica con destellos. Cada cambio entra con un "puf" de chispas.
+const telaFiesta = new THREE.MeshPhysicalMaterial({color: 0xFF6FB5, roughness: .45, clearcoat: .6});
+const amarilloCasco = new THREE.MeshPhysicalMaterial({color: 0xF2B200, roughness: .32, clearcoat: .8, emissive: 0x3A2600});
+const vidrioGafas = new THREE.MeshPhysicalMaterial({color: 0x0A0F1A, roughness: .05, transparent: true, opacity: .35, clearcoat: 1});
+
+function crearAccesorios(){
+  const casco = new THREE.Group();
+  const domo = new THREE.Mesh(new THREE.SphereGeometry(.6, 32, 16, 0, Math.PI * 2, 0, Math.PI / 2), amarilloCasco);
+  domo.scale.set(1, .62, 1);
+  const ala = new THREE.Mesh(new THREE.CylinderGeometry(.7, .7, .05, 40), amarilloCasco);
+  const cresta = new THREE.Mesh(new THREE.TorusGeometry(.58, .045, 8, 40, Math.PI), amarilloCasco);
+  cresta.rotation.y = Math.PI / 2; cresta.scale.set(1, .62, 1);
+  casco.add(domo, ala, cresta);
+  casco.position.y = .82;
+
+  const gafas = new THREE.Group();
+  [-1, 1].forEach(l => {
+    const aro = new THREE.Mesh(new THREE.TorusGeometry(.12, .018, 10, 32), oscuro);
+    aro.position.set(l * .145, 0, 0);
+    const lente = new THREE.Mesh(new THREE.CircleGeometry(.115, 28), vidrioGafas);
+    lente.position.set(l * .145, 0, -.005);
+    const pata = new THREE.Mesh(new THREE.BoxGeometry(.2, .02, .02), oscuro);
+    pata.position.set(l * .33, .02, -.04);
+    gafas.add(aro, lente, pata);
+  });
+  const puente = new THREE.Mesh(new THREE.TorusGeometry(.04, .014, 8, 16, Math.PI), oscuro);
+  puente.position.y = .01;
+  gafas.add(puente);
+  gafas.position.set(0, .47, .5);
+
+  const audifonos = new THREE.Group();
+  const diadema = new THREE.Mesh(new THREE.TorusGeometry(.6, .035, 10, 48, Math.PI), oscuro);
+  diadema.position.y = .42;
+  const desde = new THREE.Vector3(.6, .36, .04), hasta = new THREE.Vector3(.2, .24, .52);
+  const microBrazo = new THREE.Mesh(new THREE.CylinderGeometry(.015, .015, desde.distanceTo(hasta), 8), metal);
+  microBrazo.position.copy(desde).add(hasta).multiplyScalar(.5);
+  microBrazo.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), hasta.clone().sub(desde).normalize());
+  const micro = new THREE.Mesh(new THREE.SphereGeometry(.05, 14, 10), luzCian);
+  micro.position.copy(hasta);
+  audifonos.add(diadema, microBrazo, micro);
+
+  const fiesta = new THREE.Group();
+  const cono = new THREE.Mesh(new THREE.ConeGeometry(.22, .5, 28), telaFiesta);
+  const franja = new THREE.Mesh(new THREE.TorusGeometry(.15, .02, 8, 28), luzSenal);
+  franja.rotation.x = Math.PI / 2; franja.position.y = -.08;
+  const pompon = new THREE.Mesh(new THREE.SphereGeometry(.07, 14, 10), luzSenal);
+  pompon.position.y = .28;
+  fiesta.add(cono, franja, pompon);
+  fiesta.position.set(-.18, 1.08, 0); fiesta.rotation.z = .25;
+
+  // El portátil tiene su propia pantallita con código que se escribe solo.
+  const codigoCanvas = document.createElement('canvas');
+  codigoCanvas.width = 256; codigoCanvas.height = 160;
+  const codigoTex = new THREE.CanvasTexture(codigoCanvas);
+  codigoTex.colorSpace = THREE.SRGBColorSpace;
+  const portatil = new THREE.Group();
+  const base = new THREE.Mesh(new RoundedBoxGeometry(.62, .035, .4, 2, .015), metal);
+  const tapa = new THREE.Group();
+  tapa.position.set(0, .02, -.19);
+  tapa.rotation.x = -.25;
+  const marco = new THREE.Mesh(new RoundedBoxGeometry(.62, .4, .025, 2, .015), metal);
+  marco.position.y = .2;
+  const pantallaPc = new THREE.Mesh(new THREE.PlaneGeometry(.56, .34), new THREE.MeshBasicMaterial({map: codigoTex, toneMapped: false}));
+  pantallaPc.position.set(0, .2, .014);
+  tapa.add(marco, pantallaPc);
+  portatil.add(base, tapa);
+  portatil.position.set(0, -.98, .48);
+  portatil.rotation.x = .35;
+
+  [casco, gafas, audifonos, fiesta].forEach(a => { a.visible = false; cabeza.add(a); });
+  portatil.visible = false;
+  flota.add(portatil);
+  return {casco, gafas, audifonos, fiesta, portatil, codigoCanvas, codigoTex};
+}
+const acc = crearAccesorios();
+const LINEAS_CODIGO = [
+  'const volt = new Robot();', 'await sistema.revisar();', 'if(listo) desplegar();', 'SELECT * FROM proyectos;',
+  'npm run build ✓', 'git push origin main', 'app.get("/api", ok);', 'for(const t of tareas)', '  automatizar(t);', 'return "funcionando";'
+];
+let lineaCodigo = 0, letrasCodigo = 0;
+function dibujarCodigo(t){
+  const g = acc.codigoCanvas.getContext('2d');
+  g.fillStyle = '#07111C'; g.fillRect(0, 0, 256, 160);
+  g.font = '600 15px "Geist Mono", monospace';
+  letrasCodigo += .9;
+  if(letrasCodigo > LINEAS_CODIGO[lineaCodigo % LINEAS_CODIGO.length].length + 8){ letrasCodigo = 0; lineaCodigo++; }
+  for(let i = 0; i < 7; i++){
+    const n = lineaCodigo - 6 + i;
+    if(n < 0) continue;
+    const linea = LINEAS_CODIGO[n % LINEAS_CODIGO.length];
+    const texto = i === 6 ? linea.slice(0, Math.floor(letrasCodigo)) : linea;
+    g.fillStyle = i === 6 ? '#62EEFF' : ['#7FE3FF', '#F5C542', '#49CC90', '#C9D4E8'][n % 4];
+    g.globalAlpha = i === 6 ? 1 : .55 + i * .06;
+    g.fillText(texto, 12, 22 + i * 21);
+    if(i === 6 && Math.sin(t * 10) > 0) g.fillRect(12 + g.measureText(texto).width + 2, 9 + i * 21, 8, 16);
+  }
+  g.globalAlpha = 1;
+  acc.codigoTex.needsUpdate = true;
+}
+
+let accesorio = null, accesorioHasta = 0, ultimaMagia = 0;
+let modoPantalla = null, modoHasta = 0, iconoPantalla = '';
+const lluvia = Array.from({length: 16}, (_, i) => ({x: 16 + i * 31, y: Math.random() * 368, v: 60 + Math.random() * 90}));
+
+function puf(n = 26){
+  explotarChispas(n);
+  r.salto.empujar(-5);
+}
+function vestir(nombre, segundos = 6){
+  accesorioHasta = performance.now() + segundos * 1000;
+  if(accesorio === nombre) return;
+  quitarAccesorio(false);
+  accesorio = nombre;
+  const obj = nombre === 'birrete' ? birrete : acc[nombre];
+  obj.visible = true;
+  obj.scale.setScalar(.01);
+  gsap.to(obj.scale, {x: 1, y: 1, z: 1, duration: .55, ease: 'back.out(2.4)'});
+  // Los sombreros reemplazan la antena mientras están puestos.
+  if(nombre === 'casco' || nombre === 'fiesta' || nombre === 'birrete'){ antena.visible = false; if(nombre !== 'birrete') birrete.visible = false; }
+  if(nombre === 'portatil') hacerGesto('teclear');
+  if(!MENOS_MOVIMIENTO) r.giro.meta += Math.PI * 2;
+  puf();
+}
+function quitarAccesorio(restaurar = true){
+  if(!accesorio) return;
+  const obj = accesorio === 'birrete' ? birrete : acc[accesorio];
+  const era = accesorio;
+  accesorio = null;
+  gsap.to(obj.scale, {x: .01, y: .01, z: .01, duration: .3, ease: 'back.in(2)', onComplete: () => {
+    if(accesorio !== era) obj.visible = era === 'birrete' && momento === 'noche';
+    obj.scale.setScalar(1);
+    if(!accesorio) aplicarMomento();
+  }});
+  if(era === 'portatil' && gesto === 'teclear') gesto = null;
+  if(restaurar) explotarChispas(12);
+}
+function pantallaModo(modo, segundos = 4, icono = ''){
+  modoPantalla = modo; iconoPantalla = icono;
+  modoHasta = performance.now() + segundos * 1000;
+}
+function magia(){
+  if(MENOS_MOVIMIENTO || performance.now() - ultimaMagia < 7000) return;
+  ultimaMagia = performance.now();
+  r.giro.meta += Math.PI * 2;
+  r.salto.empujar(-10);
+  explotarChispas(36);
+}
+
+// Lee lo que va a decir y decide cómo se presenta.
+const FACETAS = [
+  {re: /codig|program|github|repo|\bapi\b|stack|tecnolog|javascript|typescript|node|python|sql|backend|frontend|terminal|software|code/, hacer: () => { vestir('portatil', 7); pantallaModo('codigo', 6); }},
+  {re: /proyect|sistema|automatiz|empresa|ingenier|cotizador|nomina|payroll|factura|invoice|alerta|tornillo|mantenimiento|maintenance|repar|equipo|team|production|produccion/, hacer: () => vestir('casco', 6)},
+  {re: /riwi|estudi|study|aprend|learn|formaci|training|universi|carrera|clase|class/, hacer: () => { vestir('birrete', 6); pantallaModo('icono', 2.5, '🎓'); }},
+  {re: /contact|correo|email|escrib|write|linkedin|contrat|hire|whatsapp|llam|call|reach/, hacer: () => { vestir('audifonos', 6); pantallaModo('icono', 2.5, '✉'); }},
+  {re: /gracias|thank|genial|great|baila|dance|fiesta|party|celebr|excelente|excellent|bonito|🎉/, hacer: () => { vestir('fiesta', 5); magia(); }},
+  {re: /lee|read|gafas|detalle|detail|revis|check|analiz/, hacer: () => vestir('gafas', 5)}
+];
+function reaccionar(texto){
+  const q = String(texto).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+  const f = FACETAS.find(x => x.re.test(q));
+  if(f){ f.hacer(); return; }
+  // Sin tema claro: a veces una vueltica, a veces la pantalla cambia un momento.
+  const azar = Math.random();
+  if(azar < .25) magia();
+  else if(azar < .45) pantallaModo('icono', 1.8, ['⚡', '♥', '✓', '</>', '★'][Math.floor(Math.random() * 5)]);
+}
+function actualizarFacetas(t){
+  const ahora = performance.now();
+  if(accesorio && ahora > accesorioHasta) quitarAccesorio();
+  if(modoPantalla && ahora > modoHasta) modoPantalla = null;
+  if(accesorio === 'portatil' && cuadrosCara % 2 === 0) dibujarCodigo(t);
+}
+
 // ------------------------------------------------------------------ hora de Colombia
 // Igual que en el perfil de GitHub: de mañana saluda, de noche va a clase, de madrugada duerme.
 // ?hora=23 en la URL permite ver cada momento sin esperar.
@@ -210,8 +386,8 @@ function horaTexto(){
 }
 let momento = momentoColombia();
 function aplicarMomento(){
-  birrete.visible = momento === 'noche';
-  antena.visible = !birrete.visible;
+  birrete.visible = momento === 'noche' || accesorio === 'birrete';
+  antena.visible = !birrete.visible && accesorio !== 'casco' && accesorio !== 'fiesta';
 }
 aplicarMomento();
 setInterval(() => { momento = momentoColombia(); aplicarMomento(); }, 60000);
@@ -291,7 +467,21 @@ function dibujarCara(t){
   const ox = W / 2 + mx, oy = H * .44 + my, sep = 92;
   const abierto = 1 - parpadeo;
 
-  switch(expresion){
+  if(modoPantalla === 'codigo'){
+    // Lluvia de ceros y unos detrás de los ojos: Volt está programando.
+    const dtc = Math.min(t - (dibujarCara.t ?? t), .1); dibujarCara.t = t;
+    cx.save(); cx.shadowBlur = 0; cx.font = '700 26px "Geist Mono", monospace';
+    lluvia.forEach((g, i) => {
+      g.y = (g.y + g.v * dtc) % (H + 120);
+      for(let k = 0; k < 5; k++){ cx.globalAlpha = .1 + k * .09; cx.fillText((i * 7 + k + Math.floor(t * 6)) % 3 ? '1' : '0', g.x, g.y - (4 - k) * 28); }
+    });
+    cx.restore();
+  }
+  if(modoPantalla === 'icono'){
+    cx.font = '700 150px "Geist", sans-serif'; cx.textAlign = 'center'; cx.textBaseline = 'middle';
+    cx.fillText(iconoPantalla, W / 2, H * .44 + Math.sin(t * 4) * 6);
+    cx.textAlign = 'start'; cx.textBaseline = 'alphabetic';
+  }else switch(expresion){
     case 'feliz':
       cx.lineWidth = 20;
       [-1, 1].forEach(s => { cx.beginPath(); cx.arc(ox + s * sep, oy + 16, 36, Math.PI * 1.1, Math.PI * 1.9); cx.stroke(); });
@@ -385,9 +575,11 @@ function pitar(){
 let escribiendo = null, ocultarBurbuja = null, tamBurbuja = {w: 260, h: 60};
 function decir(texto, {expresion: ex = null, segundos = 4.5, gesto: ge = null} = {}){
   if(!texto) return;
+  if(expresion === 'dormido') expresion = 'normal';   // hablar lo despierta
   clearInterval(escribiendo); clearTimeout(ocultarBurbuja);
   if(ex) ponerExpresion(ex, segundos);
   if(ge) hacerGesto(ge);
+  reaccionar(texto);
   // Se mide el globo con el texto completo una sola vez; así el bucle no fuerza
   // al navegador a recalcular el diseño en cada cuadro.
   burbuja.textContent = texto;
@@ -540,6 +732,10 @@ function cuadro(){
   if(gesto === 'saludar'){ bDz = -2.5 + Math.sin(g * 14) * .45; if(g > 2.2) gesto = null; }
   else if(gesto === 'celebrar'){ bIz = 2.6 + Math.sin(g * 16) * .25; bDz = -2.6 - Math.sin(g * 16) * .25; if(g > 2) gesto = null; }
   else if(gesto === 'senalar'){ bDz = -1.5; bDx = -.5; if(g > 2.4) gesto = null; }
+  else if(gesto === 'teclear'){
+    bIz = .35; bDz = -.35; bIx = -1.15 + Math.sin(t * 18) * .12; bDx = -1.15 + Math.cos(t * 16) * .12;
+    if(accesorio !== 'portatil') gesto = null;
+  }
   else if(gesto === 'pensar'){ bDz = -.6; bDx = -1.9; if(g > 3) gesto = null; }
   else if(gesto === 'bailar'){
     bIz = 1.2 + Math.sin(g * 10) * 1.1; bDz = -1.2 - Math.cos(g * 10) * 1.1;
@@ -600,6 +796,7 @@ function cuadro(){
   chispas.material.size = .05 * Math.max(raiz.scale.x, .3);
 
   // La cara se redibuja a 30 cuadros por segundo: a simple vista es igual y cuesta la mitad.
+  actualizarFacetas(t);
   if(++cuadrosCara % 2 === 0) dibujarCara(t);
   renderer.render(escena, camara);
 
@@ -675,7 +872,8 @@ addEventListener('keydown', e => {
 
 // API para el resto de la página.
 window.Volt = {
-  decir, callar, hacerGesto, ponerExpresion, hablarPor,
+  decir, callar, hacerGesto, ponerExpresion, hablarPor, reaccionar, vestir, pantallaModo, magia,
+  posicion: () => ({...pantallaVolt}),
   get momento(){ return momento; }, horaTexto,
   celebrar(){ hacerGesto('celebrar'); explotarChispas(36); r.salto.empujar(-8); },
   bailar(){ hacerGesto('bailar'); explotarChispas(20); }
