@@ -474,8 +474,8 @@ function sacudir(el){ el.animate([{translate: '-3px 0'}, {translate: '3px 1px'},
 
 // ------------------------------------------------------------------ escenas
 // Tuerca baja colgado de un cable, aprieta tres tornillos de una tarjeta y vuelve a subir.
-async function mantenimiento(){
-  const el = elegir(visibles(TARJETAS));
+async function mantenimiento(objetivo){
+  const el = objetivo || elegir(visibles(TARJETAS));
   if(!el) return false;
   const r = rect(el), a = tuerca;
   a.ancla = el;
@@ -505,8 +505,8 @@ async function mantenimiento(){
 }
 
 // Brisa cruza volando, se queda sobre una tarjeta soplando el polvo y la deja brillando.
-async function limpieza(){
-  const el = elegir(visibles(TARJETAS));
+async function limpieza(objetivo){
+  const el = objetivo || elegir(visibles(TARJETAS));
   if(!el) return false;
   const r = rect(el), a = brisa;
   a.ancla = el;
@@ -713,55 +713,136 @@ function tocar(a){
   }
 }
 
-// ------------------------------------------------------------------ agenda
-// Aparecen poco y nunca de madrugada, con el chat abierto o con un caso de estudio abierto.
-const ESCENAS = {mantenimiento, limpieza, pintura, fotos, juego, organizar};
-let ultima = null;
-function puedeActuar(){
-  return !document.hidden && chat.hidden && document.getElementById('caso')?.hidden !== false
-    && window.Volt?.momento !== 'madrugada';
+// El equipo saluda: tres o cuatro asoman desde el borde de abajo, saludan y se van.
+async function saludo(){
+  const elenco = MOVIL ? [tuerca, foco, chispa] : [tuerca, brisa, foco, chispa, holo];
+  const ancho = Math.min(innerWidth - 60, elenco.length * (MOVIL ? 90 : 120));
+  const x0 = (innerWidth - ancho) / 2 - (MOVIL ? 0 : 60);
+  elenco.forEach((a, i) => {
+    Object.assign(a.p, {x: x0 + ancho * (i + .5) / elenco.length, y: innerHeight + a.p.alto, vis: 1, giro: 0, salto: 0, aplasta: 0});
+    a.mostrar();
+  });
+  voltDice('¡Te presento a mi equipo! Tuerca, Brisa, Foco, Chispa y Holo. 👋', 'Meet my team! Tuerca, Brisa, Foco, Chispa and Holo. 👋', {expresion: 'amor', gesto: 'saludar'});
+  await Promise.all(elenco.map((a, i) => gsap.to(a.p, {y: innerHeight - a.p.alto * (a === holo ? .7 : .58), duration: .7, delay: i * .12, ease: 'back.out(1.8)'})));
+  sonar('pop');
+  // Cada uno saluda a su manera.
+  for(const a of elenco){
+    if(a.m.brazoDer) gsap.to(a.m.brazoDer.rotation, {z: 2.4, duration: .18, yoyo: true, repeat: 5});
+    gsap.to(a.p, {salto: -22, duration: .22, yoyo: true, repeat: 1, ease: 'power2.out'});
+    await esperar(160);
+  }
+  await esperar(1800);
+  await Promise.all(elenco.map((a, i) => gsap.to(a.p, {y: innerHeight + a.p.alto, duration: .5, delay: i * .08, ease: 'back.in(1.6)'})));
+  elenco.forEach(a => a.ocultar());
+  return true;
 }
-async function correr(nombre){
+
+// ------------------------------------------------------------------ agenda
+// No salen por reloj: reaccionan a lo que hace el visitante. Llegar a una sección, quedarse
+// leyendo, detenerse sobre una tarjeta. Nunca de madrugada, con el chat o un caso abiertos.
+const ESCENAS = {mantenimiento, limpieza, pintura, fotos, juego, organizar, saludo};
+const CALMA = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const PAUSA_MIN = (MOVIL ? 16000 : 11000) * (CALMA ? 1.25 : 1);   // descanso mínimo entre escenas
+let ultima = null, finUltima = 0;
+const registro = [];   // escenas que ya pasaron en esta visita (útil para revisar)
+function puedeActuar(){
+  return !ocupado && !document.hidden && chat.hidden && document.getElementById('caso')?.hidden !== false
+    && window.Volt?.momento !== 'madrugada' && performance.now() - finUltima > PAUSA_MIN;
+}
+async function correr(nombre, objetivo){
   if(ocupado || !ESCENAS[nombre]) return false;
   ocupado = true; dichoEnEscena = false;
   encender();
   let hecho = false;
-  try{ hecho = await ESCENAS[nombre](); }
+  try{ hecho = await ESCENAS[nombre](objetivo); }
   catch(e){ console.warn('equipo:', e); }
   finally{
     ocupado = false;
     ACTORES.forEach(a => a.visible && a.ocultar());
     cable.visible = false;
-    if(hecho) ultima = nombre;
+    if(hecho){ ultima = nombre; finUltima = performance.now(); registro.push(nombre); }
   }
   return hecho;
 }
-async function alguna(){
-  const orden = Object.keys(ESCENAS).filter(n => n !== ultima).sort(() => Math.random() - .5);
+async function alguna(preferidas = Object.keys(ESCENAS).filter(n => n !== 'saludo')){
+  const orden = [...preferidas].sort(() => Math.random() - .5).sort((a, b) => (a === ultima) - (b === ultima));
   for(const n of orden) if(await correr(n)) return n;
   return null;
 }
-function programar(ms){
-  setTimeout(async () => {
-    if(puedeActuar()) await alguna();
-    programar(MOVIL ? azar(55000, 85000) : azar(35000, 55000));
-  }, ms);
+
+// Qué hace el equipo en cada sección: lo que tiene sentido con lo que hay en pantalla.
+const POR_SECCION = {
+  sobre: ['pintura'], hago: ['limpieza', 'organizar'], trayectoria: ['mantenimiento', 'organizar'],
+  proyectos: ['limpieza', 'fotos', 'mantenimiento'], web: ['limpieza', 'juego'],
+  github: ['fotos', 'organizar', 'mantenimiento'], terminal: ['juego'],
+  herramientas: ['pintura', 'juego'], contacto: ['saludo', 'juego']
+};
+const visitadas = new Set();
+let seccionActual = null, desdeSeccion = 0;
+const observador = new IntersectionObserver(entradas => {
+  for(const e of entradas) if(e.isIntersecting){ seccionActual = e.target.dataset.seccion; desdeSeccion = performance.now(); }
+}, {rootMargin: '-35% 0px -35% 0px'});
+document.querySelectorAll('[data-seccion]').forEach(s => observador.observe(s));
+
+// Quién está quieto leyendo, y sobre qué tarjeta descansa el puntero.
+let ultimaActividad = performance.now(), tarjetaBajo = null, desdeTarjeta = 0;
+const actividad = () => { ultimaActividad = performance.now(); };
+addEventListener('scroll', actividad, {passive: true});
+addEventListener('keydown', actividad);
+addEventListener('pointermove', e => {
+  actividad();
+  const t = e.target.closest?.(TARJETAS) || null;
+  if(t !== tarjetaBajo){ tarjetaBajo = t; desdeTarjeta = performance.now(); }
+}, {passive: true});
+
+let presentados = false;
+try{ presentados = sessionStorage.getItem('equipo-presentado') === '1'; }catch(e){}
+const inicio = performance.now();
+
+function vigilar(){
+  if(!puedeActuar()) return;
+  const ahora = performance.now();
+  // 1. La primera vez, el equipo se presenta después del saludo de Volt.
+  if(!presentados && ahora - inicio > 6000){
+    presentados = true;
+    try{ sessionStorage.setItem('equipo-presentado', '1'); }catch(e){}
+    correr('saludo');
+    return;
+  }
+  // 2. El puntero lleva un rato sobre una tarjeta: Tuerca viene a revisarla.
+  if(tarjetaBajo && ahora - desdeTarjeta > 2200 && visibles(TARJETAS).includes(tarjetaBajo)){
+    const t = tarjetaBajo;
+    tarjetaBajo = null;
+    correr(Math.random() < .6 ? 'mantenimiento' : 'limpieza', t);
+    return;
+  }
+  // 3. Llegó a una sección nueva y se quedó: la escena que va con esa sección.
+  if(seccionActual && !visitadas.has(seccionActual) && ahora - desdeSeccion > 1400 && POR_SECCION[seccionActual]){
+    visitadas.add(seccionActual);
+    alguna(POR_SECCION[seccionActual]);
+    return;
+  }
+  // 4. Lleva un rato quieto leyendo: algo pasa cerca de lo que está mirando.
+  if(ahora - ultimaActividad > (MOVIL ? 9000 : 7000) && ahora - finUltima > PAUSA_MIN * 2){
+    alguna(POR_SECCION[seccionActual] || undefined);
+    return;
+  }
+  // 5. Si nada de lo anterior pasa en un buen rato, igual aparece alguien.
+  if(ahora - finUltima > (MOVIL ? 45000 : 30000) && ahora - inicio > 20000) alguna();
 }
 
 // ?escena=pintura muestra una escena enseguida; ?escena=todas las pasa una tras otra.
 const forzada = new URLSearchParams(location.search).get('escena');
 if(forzada === 'todas'){
-  (async () => { await esperar(2500); for(const n of Object.keys(ESCENAS)){ await correr(n); await esperar(1200); } programar(30000); })();
+  (async () => { await esperar(2500); for(const n of Object.keys(ESCENAS)){ await correr(n); await esperar(1200); } })();
 }else if(forzada){
   setTimeout(() => correr(forzada), 2500);
-  programar(40000);
-}else if(!matchMedia('(prefers-reduced-motion: reduce)').matches){
-  // Con «reducir movimiento» activado no salen solos: solo cuando se piden desde la terminal.
-  programar(MOVIL ? 25000 : 15000);
 }
+setInterval(vigilar, 700);
 
 window.Equipo = {
   escena: correr, alguna,
-  get ocupado(){ return ocupado; },
+  get ocupado(){ return ocupado; }, registro,
+  diagnostico: () => ({seccion: seccionActual, visitadas: [...visitadas], tarjeta: tarjetaBajo?.className || null, puede: puedeActuar(), desdeFin: Math.round(performance.now() - finUltima)}),
   miembros: ACTORES.map(a => ({id: a.id, nombre: a.nombre, rol: a.rol}))
 };
