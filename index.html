@@ -280,15 +280,13 @@
     </article>
 
     <article class="proy" data-tilt data-glow data-caso="facturas">
-      <div class="proy-visual v-facturas" aria-hidden="true">
-        <div class="flujo">
-          <div class="nodo"><span class="ico-pdf">PDF</span><small>Drive</small></div>
-          <div class="cable"><i></i><i></i><i></i></div>
-          <div class="nodo nodo-pi"><span class="ico-chip"></span><small>Pi 5</small></div>
-          <div class="cable"><i></i><i></i><i></i></div>
-          <div class="nodo"><span class="ico-hoja"><b></b><b></b><b></b><b></b></span><small>Sheets</small></div>
+      <!-- Panel real renderizado con sus plantillas y facturas de ejemplo; logo difuminado -->
+      <div class="proy-visual v-real">
+        <div class="navegador navegador-oscuro">
+          <div class="navegador-barra"><i></i><i></i><i></i><span>panel · facturas por aprobar</span></div>
+          <img src="img/facturas/aprobar.jpg" alt="Panel real del lector de facturas: una factura leída por IA esperando aprobación" loading="lazy" decoding="async" width="1440" height="900">
         </div>
-        <div class="aprobar"><span class="pill pill-ia">IA</span><span class="flechita"></span><span class="pill pill-ok">✓ <span data-i18n="c2.aprobada">aprobada</span></span></div>
+        <span class="real-sello" data-i18n="real.sello">Captura real · datos de ejemplo</span>
       </div>
       <div class="proy-info">
         <span class="proy-num">02</span>
@@ -300,15 +298,12 @@
     </article>
 
     <article class="proy" data-tilt data-glow data-caso="nomina">
-      <div class="proy-visual v-nomina" aria-hidden="true">
-        <div class="tabla-n">
-          <div class="tn-cab"><span data-i18n="c3.col1">Persona</span><span data-i18n="c3.col2">Neto</span><span></span></div>
-          <div class="tn-fila" style="--d:0s"><i></i><b></b><em>✓</em></div>
-          <div class="tn-fila" style="--d:.35s"><i></i><b></b><em>✓</em></div>
-          <div class="tn-fila" style="--d:.7s"><i></i><b></b><em>✓</em></div>
-          <div class="tn-fila" style="--d:1.05s"><i></i><b></b><em>✓</em></div>
-          <div class="tn-fila" style="--d:1.4s"><i></i><b></b><em>✓</em></div>
+      <!-- Hojas reales del libro (columnas, fórmulas y formato) con empleados ficticios -->
+      <div class="proy-visual v-real">
+        <div class="navegador">
+          <img src="img/nomina/liquidacion.jpg" alt="Hoja LIQUIDACION del libro de nómina con empleados ficticios" loading="lazy" decoding="async" width="1440" height="900">
         </div>
+        <span class="real-sello" data-i18n="real.sello2">Libro real · empleados ficticios</span>
         <div class="contador-n"><b>55/55</b><span data-i18n="c3.cuadra">cuadran con la nómina real</span></div>
       </div>
       <div class="proy-info">

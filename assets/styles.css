@@ -583,6 +583,14 @@ html.con-caso{overflow:hidden}
 .navegador-barra i:nth-child(2){background:#FEBC2E}.navegador-barra i:nth-child(3){background:#28C840}
 .navegador-barra span{margin-left:10px;padding:2px 12px;border-radius:6px;background:#fff;font-family:var(--f-mono);font-size:10.5px;color:#5F6A82}
 .navegador img{display:block;width:100%;height:auto}
+.navegador-oscuro{background:#16191F}
+.navegador-oscuro .navegador-barra{background:#22262E;border-color:#2E333D}
+.navegador-oscuro .navegador-barra span{background:#16191F;color:#9AA4B8}
+/* El dato clave de la nómina flota sobre la captura */
+.v-real .contador-n{position:absolute;z-index:2;left:18px;bottom:16px;display:flex;align-items:center;gap:10px;text-align:left;
+  padding:10px 14px;border-radius:12px;background:rgba(5,6,10,.82);border:1px solid rgba(245,197,66,.3);backdrop-filter:blur(6px)}
+.v-real .contador-n b{font-size:26px}
+.v-real .contador-n span{margin:0;font-size:11.5px;max-width:16ch}
 .real-sello{position:absolute;z-index:2;right:16px;top:14px;font-family:var(--f-mono);font-size:11px;color:#BDF1FF;
   padding:4px 10px;border-radius:99px;background:rgba(5,6,10,.75);border:1px solid rgba(63,208,255,.35);backdrop-filter:blur(6px)}
 

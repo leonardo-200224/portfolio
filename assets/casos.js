@@ -68,6 +68,7 @@ const CASOS = [
     titulo: ['Lector de facturas con IA supervisada', 'Invoice reader with supervised AI'],
     lema: ['La IA ayuda, pero una persona tiene la última palabra.', 'AI helps, but a person has the final say.'],
     stack: 'Python · PostgreSQL · Google Drive API · Google Sheets API · Gemini · systemd · Raspberry Pi 5',
+    captura: 'img/facturas/grafica.jpg',
     nodos: [
       {id: 'drive', t: ['Google Drive', 'Google Drive'], s: ['Facturas en PDF', 'PDF invoices'], c: 0, f: 1},
       {id: 'pi', t: ['Lector · Pi 5', 'Reader · Pi 5'], s: ['Cada 15 min · systemd', 'Every 15 min · systemd'], c: 1, f: 1, clave: true},
@@ -131,6 +132,9 @@ const CASOS = [
     titulo: ['Nómina quincenal', 'Biweekly payroll'],
     lema: ['55 netos iguales a la nómina real. Al peso.', '55 net amounts matching the real payroll. To the peso.'],
     stack: 'Excel · VBA',
+    captura: 'img/nomina/turnos.jpg',
+    // Es el libro real (hojas, columnas y formato) con empleados ficticios, no una captura de la nómina.
+    capturaNota: ['El libro real, con empleados ficticios', 'The real workbook, with fictional employees'],
     nodos: [
       {id: 'param', t: ['Parámetros', 'Parameters'], s: ['Recargos y aportes', 'Surcharges & contributions'], c: 0, f: 0},
       {id: 'nov', t: ['Novedades', 'Period events'], s: ['Turnos y horas extra', 'Shifts & overtime'], c: 0, f: 2},
@@ -472,7 +476,7 @@ function irAPaso(n){
     relato.innerHTML = `<span class="sim-num">${L('Resultado', 'Result')}</span>
       <h3>${tx(c.lema)}</h3>
       <div class="sim-resultados">${p.resultados.map(([num, t]) => `<div><b>${num}</b><span>${tx(t)}</span></div>`).join('')}</div>
-      ${c.captura ? `<figure class="sim-captura"><img src="${c.captura}" alt="${L('Pantalla real del sistema con datos de ejemplo', 'Real screen of the system with sample data')}" loading="lazy"><figcaption>${L('La aplicación real, con datos de ejemplo', 'The real app, with sample data')}</figcaption></figure>` : ''}`;
+      ${c.captura ? `<figure class="sim-captura"><img src="${c.captura}" alt="${L('Pantalla real del sistema con datos de ejemplo', 'Real screen of the system with sample data')}" loading="lazy"><figcaption>${c.capturaNota ? tx(c.capturaNota) : L('La aplicación real, con datos de ejemplo', 'The real app, with sample data')}</figcaption></figure>` : ''}`;
     const sig = CASOS[(casoActual + 1) % CASOS.length];
     const b = document.createElement('button');
     b.type = 'button'; b.className = 'btn btn-luz';
