@@ -865,7 +865,6 @@ let colorOnda = '#3FD0FF';
 async function color(){
   const onda = document.querySelector('.hero-pre .osc');
   if(!onda || !visibles('.hero-pre', {arriba: 60, minAncho: 100, hasta: .85}).length) return false;
-  const camino = onda.querySelector('path');
   const nuevo = elegir(COLORES_ONDA.filter(c => c !== colorOnda));
   const a = foco, ro = rect(onda);
   a.m.pintura.color.set(nuevo);
@@ -884,9 +883,7 @@ async function color(){
     sonar('pop');
     if(k === 1){
       colorOnda = nuevo;
-      camino.style.transition = 'stroke .5s, filter .5s';
-      camino.style.stroke = nuevo;
-      camino.style.filter = `drop-shadow(0 0 4px ${nuevo})`;
+      onda.style.setProperty('--onda', nuevo);   // el osciloscopio toma el color nuevo
     }
   }
   voltDice('¡Me encanta ese color, Foco!', 'Love that color, Foco!', {expresion: 'amor'});

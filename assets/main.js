@@ -180,6 +180,85 @@ function pintarHora(){
 }
 setInterval(pintarHora, 20000);
 
+// =================================================================== osciloscopio
+// Un osciloscopio de verdad en miniatura: cuadrícula, traza con estela de fósforo y pulsos de
+// datos que la recorren. Se agita cuando el visitante mueve el puntero o baja por la página,
+// corre más rápido con el puntero encima y un clic dispara un pulso. Foco le cambia el color
+// con la variable --onda.
+(() => {
+  const lienzo = $('osc');
+  if(!lienzo) return;
+  const g = lienzo.getContext('2d');
+  const quieto = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let w = 0, h = 0, dpr = 1;
+  function medir(){
+    dpr = Math.min(devicePixelRatio || 1, 2);
+    w = lienzo.clientWidth; h = lienzo.clientHeight;
+    lienzo.width = Math.round(w * dpr); lienzo.height = Math.round(h * dpr);
+  }
+  medir();
+  addEventListener('resize', medir);
+
+  let energia = 0, fase = 0, encima = false, visible = true, ultimo = performance.now(), ultimoPulso = 0, cuadros = 0;
+  let color = '#3FD0FF';
+  const pulsos = [];
+  addEventListener('pointermove', e => { energia = Math.min(energia + Math.hypot(e.movementX || 0, e.movementY || 0) * .004, 1); }, {passive: true});
+  addEventListener('scroll', () => { energia = Math.min(energia + .04, 1); }, {passive: true});
+  const pildora = lienzo.closest('.hero-pre');
+  pildora.addEventListener('pointerenter', () => { encima = true; });
+  pildora.addEventListener('pointerleave', () => { encima = false; });
+  pildora.addEventListener('click', () => { pulsos.push({x: -4, a: 1.2}); energia = 1; });
+  new IntersectionObserver(([e]) => { visible = e.isIntersecting; }).observe(lienzo);
+
+  function dibujar(dt){
+    if(cuadros++ % 20 === 0) color = getComputedStyle(lienzo).getPropertyValue('--onda').trim() || '#3FD0FF';
+    energia = Math.max(energia - dt * .6, 0);
+    const vel = (encima ? 2.4 : 1) * (1 + energia * 1.4) * (quieto ? .6 : 1);
+    fase += dt * 5 * vel;
+    // Un pulso de datos cada tanto; más seguido cuando hay movimiento.
+    const ahora = performance.now();
+    if(ahora - ultimoPulso > 2300 / vel){ ultimoPulso = ahora; pulsos.push({x: -4, a: .7 + Math.random() * .5}); }
+    for(const p of pulsos) p.x += dt * w * .85 * vel;
+    while(pulsos.length && pulsos[0].x > w + 12) pulsos.shift();
+
+    g.setTransform(dpr, 0, 0, dpr, 0, 0);
+    // Fósforo: en vez de borrar, se oscurece lo anterior y queda una estela.
+    g.shadowBlur = 0;
+    g.fillStyle = 'rgba(3,8,14,.42)';
+    g.fillRect(0, 0, w, h);
+    g.strokeStyle = 'rgba(63,208,255,.07)';
+    g.lineWidth = 1;
+    g.beginPath();
+    for(let x = 8; x < w; x += 8){ g.moveTo(x + .5, 0); g.lineTo(x + .5, h); }
+    for(let y = 5.5; y < h; y += 5.5){ g.moveTo(0, Math.round(y) + .5); g.lineTo(w, Math.round(y) + .5); }
+    g.stroke();
+
+    g.strokeStyle = color; g.lineWidth = 1.5; g.lineJoin = 'round';
+    g.shadowColor = color; g.shadowBlur = 5;
+    g.beginPath();
+    const amp = (.2 + energia * .16) * h;
+    for(let x = 0; x <= w; x++){
+      const t = x / w;
+      let y = Math.sin(t * Math.PI * 4 + fase) * amp + Math.sin(t * Math.PI * 10 - fase * 1.7) * energia * .1 * h;
+      // Cada pulso tiene la forma de un latido: un pico arriba seguido de uno pequeño abajo.
+      for(const p of pulsos){
+        const d = x - p.x;
+        y -= p.a * h * .42 * Math.exp(-((d / 2.2) ** 2));
+        y += p.a * h * .2 * Math.exp(-(((d - 4.5) / 2.4) ** 2));
+      }
+      x ? g.lineTo(x, h / 2 + y) : g.moveTo(x, h / 2 + y);
+    }
+    g.stroke();
+  }
+  // Con «reducir movimiento» sigue viva, solo más tranquila (ver vel).
+  (function cuadro(ahora){
+    requestAnimationFrame(cuadro);
+    const dt = Math.min((ahora - ultimo) / 1000, .05);
+    ultimo = ahora;
+    if(visible && !document.hidden) dibujar(dt);
+  })(performance.now());
+})();
+
 // =================================================================== marquesina e íconos
 const MARQUESINA_1 = ['Node.js','TypeScript','NestJS','Python','FastAPI','PostgreSQL','React','Three.js'];
 const MARQUESINA_2 = ['Automatización','APIs REST','SPAs','Raspberry Pi','Riwi','Clean code','IA'];
