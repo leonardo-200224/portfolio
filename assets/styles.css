@@ -131,17 +131,6 @@ main,.nav{position:relative;z-index:2}
 .chat-form button{width:44px;border-radius:12px;border:0;cursor:pointer;background:linear-gradient(135deg,var(--azul),var(--cian));color:#fff;display:grid;place-items:center}
 .chat-form svg{width:18px;height:18px}
 
-/* ---------- circuito de progreso ---------- */
-.circuito{position:fixed;right:22px;top:50%;transform:translateY(-50%);z-index:40;display:flex;flex-direction:column;gap:22px;padding:6px 0}
-.circ-linea{position:absolute;left:50%;top:0;bottom:0;width:2px;margin-left:-1px;background:var(--linea2);z-index:-1}
-.circ-linea b{position:absolute;left:0;right:0;top:0;height:100%;background:linear-gradient(var(--azul),var(--cian));transform-origin:top;transform:scaleY(0);box-shadow:0 0 10px var(--cian)}
-.circ-nodo{position:relative;width:14px;height:14px;border-radius:50%;background:var(--bg);border:2px solid var(--tenue);display:block;transition:all .35s var(--ease)}
-.circ-nodo span{position:absolute;right:26px;top:50%;transform:translateY(-50%) translateX(6px);white-space:nowrap;font-size:12.5px;font-weight:600;color:var(--texto);
-  background:rgba(13,18,29,.9);border:1px solid var(--linea2);padding:4px 10px;border-radius:99px;opacity:0;pointer-events:none;transition:all .25s}
-.circ-nodo:hover span,.circ-nodo:focus-visible span{opacity:1;transform:translateY(-50%)}
-.circ-nodo.activo{border-color:var(--cian);background:var(--cian);box-shadow:0 0 14px var(--cian);transform:scale(1.25)}
-.circ-nodo.pasado{border-color:var(--azul);background:var(--azul)}
-@media (max-width:1100px){.circuito{display:none}}
 
 /* ---------- navegación ---------- */
 .nav{position:fixed;top:0;left:0;right:0;z-index:70;display:flex;align-items:center;gap:28px;padding:20px clamp(16px,4vw,48px);
@@ -676,7 +665,7 @@ html.con-caso{overflow:hidden}
   .web-pantalla-cel{border-radius:15px}.web-escenario{min-height:0;padding-bottom:36px}.web-pista{display:none}}
 @media (prefers-reduced-motion:reduce){.recorre{animation-duration:60s}}
 
-@media print{.loader,#escena,#chispas,#volt,#equipo,.equipo-hit,.volt-hit,.volt-burbuja,.chat,.circuito,.ruido,.nav,.marquesina{display:none}}
+@media print{.loader,#escena,#chispas,#volt,#equipo,.equipo-hit,.volt-hit,.volt-burbuja,.chat,.ruido,.nav,.marquesina{display:none}}
 /* Globitos de diálogo de los ayudantes y la letra que se cae */
 .equipo-globo{position:fixed;left:0;top:0;z-index:62;pointer-events:none;max-width:250px;padding:7px 12px;border-radius:12px;background:rgba(10,14,23,.94);
   border:1px solid rgba(63,208,255,.45);color:#E8EEF8;font-size:13px;line-height:1.35;box-shadow:0 8px 24px rgba(0,0,0,.45);animation:globo-entra .25s var(--ease) both;transition:opacity .25s;will-change:transform}

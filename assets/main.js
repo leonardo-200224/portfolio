@@ -19,7 +19,7 @@ const PUNTERO_FINO = matchMedia('(hover: hover) and (pointer: fine)').matches;
 // =================================================================== textos en inglés
 const EN = {
   'saltar':'Skip to content','nav.aria':'Sections','nav.sobre':'About','nav.tray':'Journey','nav.proyectos':'Work','nav.contacto':'Contact',
-  'circ.aria':'Page progress','volt.aria':'Talk to Volt, the assistant',
+  'volt.aria':'Talk to Volt, the assistant',
   'chat.sub':'Leonardo’s assistant · online','chat.cerrar':'Close chat','chat.label':'Type a question','chat.ph':'Ask me anything…','chat.enviar':'Send',
   'hero.pre':'Open to new projects','hero.rol':'Software Developer · Systems Engineering',
   'hero.lead1':'I turn manual processes into','hero.lead2':' that run on their own.',
@@ -102,7 +102,6 @@ function aplicarIdioma(){
   pintarContacto();
   pintarAtajos();
   pintarChips();
-  construirCircuito();
   if(ANIMA){ animarManifiesto(); animarContacto(); ScrollTrigger.refresh(); }
   dispatchEvent(new Event('idioma-cambiado'));
 }
@@ -985,34 +984,9 @@ let lienzoLimpio = true;
   c2d.globalAlpha = 1;
 })();
 
-// =================================================================== circuito de progreso
-const NOMBRES_SECCION = {
-  inicio:['Inicio','Home'], sobre:['Sobre mí','About'], hago:['Lo que hago','What I do'], trayectoria:['Trayectoria','Journey'],
-  proyectos:['En producción','In production'], web:['Sitios web','Websites'], github:['GitHub','GitHub'], terminal:['Terminal','Terminal'], herramientas:['Herramientas','Tools'], contacto:['Contacto','Contact']
-};
-function construirCircuito(){
-  const nav = $('circuito');
-  $$('.circ-nodo', nav).forEach(n => n.remove());
-  $$('[data-seccion]').forEach(sec => {
-    const a = document.createElement('a');
-    a.className = 'circ-nodo';
-    a.href = '#' + sec.id;
-    a.dataset.para = sec.dataset.seccion;
-    const nombre = NOMBRES_SECCION[sec.dataset.seccion][idioma === 'en' ? 1 : 0];
-    a.setAttribute('aria-label', nombre);
-    a.innerHTML = `<span>${nombre}</span>`;
-    a.addEventListener('click', e => { e.preventDefault(); irA('#' + sec.id); });
-    nav.appendChild(a);
-  });
-}
+// =================================================================== sección activa
+// Resalta en el menú el enlace de la sección que se está viendo.
 function marcarSeccion(nombre){
-  let pasado = true;
-  $$('.circ-nodo').forEach(n => {
-    const es = n.dataset.para === nombre;
-    if(es) pasado = false;
-    n.classList.toggle('activo', es);
-    n.classList.toggle('pasado', pasado && !es);
-  });
   const href = {sobre:'#sobre-mi', trayectoria:'#trayectoria', proyectos:'#proyectos', github:'#proyectos', terminal:'#terminal', contacto:'#contacto'}[nombre];
   $$('.nav nav a').forEach(a => a.classList.toggle('activo', a.getAttribute('href') === href));
 }
@@ -1079,8 +1053,6 @@ function iniciarAnimaciones(){
 
   ScrollTrigger.create({start: 80, onUpdate: s => $('nav').classList.toggle('solida', s.scroll() > 80)});
 
-  // Progreso total de la página en el circuito lateral.
-  gsap.to('#circProgreso', {scaleY: 1, ease: 'none', scrollTrigger: {start: 0, end: 'max', scrub: true}});
   $$('[data-seccion]').forEach(sec => ScrollTrigger.create({trigger: sec, start: 'top 55%', end: 'bottom 55%',
     onEnter: () => alEntrarSeccion(sec.dataset.seccion), onEnterBack: () => alEntrarSeccion(sec.dataset.seccion)}));
 
