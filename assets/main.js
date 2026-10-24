@@ -1147,7 +1147,12 @@ function intro(){
 }
 
 // Volt se carga después de la intro: así no compite con la escena 3D en la carga inicial.
+// Espera a que el navegador quede libre: así el texto de la portada responde primero.
 function cargarVolt(){
+  const ir = () => cargarVoltYa();
+  setTimeout(() => 'requestIdleCallback' in window ? requestIdleCallback(ir, {timeout: 2500}) : ir(), 1200);
+}
+function cargarVoltYa(){
   import('./mascota.js')
     // El equipo de ayudantes llega después, cuando Volt ya está en pantalla.
     .then(() => setTimeout(() => import('./equipo.js').catch(() => {}), 3000))
