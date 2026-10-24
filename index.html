@@ -401,16 +401,20 @@
   <div class="ancho">
     <p class="etiqueta" data-i18n="herr.etq">Herramientas</p>
     <h2 class="titulo-sec"><span data-i18n="herr.titulo" data-scramble>Con qué construyo</span></h2>
-    <div class="circuito-stack" id="stack">
-      <svg class="cs-cables" id="csCables" aria-hidden="true"></svg>
-      <div class="cs-herr" id="csHerr"></div>
-      <div class="cs-proy" id="csProy"></div>
-      <div class="cs-lectura" id="csLectura" aria-live="polite">
-        <div class="cl-ic cl-anim"></div>
-        <div class="cl-info"><p class="cl-cat cl-anim"></p><h3 class="cl-nombre cl-anim"></h3><p class="cl-texto cl-anim"></p></div>
-        <div class="cl-medidor cl-anim"><span class="cl-num">00</span><span class="cl-etq"></span><span class="cl-segmentos"></span></div>
-        <span class="cl-progreso" aria-hidden="true"></span>
+    <div class="esfera-stack" id="stack">
+      <div class="esf-escena" id="esfEscena" aria-hidden="true"></div>
+      <div class="esf-lado">
+        <div class="esf-info" id="esfInfo" aria-live="polite">
+          <span class="esf-info-ic esf-anim"></span>
+          <p class="esf-cat esf-anim"></p>
+          <h3 class="esf-nombre esf-anim"></h3>
+          <p class="esf-texto esf-anim"></p>
+          <p class="esf-usos esf-anim"></p>
+        </div>
+        <div class="esf-filtros" id="esfFiltros" role="group" aria-label="Filtrar por área" data-i18n-aria="herr.filtrar"></div>
+        <p class="esf-pista" data-i18n="herr.pista">Arrastra la esfera para girarla</p>
       </div>
+      <ul class="sr" id="esfLista"></ul>
     </div>
   </div>
 </section>

@@ -50,7 +50,7 @@ const EN = {
   'web.pista':'Hover to pause the scroll','real.sello':'Real screenshot · sample data','real.sello2':'Real workbook · fictional employees','real.sello3':'Real workbook · fictional staff',
   'gh.etq':'Open source','gh.titulo':'On my GitHub','gh.filtrar':'Filter projects','gh.todos':'All','gh.vertodos':'See all 48 repositories',
   'term.etq':'Interactive','term.titulo':'Ask the terminal','term.intro':'Type a command or tap one of the buttons. Try help.',
-  'herr.etq':'Tools','herr.titulo':'What I build with',
+  'herr.etq':'Tools','herr.titulo':'What I build with','herr.pista':'Drag the sphere to spin it','herr.filtrar':'Filter by area',
   'cont.etq':'Contact','cont.grande':'LET’S TALK',
   'cont.texto':'Got a process that’s still done by hand, or a developer role? Write to me and I’ll tell you what I’d build and how long it would take.',
   'pie.volt':'Volt is made with Three.js. Try the Konami code.','pie.arriba':'Back to top',
@@ -327,12 +327,14 @@ const HERRAMIENTAS = [
   ['github', 'GitHub', '#ECEFF6', 'infra', ['portafolio', 'dormify', 'medicare'], ['Mis repositorios públicos y este sitio.', 'My public repositories and this site.']]
 ];
 const tx2 = par => par[idioma === 'en' ? 1 : 0];
-// Circuito vivo: cada herramienta está cableada a los proyectos donde la uso. Por los cables
-// corre "corriente"; al elegir una herramienta se encienden los bombillos de sus proyectos y,
-// al pasar por un proyecto, se iluminan las herramientas con que lo construí.
-const SVG_NS = 'http://www.w3.org/2000/svg';
-const ORDEN_PROYECTOS = ['cotizador', 'facturas', 'nomina', 'alertas', 'dormify', 'medicare', 'tickets', 'gestioncall', 'reservas', 'rick', 'web', 'portafolio', 'riwi', 'inicios'];
-const cs = {sel: {tipo: 'herr', i: 0}, tocado: 0, visible: false, encendido: false, cables: [], pulsos: []};
+// Esfera 3D de herramientas: los logos se reparten sobre una esfera que gira sola, se puede
+// arrastrar con inercia y, al elegir un área, gira hasta mostrarla de frente. Cada logo es un
+// elemento HTML que se proyecta en perspectiva, así los íconos se ven nítidos.
+const esf = {
+  items: [], rot: [1, 0, 0, 0, 1, 0, 0, 0, 1], vel: {x: 0, y: .0035}, arrastre: null,
+  visible: false, apertura: 0, abierta: false, filtro: 'todas', hover: -1, fijo: -1, girarHacia: null, tocado: 0
+};
+const ESF_FILTROS = [['todas', ['Todas', 'All']], ...CATEGORIAS];
 
 function iconoStack(h, clase){
   const [slug, , , , , , txt] = h;
@@ -343,216 +345,174 @@ function iconoStack(h, clase){
   else{ ic.classList.add('txt'); ic.textContent = txt; }
   return ic;
 }
-function irAProyecto(p, e){
-  if(p.repo) return;                       // el enlace abre el repositorio
-  e.preventDefault();
-  if(p.caso) window.Casos?.abrir(p.caso);
-  else document.querySelector(p.ancla)?.scrollIntoView({behavior: 'smooth'});
+// Puntos repartidos de forma pareja sobre la esfera (espiral de Fibonacci).
+function puntoFibonacci(i, n){
+  const y = 1 - (i + .5) / n * 2, r = Math.sqrt(1 - y * y), a = i * Math.PI * (3 - Math.sqrt(5));
+  return [Math.cos(a) * r, y, Math.sin(a) * r];
 }
-function pintarStack(){
-  const herr = $('csHerr'), proy = $('csProy'), svg = $('csCables');
-  herr.textContent = ''; proy.textContent = ''; svg.textContent = '';
-  CATEGORIAS.forEach(([id, nombre]) => {
-    const grupo = document.createElement('div');
-    grupo.className = 'cs-grupo';
-    const items = HERRAMIENTAS.map((h, i) => [h, i]).filter(([h]) => h[3] === id);
-    const cab = document.createElement('p');
-    cab.className = 'cs-cat';
-    cab.innerHTML = '<i></i>';
-    cab.append(tx2(nombre), Object.assign(document.createElement('small'), {textContent: String(items.length).padStart(2, '0')}));
-    const chips = document.createElement('div');
-    chips.className = 'cs-chips';
-    items.forEach(([h, i]) => {
-      const b = document.createElement('button');
-      b.type = 'button'; b.className = 'chip'; b.dataset.i = i;
-      b.style.setProperty('--tc', h[2]);
-      b.style.setProperty('--k', i);
-      b.append(iconoStack(h, 'chip-ic'), h[1]);
-      const elegir = () => csSeleccionar({tipo: 'herr', i}, true);
-      b.addEventListener('pointerenter', elegir); b.addEventListener('focus', elegir); b.addEventListener('click', elegir);
-      chips.appendChild(b);
+// Cada área ocupa su propia zona de la esfera (alrededor de los vértices de un tetraedro),
+// así al elegirla todas sus herramientas quedan juntas y de frente.
+function puntosPorZona(){
+  const n = HERRAMIENTAS.length, puntos = Array.from({length: n}, (_, i) => puntoFibonacci(i, n));
+  const centros = [[0, .95, .3], [.85, -.35, .4], [-.85, -.35, .4], [0, -.3, -.95]];
+  const libres = new Set(puntos.keys()), asignado = new Array(n);
+  CATEGORIAS.forEach(([id], k) => {
+    const c = centros[k];
+    HERRAMIENTAS.forEach((h, i) => {
+      if(h[3] !== id) return;
+      let mejor = -1, d = Infinity;
+      for(const j of libres){ const p = puntos[j], dd = (p[0] - c[0]) ** 2 + (p[1] - c[1]) ** 2 + (p[2] - c[2]) ** 2; if(dd < d){ d = dd; mejor = j; } }
+      libres.delete(mejor); asignado[i] = puntos[mejor];
     });
-    grupo.append(cab, chips);
-    herr.appendChild(grupo);
   });
-  const titulo = document.createElement('p');
-  titulo.className = 'cs-cat cs-cat-proy';
-  titulo.innerHTML = '<i></i>';
-  titulo.append(L('Proyectos que alimentan', 'Projects they power'));
-  proy.appendChild(titulo);
-  ORDEN_PROYECTOS.forEach(id => {
-    const p = PROYECTOS[id];
-    const a = document.createElement('a');
-    a.className = 'lampara'; a.dataset.p = id;
-    a.style.setProperty('--k', ORDEN_PROYECTOS.indexOf(id));
-    a.href = p.repo ? `https://github.com/${USUARIO_GITHUB}/${p.repo}` : p.caso ? `#caso-${p.caso}` : p.ancla;
-    if(p.repo){ a.target = '_blank'; a.rel = 'noopener'; }
-    a.innerHTML = '<span class="bombillo" aria-hidden="true"><i></i></span>';
-    a.append(tx2(p.n));
-    a.addEventListener('click', e => irAProyecto(p, e));
-    const elegir = () => csSeleccionar({tipo: 'proy', p: id}, true);
-    a.addEventListener('pointerenter', elegir); a.addEventListener('focus', elegir);
-    proy.appendChild(a);
-  });
-  // Un cable por cada pareja herramienta → proyecto.
-  cs.cables = [];
-  HERRAMIENTAS.forEach((h, i) => h[4].forEach(p => {
-    const c = document.createElementNS(SVG_NS, 'path');
-    c.setAttribute('class', 'cable');
-    c.setAttribute('pathLength', '1');
-    c.style.setProperty('--tc', h[2]);
-    c.style.setProperty('--n', cs.cables.length * 9);
-    svg.appendChild(c);
-    cs.cables.push({el: c, i, p, largo: 1});
-  }));
-  cs.capaPulsos = document.createElementNS(SVG_NS, 'g');
-  svg.appendChild(cs.capaPulsos);
-  cs.pulsos.forEach(p => p.el.remove());
-  cs.pulsos = [];
-  csTrazar();
-  csSeleccionar(cs.sel, false, true);
+  return asignado;
+}
+const mult = (m, [x, y, z]) => [m[0] * x + m[1] * y + m[2] * z, m[3] * x + m[4] * y + m[5] * z, m[6] * x + m[7] * y + m[8] * z];
+function girarEsfera(eje, ang){
+  // Aplica un giro (en el espacio de la pantalla) a la orientación actual de la esfera.
+  const [x, y, z] = eje, c = Math.cos(ang), s = Math.sin(ang), t = 1 - c;
+  const r = [t * x * x + c, t * x * y - s * z, t * x * z + s * y, t * x * y + s * z, t * y * y + c, t * y * z - s * x, t * x * z - s * y, t * y * z + s * x, t * z * z + c];
+  const m = esf.rot, o = new Array(9);
+  for(let f = 0; f < 3; f++) for(let k = 0; k < 3; k++) o[f * 3 + k] = r[f * 3] * m[k] + r[f * 3 + 1] * m[3 + k] + r[f * 3 + 2] * m[6 + k];
+  esf.rot = o;
 }
 
-// Recalcula el recorrido de cada cable según dónde quedó cada pieza (cambia con el ancho).
-function csTrazar(){
-  const caja = $('stack').getBoundingClientRect();
-  const svg = $('csCables');
-  svg.setAttribute('viewBox', `0 0 ${caja.width} ${caja.height}`);
-  const vertical = innerWidth < 760;
-  const chips = new Map($$('#csHerr .chip').map(b => [+b.dataset.i, b.getBoundingClientRect()]));
-  const lamparas = new Map($$('#csProy .lampara').map(a => [a.dataset.p, a.querySelector('.bombillo').getBoundingClientRect()]));
-  for(const c of cs.cables){
-    const a = chips.get(c.i), b = lamparas.get(c.p);
-    if(!a || !b) continue;
-    let d;
-    if(vertical){
-      const x1 = a.left + a.width / 2 - caja.left, y1 = a.bottom - caja.top, x2 = b.left + b.width / 2 - caja.left, y2 = b.top - caja.top;
-      const dy = Math.max((y2 - y1) * .5, 30);
-      d = `M${x1.toFixed(1)} ${y1.toFixed(1)} C${x1.toFixed(1)} ${(y1 + dy).toFixed(1)} ${x2.toFixed(1)} ${(y2 - dy).toFixed(1)} ${x2.toFixed(1)} ${y2.toFixed(1)}`;
+function pintarStack(){
+  const escena = $('esfEscena');
+  escena.querySelectorAll('.esf-item').forEach(e => e.remove());
+  const zonas = puntosPorZona();
+  esf.items = HERRAMIENTAS.map((h, i) => {
+    const el = document.createElement('div');
+    el.className = 'esf-item';
+    el.style.setProperty('--tc', h[2]);
+    const tile = document.createElement('span');
+    tile.className = 'esf-tile';
+    tile.appendChild(iconoStack(h, 'esf-ic'));
+    const nombre = document.createElement('span');
+    nombre.className = 'esf-nombre-item';
+    nombre.textContent = h[1];
+    el.append(tile, nombre);
+    el.addEventListener('pointerenter', () => { esf.hover = i; mostrarInfo(i); });
+    el.addEventListener('pointerleave', () => { if(esf.hover === i){ esf.hover = -1; if(esf.fijo >= 0) mostrarInfo(esf.fijo); } });
+    el.addEventListener('click', () => { esf.fijo = i; esf.tocado = performance.now(); mostrarInfo(i); });
+    escena.appendChild(el);
+    return {el, h, base: zonas[i], cat: h[3]};
+  });
+  // Lista para lectores de pantalla (la esfera es solo visual).
+  $('esfLista').replaceChildren(...HERRAMIENTAS.map(h => Object.assign(document.createElement('li'), {textContent: `${h[1]}: ${tx2(h[5])}`})));
+  const filtros = $('esfFiltros');
+  filtros.textContent = '';
+  ESF_FILTROS.forEach(([id, nombre]) => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'esf-filtro'; b.dataset.f = id;
+    b.textContent = tx2(nombre);
+    b.setAttribute('aria-pressed', id === esf.filtro);
+    b.addEventListener('click', () => filtrar(id));
+    filtros.appendChild(b);
+  });
+  mostrarInfo(esf.fijo >= 0 ? esf.fijo : 0, true);
+}
+
+function mostrarInfo(i, sinAnimar){
+  const h = HERRAMIENTAS[i], info = $('esfInfo');
+  info.style.setProperty('--tc', h[2]);
+  info.querySelector('.esf-info-ic').replaceChildren(iconoStack(h, 'esf-ic'));
+  info.querySelector('.esf-cat').textContent = tx2(CATEGORIAS.find(c => c[0] === h[3])[1]);
+  info.querySelector('.esf-nombre').textContent = h[1];
+  info.querySelector('.esf-texto').textContent = tx2(h[5]);
+  info.querySelector('.esf-usos').textContent = `${L('Lo uso en', 'Used in')}: ${h[4].map(p => tx2(PROYECTOS[p].n)).join(' · ')}`;
+  if(!sinAnimar && window.gsap) gsap.fromTo(info.querySelectorAll('.esf-anim'), {y: 8, opacity: 0}, {y: 0, opacity: 1, duration: .35, stagger: .04, ease: 'power3.out', overwrite: true});
+}
+
+// Elegir un área: la esfera gira hasta dejar esas herramientas de frente.
+function filtrar(id){
+  esf.filtro = id;
+  esf.tocado = performance.now();
+  $$('#esfFiltros .esf-filtro').forEach(b => b.setAttribute('aria-pressed', b.dataset.f === id));
+  if(id === 'todas'){ esf.girarHacia = null; return; }
+  esf.girarHacia = {cat: id};
+  esf.vel = {x: 0, y: 0};
+  mostrarInfo(esf.items.findIndex(it => it.cat === id));
+}
+
+let esfAntes = performance.now();
+function cuadroEsfera(ahora){
+  requestAnimationFrame(cuadroEsfera);
+  // Todo el giro va por tiempo real, así se ve igual en equipos rápidos y lentos.
+  const dt = Math.min((ahora - esfAntes) / 1000, .1), f = dt * 60;
+  esfAntes = ahora;
+  if(!esf.visible || document.hidden) return;
+  const escena = $('esfEscena'), ancho = escena.clientWidth, alto = escena.clientHeight;
+  const R = Math.min(ancho, alto) * .42 * (.35 + .65 * esf.apertura), dist = R * 3.4;
+  // Giro: arrastre con inercia, o giro automático suave.
+  if(!esf.arrastre){
+    if(esf.girarHacia){
+      // Se gira poco a poco para que el centro del área elegida mire al frente (+z).
+      const grupo = esf.items.filter(it => it.cat === esf.girarHacia.cat);
+      let c = grupo.reduce((s, it) => { const p = mult(esf.rot, it.base); return [s[0] + p[0], s[1] + p[1], s[2] + p[2]]; }, [0, 0, 0]);
+      const l = Math.hypot(...c) || 1; c = c.map(v => v / l);
+      const eje = [c[1], -c[0], 0], le = Math.hypot(...eje), ang = Math.acos(Math.min(Math.max(c[2], -1), 1));
+      if(le > 1e-4 && ang > .01) girarEsfera(eje.map(v => v / le), ang * (1 - Math.exp(-dt * 4.5)));
+      else girarEsfera([0, 1, 0], .0012 * f);
     }else{
-      const x1 = a.right - caja.left, y1 = a.top + a.height / 2 - caja.top, x2 = b.left - caja.left, y2 = b.top + b.height / 2 - caja.top;
-      const dx = Math.max((x2 - x1) * .55, 40);
-      d = `M${x1.toFixed(1)} ${y1.toFixed(1)} C${(x1 + dx).toFixed(1)} ${y1.toFixed(1)} ${(x2 - dx).toFixed(1)} ${y2.toFixed(1)} ${x2.toFixed(1)} ${y2.toFixed(1)}`;
+      const auto = matchMedia('(prefers-reduced-motion: reduce)').matches ? .0015 : .0035;
+      esf.vel.x *= Math.pow(.95, f); esf.vel.y += ((esf.hover >= 0 ? auto * .25 : auto) - esf.vel.y) * (1 - Math.pow(.97, f));
+      girarEsfera([0, 1, 0], esf.vel.y * f); if(Math.abs(esf.vel.x) > 1e-5) girarEsfera([1, 0, 0], esf.vel.x * f);
     }
-    c.el.setAttribute('d', d);
-    c.largo = c.el.getTotalLength();
+  }
+  const cx = ancho / 2, cy = alto / 2;
+  for(let k = 0; k < esf.items.length; k++){
+    const it = esf.items[k];
+    const [x, y, z] = mult(esf.rot, it.base);
+    const s = dist / (dist - z * R), prof = (z + 1) / 2;
+    const fuera = esf.filtro !== 'todas' && it.cat !== esf.filtro;
+    const resalte = k === esf.hover || (esf.hover < 0 && k === esf.fijo);
+    const esc = s * (.55 + prof * .5) * (resalte ? 1.35 : 1) * (fuera ? .8 : 1);
+    const op = esf.apertura * (fuera ? .1 : .12 + prof * prof * .88);
+    it.el.style.transform = `translate3d(${(cx + x * R * s).toFixed(1)}px, ${(cy - y * R * s).toFixed(1)}px, 0) translate(-50%, -50%) scale(${esc.toFixed(3)})`;
+    it.el.style.opacity = op.toFixed(3);
+    it.el.style.zIndex = resalte ? 200 : Math.round(prof * 100);
+    it.el.classList.toggle('activo', resalte);
+    it.el.classList.toggle('delante', prof > .72 && !fuera);
   }
 }
 
-function csSeleccionar(sel, desdeUsuario, sinAnimar){
-  if(desdeUsuario) cs.tocado = performance.now();
-  const igual = sel.tipo === cs.sel.tipo && sel.i === cs.sel.i && sel.p === cs.sel.p;
-  cs.sel = sel;
-  const raiz = $('stack');
-  let herrs, proys, color;
-  if(sel.tipo === 'herr'){
-    const h = HERRAMIENTAS[sel.i];
-    herrs = new Set([sel.i]); proys = new Set(h[4]); color = h[2];
-  }else{
-    herrs = new Set(HERRAMIENTAS.map((h, i) => h[4].includes(sel.p) ? i : -1).filter(i => i >= 0));
-    proys = new Set([sel.p]); color = '#3FD0FF';
-  }
-  raiz.style.setProperty('--c', color);
-  raiz.dataset.modo = sel.tipo;
-  $$('#csHerr .chip').forEach(b => b.classList.toggle('activa', herrs.has(+b.dataset.i)));
-  $$('#csProy .lampara').forEach(a => a.classList.toggle('encendida', proys.has(a.dataset.p)));
-  cs.cables.forEach(c => c.el.classList.toggle('vivo', herrs.has(c.i) && proys.has(c.p)));
-  if(!igual || sinAnimar) csLeer(sel, herrs, proys, sinAnimar);
-}
-
-// La lectura de abajo, como la pantalla de un multímetro.
-function csLeer(sel, herrs, proys, sinAnimar){
-  const l = $('csLectura');
-  const ic = l.querySelector('.cl-ic');
-  let nombre, cat, texto, cifra, etiqueta;
-  if(sel.tipo === 'herr'){
-    const h = HERRAMIENTAS[sel.i];
-    ic.replaceChildren(Object.assign(document.createElement('span'), {className: 'cl-anillo'}), iconoStack(h, 'cl-icono'));
-    nombre = h[1]; cat = tx2(CATEGORIAS.find(c => c[0] === h[3])[1]); texto = tx2(h[5]);
-    cifra = proys.size; etiqueta = cifra === 1 ? L('proyecto alimentado', 'project powered') : L('proyectos alimentados', 'projects powered');
-  }else{
-    const p = PROYECTOS[sel.p];
-    ic.replaceChildren(Object.assign(document.createElement('span'), {className: 'cl-anillo'}), Object.assign(document.createElement('span'), {className: 'cl-icono cl-bombillo'}));
-    nombre = tx2(p.n); cat = L('Proyecto', 'Project');
-    texto = L('Construido con ', 'Built with ') + [...herrs].map(i => HERRAMIENTAS[i][1]).join(' · ');
-    cifra = herrs.size; etiqueta = L('herramientas conectadas', 'tools wired in');
-  }
-  l.querySelector('.cl-cat').textContent = cat;
-  l.querySelector('.cl-nombre').textContent = nombre;
-  l.querySelector('.cl-texto').textContent = texto;
-  l.querySelector('.cl-etq').textContent = etiqueta;
-  // La cifra sube contando, como un display que se estabiliza.
-  const num = l.querySelector('.cl-num'), o = {v: sinAnimar ? cifra : 0};
-  if(window.gsap && !sinAnimar) gsap.to(o, {v: cifra, duration: .6, ease: 'power2.out', onUpdate: () => { num.textContent = String(Math.round(o.v)).padStart(2, '0'); }});
-  num.textContent = String(Math.round(o.v)).padStart(2, '0');
-  const seg = l.querySelector('.cl-segmentos');
-  const total = sel.tipo === 'herr' ? ORDEN_PROYECTOS.length : 12;
-  seg.replaceChildren(...Array.from({length: total}, (_, k) => Object.assign(document.createElement('i'), {className: k < cifra ? 'on' : ''})));
-  const barra = l.querySelector('.cl-progreso');
-  barra.classList.remove('corre'); void barra.offsetWidth;
-  if(performance.now() - cs.tocado > 8000) barra.classList.add('corre');
-  if(window.gsap && !sinAnimar) gsap.fromTo(l.querySelectorAll('.cl-anim'), {y: 10, opacity: 0}, {y: 0, opacity: 1, duration: .4, stagger: .04, ease: 'power3.out', overwrite: true});
-}
-
-// Corriente: pulsos de luz que viajan de la herramienta al proyecto. Los cables vivos llevan
-// pulsos seguidos y de su color; el resto, de vez en cuando, uno tenue.
-let ultimoPulso = 0, ultimoAmbiente = 0, tAnterior = performance.now();
-function csSoltarPulso(c, vivo){
-  const g = document.createElementNS(SVG_NS, 'circle');
-  g.setAttribute('r', vivo ? 3.2 : 2.2);
-  g.setAttribute('class', vivo ? 'pulso vivo' : 'pulso');
-  g.style.setProperty('--tc', HERRAMIENTAS[c.i][2]);
-  cs.capaPulsos.appendChild(g);
-  cs.pulsos.push({el: g, c, t: 0, vel: (vivo ? 1.1 : .55) + Math.random() * .3});
-}
-function csCorrer(ahora){
-  requestAnimationFrame(csCorrer);
-  const dt = Math.min((ahora - tAnterior) / 1000, .05);
-  tAnterior = ahora;
-  if(!cs.visible || !cs.encendido || document.hidden) return;
-  const vivos = cs.cables.filter(c => c.el.classList.contains('vivo'));
-  if(vivos.length && ahora - ultimoPulso > 260){ ultimoPulso = ahora; csSoltarPulso(vivos[Math.floor(Math.random() * vivos.length)], true); }
-  if(ahora - ultimoAmbiente > 420){ ultimoAmbiente = ahora; csSoltarPulso(cs.cables[Math.floor(Math.random() * cs.cables.length)], false); }
-  cs.pulsos = cs.pulsos.filter(p => {
-    p.t += dt * p.vel;
-    if(p.t >= 1){
-      p.el.remove();
-      // Al llegar, el bombillo destella.
-      if(p.el.classList.contains('vivo')){
-        const lamp = document.querySelector(`#csProy .lampara[data-p="${p.c.p}"]`);
-        lamp?.classList.remove('destello'); void lamp?.offsetWidth; lamp?.classList.add('destello');
-      }
-      return false;
-    }
-    const pt = p.c.el.getPointAtLength(p.t * p.c.largo);
-    p.el.setAttribute('cx', pt.x.toFixed(1)); p.el.setAttribute('cy', pt.y.toFixed(1));
-    return true;
+// Arrastrar para girar; al soltar sigue rodando con inercia.
+(() => {
+  const escena = $('esfEscena');
+  escena.addEventListener('pointerdown', e => {
+    esf.arrastre = {x: e.clientX, y: e.clientY, t: performance.now()};
+    esf.girarHacia = null; esf.tocado = performance.now();
+    escena.setPointerCapture(e.pointerId);
+    escena.classList.add('arrastrando');
   });
-}
+  escena.addEventListener('pointermove', e => {
+    if(!esf.arrastre) return;
+    const dx = e.clientX - esf.arrastre.x, dy = e.clientY - esf.arrastre.y;
+    esf.arrastre.x = e.clientX; esf.arrastre.y = e.clientY;
+    const k = .006;
+    girarEsfera([0, 1, 0], dx * k); girarEsfera([1, 0, 0], dy * k);
+    esf.vel = {x: dy * k * .6, y: dx * k * .6};
+  });
+  const soltar = () => { esf.arrastre = null; escena.classList.remove('arrastrando'); };
+  escena.addEventListener('pointerup', soltar);
+  escena.addEventListener('pointercancel', soltar);
+})();
 
 pintarStack();
 addEventListener('idioma-cambiado', pintarStack);
-let esperaTrazo = null;
-const retrazar = () => { cancelAnimationFrame(esperaTrazo); esperaTrazo = requestAnimationFrame(csTrazar); };
-addEventListener('resize', retrazar);
-new ResizeObserver(retrazar).observe($('stack'));
-document.fonts?.ready.then(retrazar);
-// Arranque: la primera vez que se ve, el circuito se enciende como un tablero.
+// Entrada: la primera vez que se ve, los logos salen del centro y se acomodan en la esfera.
 new IntersectionObserver(([e]) => {
-  cs.visible = e.isIntersecting;
-  if(e.isIntersecting && !cs.encendido){
-    csTrazar();
-    $('stack').classList.add('arrancando');
-    setTimeout(() => { cs.encendido = true; $('stack').classList.add('encendido'); }, 1500);
+  esf.visible = e.isIntersecting;
+  if(e.isIntersecting && !esf.abierta){
+    esf.abierta = true;
+    if(window.gsap) gsap.to(esf, {apertura: 1, duration: 1.8, ease: 'expo.out'});
+    else esf.apertura = 1;
+    girarEsfera([0, 1, 0], -1.2);
+    esf.vel = {x: .01, y: .05};
   }
-}, {threshold: .25}).observe($('stack'));
-requestAnimationFrame(csCorrer);
-// Recorre sola las herramientas hasta que alguien toca una.
-setInterval(() => {
-  if(!cs.visible || !cs.encendido || document.hidden || performance.now() - cs.tocado < 8000) return;
-  const sig = cs.sel.tipo === 'herr' ? (cs.sel.i + 1) % HERRAMIENTAS.length : 0;
-  csSeleccionar({tipo: 'herr', i: sig}, false);
-}, 3200);
+}, {threshold: .2}).observe($('stack'));
+requestAnimationFrame(cuadroEsfera);
 
 // =================================================================== repositorios de GitHub
 const REPOS = [
