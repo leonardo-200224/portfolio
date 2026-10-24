@@ -87,17 +87,48 @@
 <!-- Caso de estudio -->
 <div class="caso" id="caso" role="dialog" aria-modal="true" aria-labelledby="casoTitulo" hidden>
   <div class="caso-fondo" data-cerrar></div>
-  <article class="caso-panel">
+  <article class="caso-panel" data-lenis-prevent>
     <header class="caso-barra">
-      <span class="caso-tipo" id="casoTipo"></span>
+      <div class="caso-id">
+        <span class="caso-tipo" id="casoTipo"></span>
+        <h2 id="casoTitulo"></h2>
+        <p class="caso-lema" id="casoLema"></p>
+      </div>
       <div class="caso-nav">
+        <a class="redondo caso-codigo" id="casoCodigo" href="#" target="_blank" rel="noopener" hidden><span data-i18n="caso.codigo">Ver código</span> ↗</a>
         <button type="button" class="redondo" id="casoPrev" aria-label="Caso anterior" data-i18n-aria="caso.prev"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-        <span class="caso-pos" id="casoPos"></span>
         <button type="button" class="redondo" id="casoNext" aria-label="Caso siguiente" data-i18n-aria="caso.next"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
         <button type="button" class="redondo caso-cerrar" id="casoCerrar" aria-label="Cerrar caso" data-i18n-aria="caso.cerrar">×</button>
       </div>
     </header>
-    <div class="caso-scroll" id="casoScroll" data-lenis-prevent></div>
+
+    <div class="sim">
+      <!-- Escenario: la arquitectura por donde viajan los datos -->
+      <div class="sim-escenario" id="simEscenario">
+        <span class="sim-sello" id="simSello"></span>
+        <div class="sim-lienzo" id="simLienzo"></div>
+        <span class="sim-stack" id="casoStack"></span>
+      </div>
+      <!-- Relato, inspector de datos y consola -->
+      <aside class="sim-lado">
+        <div class="sim-paso" id="simPaso" aria-live="polite"></div>
+        <div class="sim-acciones" id="simAcciones"></div>
+        <div class="sim-ventana">
+          <div class="sim-tit"><i></i><span data-i18n="sim.datos">Datos en este paso</span></div>
+          <pre class="sim-datos" id="simDatos"></pre>
+        </div>
+        <div class="sim-ventana sim-ventana-log">
+          <div class="sim-tit"><i class="log"></i><span data-i18n="sim.log">Registro del sistema</span></div>
+          <ol class="sim-log" id="simLog"></ol>
+        </div>
+      </aside>
+    </div>
+
+    <footer class="sim-control">
+      <button type="button" class="redondo sim-play" id="simPlay" aria-label="Pausar"></button>
+      <div class="sim-pista" id="simPista"></div>
+      <span class="sim-ayuda" data-i18n="sim.ayuda">← → para avanzar · espacio para pausar</span>
+    </footer>
   </article>
 </div>
 
@@ -158,7 +189,6 @@
       <a class="btn btn-borde" href="#terminal" data-magnetic><span data-i18n="hero.terminal">Abrir la terminal</span></a>
     </div>
   </div>
-  <a class="scroll-ind" href="#sobre-mi" aria-label="Bajar" data-i18n-aria="hero.bajar" data-anim="sub"><i></i></a>
 </section>
 
 <!-- ============ MARQUESINA ============ -->

@@ -23,7 +23,7 @@ const EN = {
   'chat.sub':'Leonardo’s assistant · online','chat.cerrar':'Close chat','chat.label':'Type a question','chat.ph':'Ask me anything…','chat.enviar':'Send',
   'hero.pre':'Open to new projects','hero.rol':'Software Developer · Systems Engineering',
   'hero.lead1':'I turn manual processes into','hero.lead2':' that run on their own.',
-  'hero.ver':'See my work','hero.terminal':'Open the terminal','hero.bajar':'Scroll down',
+  'hero.ver':'See my work','hero.terminal':'Open the terminal',
   'sobre.etq':'About me',
   'sobre.texto':'I’m Leonardo Iván Ayala Pérez, a software developer in Colombia. I work inside an electrical engineering company turning what the team used to do by hand into systems that run on their own, and I’m training at Riwi on the advanced Node.js track. I love mixing creativity and technology: many of my ideas come from movies or traveling.',
   'cifra.1':'public repositories on GitHub','cifra.2':'systems in production at a real company','cifra.3':'employees on the payroll my system calculates','cifra.4':'a service running on a Raspberry Pi',
@@ -52,7 +52,8 @@ const EN = {
   'cont.texto':'Got a process that’s still done by hand, or a developer role? Write to me and I’ll tell you what I’d build and how long it would take.',
   'pie.volt':'Volt is made with Three.js. Try the Konami code.','pie.arriba':'Back to top',
   'canal.correo':'Email me','canal.linkedin':'LinkedIn','canal.github':'GitHub','canal.whatsapp':'WhatsApp','canal.cv':'Download CV',
-  'caso.ver':'View case study','caso.prev':'Previous case','caso.next':'Next case','caso.cerrar':'Close case'
+  'caso.ver':'View case study','caso.prev':'Previous case','caso.next':'Next case','caso.cerrar':'Close case','caso.codigo':'View code',
+  'sim.datos':'Data at this step','sim.log':'System log','sim.ayuda':'← → to step · space to pause'
 };
 const ES = {'canal.correo':'Escríbeme','canal.linkedin':'LinkedIn','canal.github':'GitHub','canal.whatsapp':'WhatsApp','canal.cv':'Descargar hoja de vida'};
 const PALABRAS = {es:['sistemas','APIs','automatizaciones','apps','flujos'], en:['systems','APIs','automations','apps','workflows']};
