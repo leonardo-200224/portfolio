@@ -490,6 +490,8 @@ function hablar(a, es, en, ms = 2200){
     const x = Math.min(Math.max(s.x, mitad + 10), innerWidth - mitad - 10);
     poner(el, 'transform', `translate(${Math.round(x - mitad)}px, ${Math.round(s.y + a.p.salto - a.p.alto * .62)}px) translateY(-100%)`);
   });
+  const s = a.pantalla();
+  window.Volt?.mirarA?.(s.x, s.y, ms / 1000);
   sonar('pop');
   setTimeout(() => { el.classList.add('fuera'); setTimeout(() => c.quitar(), 260); }, ms);
 }

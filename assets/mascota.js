@@ -194,14 +194,34 @@ birrete.visible = false;
 cabeza.add(birrete);
 
 // ------------------------------------------------------------------ facetas
-// Volt no se ve siempre igual: según lo que dice se pone algo encima (casco, gafas,
-// audífonos, gorro de fiesta), saca un portátil y programa, cambia la pantalla por código
-// o da una vueltica con destellos. Cada cambio entra con un "puf" de chispas.
-const telaFiesta = new THREE.MeshPhysicalMaterial({color: 0xFF6FB5, roughness: .45, clearcoat: .6});
-const amarilloCasco = new THREE.MeshPhysicalMaterial({color: 0xF2B200, roughness: .32, clearcoat: .8, emissive: 0x3A2600});
+// Volt es el administrador del sitio y no se ve siempre igual. Según lo que dice se pone
+// algo (casco, gafas, audífonos, traje de administrador…), su pantalla muestra código o
+// íconos, y de vez en cuando cambia de ropa por arte de magia. Todo entra con un "puf".
+const mat = (color, extra = {}) => new THREE.MeshPhysicalMaterial({color, roughness: .4, clearcoat: .6, ...extra});
+const amarilloCasco = mat(0xF2B200, {roughness: .32, clearcoat: .8, emissive: 0x3A2600});
+const telaFiesta = mat(0xFF6FB5);
+const telaMago = mat(0x3B2A8C, {emissive: 0x140C3A});
+const telaCapa = mat(0xD7263D, {side: THREE.DoubleSide, emissive: 0x2A0508});
+const telaCorbata = mat(0x1F6FEB);
 const vidrioGafas = new THREE.MeshPhysicalMaterial({color: 0x0A0F1A, roughness: .05, transparent: true, opacity: .35, clearcoat: 1});
+const vidrioSol = new THREE.MeshPhysicalMaterial({color: 0x05070C, roughness: .05, metalness: .6, clearcoat: 1});
+const estrellaMat = new THREE.MeshBasicMaterial({color: new THREE.Color(0xF5C542).multiplyScalar(1.8), toneMapped: false});
 
-function crearAccesorios(){
+// Gafete con el texto «ADMIN», dibujado en un canvas pequeño.
+function texturaTexto(texto, fondo, color){
+  const c = document.createElement('canvas'); c.width = 256; c.height = 96;
+  const g = c.getContext('2d');
+  g.fillStyle = fondo; g.beginPath(); g.roundRect(0, 0, 256, 96, 22); g.fill();
+  g.fillStyle = color; g.font = '800 54px "Unbounded", "Geist", sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
+  g.fillText(texto, 128, 52);
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace;
+  return t;
+}
+
+function crearVestuario(){
+  const piezas = {};
+  const poner = (nombre, padre, ...objs) => { objs.forEach(o => { o.visible = false; padre.add(o); }); piezas[nombre] = objs; };
+
   const casco = new THREE.Group();
   const domo = new THREE.Mesh(new THREE.SphereGeometry(.6, 32, 16, 0, Math.PI * 2, 0, Math.PI / 2), amarilloCasco);
   domo.scale.set(1, .62, 1);
@@ -210,21 +230,28 @@ function crearAccesorios(){
   cresta.rotation.y = Math.PI / 2; cresta.scale.set(1, .62, 1);
   casco.add(domo, ala, cresta);
   casco.position.y = .82;
+  poner('casco', cabeza, casco);
 
   const gafas = new THREE.Group();
   [-1, 1].forEach(l => {
     const aro = new THREE.Mesh(new THREE.TorusGeometry(.12, .018, 10, 32), oscuro);
-    aro.position.set(l * .145, 0, 0);
+    aro.position.x = l * .145;
     const lente = new THREE.Mesh(new THREE.CircleGeometry(.115, 28), vidrioGafas);
     lente.position.set(l * .145, 0, -.005);
-    const pata = new THREE.Mesh(new THREE.BoxGeometry(.2, .02, .02), oscuro);
-    pata.position.set(l * .33, .02, -.04);
-    gafas.add(aro, lente, pata);
+    gafas.add(aro, lente);
   });
-  const puente = new THREE.Mesh(new THREE.TorusGeometry(.04, .014, 8, 16, Math.PI), oscuro);
-  puente.position.y = .01;
-  gafas.add(puente);
+  gafas.add(new THREE.Mesh(new THREE.TorusGeometry(.04, .014, 8, 16, Math.PI), oscuro));
   gafas.position.set(0, .47, .5);
+  poner('gafas', cabeza, gafas);
+
+  // Gafas de sol: una sola franja oscura y brillante sobre los ojos.
+  const sol = new THREE.Group();
+  const franjaSol = new THREE.Mesh(new RoundedBoxGeometry(.62, .17, .04, 3, .06), vidrioSol);
+  const reflejo = new THREE.Mesh(new THREE.PlaneGeometry(.12, .025), new THREE.MeshBasicMaterial({color: 0xffffff, transparent: true, opacity: .7}));
+  reflejo.position.set(-.16, .04, .025); reflejo.rotation.z = .3;
+  sol.add(franjaSol, reflejo);
+  sol.position.set(0, .47, .5);
+  poner('sol', cabeza, sol);
 
   const audifonos = new THREE.Group();
   const diadema = new THREE.Mesh(new THREE.TorusGeometry(.6, .035, 10, 48, Math.PI), oscuro);
@@ -236,100 +263,100 @@ function crearAccesorios(){
   const micro = new THREE.Mesh(new THREE.SphereGeometry(.05, 14, 10), luzCian);
   micro.position.copy(hasta);
   audifonos.add(diadema, microBrazo, micro);
+  poner('audifonos', cabeza, audifonos);
 
   const fiesta = new THREE.Group();
-  const cono = new THREE.Mesh(new THREE.ConeGeometry(.22, .5, 28), telaFiesta);
+  fiesta.add(new THREE.Mesh(new THREE.ConeGeometry(.22, .5, 28), telaFiesta));
   const franja = new THREE.Mesh(new THREE.TorusGeometry(.15, .02, 8, 28), luzSenal);
   franja.rotation.x = Math.PI / 2; franja.position.y = -.08;
   const pompon = new THREE.Mesh(new THREE.SphereGeometry(.07, 14, 10), luzSenal);
   pompon.position.y = .28;
-  fiesta.add(cono, franja, pompon);
+  fiesta.add(franja, pompon);
   fiesta.position.set(-.18, 1.08, 0); fiesta.rotation.z = .25;
+  poner('fiesta', cabeza, fiesta);
 
-  // El portátil tiene su propia pantallita con código que se escribe solo.
-  const codigoCanvas = document.createElement('canvas');
-  codigoCanvas.width = 256; codigoCanvas.height = 160;
-  const codigoTex = new THREE.CanvasTexture(codigoCanvas);
-  codigoTex.colorSpace = THREE.SRGBColorSpace;
-  const portatil = new THREE.Group();
-  const base = new THREE.Mesh(new RoundedBoxGeometry(.62, .035, .4, 2, .015), metal);
-  const tapa = new THREE.Group();
-  tapa.position.set(0, .02, -.19);
-  tapa.rotation.x = -.25;
-  const marco = new THREE.Mesh(new RoundedBoxGeometry(.62, .4, .025, 2, .015), metal);
-  marco.position.y = .2;
-  const pantallaPc = new THREE.Mesh(new THREE.PlaneGeometry(.56, .34), new THREE.MeshBasicMaterial({map: codigoTex, toneMapped: false}));
-  pantallaPc.position.set(0, .2, .014);
-  tapa.add(marco, pantallaPc);
-  portatil.add(base, tapa);
-  portatil.position.set(0, -.98, .48);
-  portatil.rotation.x = .35;
-
-  [casco, gafas, audifonos, fiesta].forEach(a => { a.visible = false; cabeza.add(a); });
-  portatil.visible = false;
-  flota.add(portatil);
-  return {casco, gafas, audifonos, fiesta, portatil, codigoCanvas, codigoTex};
-}
-const acc = crearAccesorios();
-const LINEAS_CODIGO = [
-  'const volt = new Robot();', 'await sistema.revisar();', 'if(listo) desplegar();', 'SELECT * FROM proyectos;',
-  'npm run build ✓', 'git push origin main', 'app.get("/api", ok);', 'for(const t of tareas)', '  automatizar(t);', 'return "funcionando";'
-];
-let lineaCodigo = 0, letrasCodigo = 0;
-function dibujarCodigo(t){
-  const g = acc.codigoCanvas.getContext('2d');
-  g.fillStyle = '#07111C'; g.fillRect(0, 0, 256, 160);
-  g.font = '600 15px "Geist Mono", monospace';
-  letrasCodigo += .9;
-  if(letrasCodigo > LINEAS_CODIGO[lineaCodigo % LINEAS_CODIGO.length].length + 8){ letrasCodigo = 0; lineaCodigo++; }
-  for(let i = 0; i < 7; i++){
-    const n = lineaCodigo - 6 + i;
-    if(n < 0) continue;
-    const linea = LINEAS_CODIGO[n % LINEAS_CODIGO.length];
-    const texto = i === 6 ? linea.slice(0, Math.floor(letrasCodigo)) : linea;
-    g.fillStyle = i === 6 ? '#62EEFF' : ['#7FE3FF', '#F5C542', '#49CC90', '#C9D4E8'][n % 4];
-    g.globalAlpha = i === 6 ? 1 : .55 + i * .06;
-    g.fillText(texto, 12, 22 + i * 21);
-    if(i === 6 && Math.sin(t * 10) > 0) g.fillRect(12 + g.measureText(texto).width + 2, 9 + i * 21, 8, 16);
+  // Mago: sombrero alto con estrellas y una varita en la mano derecha.
+  const sombrero = new THREE.Group();
+  const copa = new THREE.Mesh(new THREE.ConeGeometry(.38, .95, 32, 1), telaMago);
+  copa.position.y = .45; copa.rotation.z = -.12;
+  const alaMago = new THREE.Mesh(new THREE.CylinderGeometry(.66, .66, .04, 40), telaMago);
+  const cinta = new THREE.Mesh(new THREE.TorusGeometry(.355, .03, 8, 36), estrellaMat);
+  cinta.rotation.x = Math.PI / 2; cinta.position.y = .06;
+  sombrero.add(copa, alaMago, cinta);
+  for(let i = 0; i < 6; i++){
+    const e = new THREE.Mesh(new THREE.OctahedronGeometry(.04), estrellaMat);
+    const a = i * 1.7, h = .15 + (i % 3) * .22;
+    e.position.set(Math.cos(a) * (.33 - h * .3), h + .1, Math.sin(a) * (.33 - h * .3));
+    sombrero.add(e);
   }
-  g.globalAlpha = 1;
-  acc.codigoTex.needsUpdate = true;
-}
+  sombrero.position.y = .84;
+  const varita = new THREE.Group();
+  const palo = new THREE.Mesh(new THREE.CylinderGeometry(.018, .022, .5, 8), oscuro);
+  palo.position.y = -.22;
+  const punta = new THREE.Mesh(new THREE.OctahedronGeometry(.07), estrellaMat);
+  punta.position.y = -.5;
+  varita.add(palo, punta);
+  varita.position.set(0, -.36, .05); varita.rotation.x = 2.5;
+  poner('mago', cabeza, sombrero);
+  brazoDer.add(varita); varita.visible = false; piezas.mago.push(varita);
 
-let accesorio = null, accesorioHasta = 0, ultimaMagia = 0;
+  // Capa de superhéroe a la espalda, que ondea sola.
+  const capa = new THREE.Mesh(new THREE.CylinderGeometry(.38, .6, .95, 28, 1, true, Math.PI * .58, Math.PI * .84), telaCapa);
+  capa.position.set(0, -.8, -.02);
+  const broche = new THREE.Mesh(new THREE.SphereGeometry(.05, 12, 10), estrellaMat);
+  broche.position.set(0, -.42, .28);
+  poner('capa', flota, capa, broche);
+
+  // Traje de administrador del sitio: corbata y gafete «ADMIN».
+  const corbata = new THREE.Group();
+  const nudo = new THREE.Mesh(new RoundedBoxGeometry(.1, .08, .05, 2, .02), telaCorbata);
+  const tira = new THREE.Mesh(new THREE.ConeGeometry(.075, .3, 4), telaCorbata);
+  tira.rotation.set(Math.PI, Math.PI / 4, 0); tira.scale.z = .3; tira.position.y = -.18;
+  corbata.add(nudo, tira);
+  corbata.position.set(0, -.43, .27);
+  const gafete = new THREE.Mesh(new THREE.PlaneGeometry(.26, .1), new THREE.MeshBasicMaterial({map: texturaTexto('ADMIN', '#F5C542', '#0A0F1A'), toneMapped: false, transparent: true}));
+  gafete.position.set(.19, -.55, .266);
+  poner('admin', flota, corbata, gafete);
+
+  piezas.birrete = [birrete];
+  return {piezas, capa, punta};
+}
+const vestuario = crearVestuario();
+const SOMBREROS = new Set(['casco', 'fiesta', 'birrete', 'mago']);
+
+let accesorio = null, accesorioHasta = 0, ultimaMagia = 0, proximoCambio = performance.now() + 22000;
 let modoPantalla = null, modoHasta = 0, iconoPantalla = '';
-const lluvia = Array.from({length: 16}, (_, i) => ({x: 16 + i * 31, y: Math.random() * 368, v: 60 + Math.random() * 90}));
+const lluvia = Array.from({length: 18}, (_, i) => ({x: 10 + i * 28, y: Math.random() * 368, v: 70 + Math.random() * 110}));
 
 function puf(n = 26){
   explotarChispas(n);
   r.salto.empujar(-5);
 }
 function vestir(nombre, segundos = 6){
+  if(!vestuario.piezas[nombre]) return;
   accesorioHasta = performance.now() + segundos * 1000;
   if(accesorio === nombre) return;
   quitarAccesorio(false);
   accesorio = nombre;
-  const obj = nombre === 'birrete' ? birrete : acc[nombre];
-  obj.visible = true;
-  obj.scale.setScalar(.01);
-  gsap.to(obj.scale, {x: 1, y: 1, z: 1, duration: .55, ease: 'back.out(2.4)'});
-  // Los sombreros reemplazan la antena mientras están puestos.
-  if(nombre === 'casco' || nombre === 'fiesta' || nombre === 'birrete'){ antena.visible = false; if(nombre !== 'birrete') birrete.visible = false; }
-  if(nombre === 'portatil') hacerGesto('teclear');
+  vestuario.piezas[nombre].forEach(o => {
+    o.visible = true;
+    o.scale.setScalar(.01);
+    gsap.to(o.scale, {x: 1, y: 1, z: 1, duration: .55, ease: 'back.out(2.4)'});
+  });
+  // Los sombreros reemplazan la antena (y el birrete de la noche) mientras están puestos.
+  if(SOMBREROS.has(nombre)){ antena.visible = false; if(nombre !== 'birrete') birrete.visible = false; }
   if(!MENOS_MOVIMIENTO) r.giro.meta += Math.PI * 2;
   puf();
 }
 function quitarAccesorio(restaurar = true){
   if(!accesorio) return;
-  const obj = accesorio === 'birrete' ? birrete : acc[accesorio];
   const era = accesorio;
   accesorio = null;
-  gsap.to(obj.scale, {x: .01, y: .01, z: .01, duration: .3, ease: 'back.in(2)', onComplete: () => {
-    if(accesorio !== era) obj.visible = era === 'birrete' && momento === 'noche';
-    obj.scale.setScalar(1);
+  vestuario.piezas[era].forEach(o => gsap.to(o.scale, {x: .01, y: .01, z: .01, duration: .3, ease: 'back.in(2)', onComplete: () => {
+    if(accesorio !== era) o.visible = era === 'birrete' && momento === 'noche';
+    o.scale.setScalar(1);
     if(!accesorio) aplicarMomento();
-  }});
-  if(era === 'portatil' && gesto === 'teclear') gesto = null;
+  }}));
   if(restaurar) explotarChispas(12);
 }
 function pantallaModo(modo, segundos = 4, icono = ''){
@@ -346,12 +373,15 @@ function magia(){
 
 // Lee lo que va a decir y decide cómo se presenta.
 const FACETAS = [
-  {re: /codig|program|github|repo|\bapi\b|stack|tecnolog|javascript|typescript|node|python|sql|backend|frontend|terminal|software|code/, hacer: () => { vestir('portatil', 7); pantallaModo('codigo', 6); }},
-  {re: /proyect|sistema|automatiz|empresa|ingenier|cotizador|nomina|payroll|factura|invoice|alerta|tornillo|mantenimiento|maintenance|repar|equipo|team|production|produccion/, hacer: () => vestir('casco', 6)},
+  {re: /codig|program|github|repo|\bapi\b|stack|tecnolog|javascript|typescript|node|python|sql|backend|frontend|terminal|software|code/, hacer: () => { vestir('gafas', 7); pantallaModo('codigo', 7); }},
+  {re: /proyect|sistema|automatiz|empresa|ingenier|cotizador|nomina|payroll|factura|invoice|alerta|tornillo|mantenimiento|maintenance|repar|production|produccion/, hacer: () => vestir('casco', 6)},
+  {re: /equipo|team|jefe|boss|orden|order|sitio|site|portafolio|portfolio|bienvenid|welcome|asistente|assistant/, hacer: () => vestir('admin', 7)},
   {re: /riwi|estudi|study|aprend|learn|formaci|training|universi|carrera|clase|class/, hacer: () => { vestir('birrete', 6); pantallaModo('icono', 2.5, '🎓'); }},
   {re: /contact|correo|email|escrib|write|linkedin|contrat|hire|whatsapp|llam|call|reach/, hacer: () => { vestir('audifonos', 6); pantallaModo('icono', 2.5, '✉'); }},
-  {re: /gracias|thank|genial|great|baila|dance|fiesta|party|celebr|excelente|excellent|bonito|🎉/, hacer: () => { vestir('fiesta', 5); magia(); }},
-  {re: /lee|read|gafas|detalle|detail|revis|check|analiz/, hacer: () => vestir('gafas', 5)}
+  {re: /magia|magic|abracadabra|secreto|secret|truco|trick/, hacer: () => { vestir('mago', 7); magia(); }},
+  {re: /chever|cool|genial|awesome|increible|amazing|wow/, hacer: () => vestir('sol', 6)},
+  {re: /gracias|thank|baila|dance|fiesta|party|celebr|excelente|excellent|bonito|🎉/, hacer: () => { vestir('fiesta', 5); magia(); }},
+  {re: /rapid|fast|poder|power|super|heroe|hero|salv|rescue/, hacer: () => vestir('capa', 6)}
 ];
 function reaccionar(texto){
   const q = String(texto).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
@@ -362,11 +392,43 @@ function reaccionar(texto){
   if(azar < .25) magia();
   else if(azar < .45) pantallaModo('icono', 1.8, ['⚡', '♥', '✓', '</>', '★'][Math.floor(Math.random() * 5)]);
 }
+
+// Cada tanto, sin que nadie se lo pida, Volt se cambia de ropa por arte de magia.
+const CAMBIOS = ['mago', 'capa', 'admin', 'sol', 'gafas', 'audifonos', 'casco'];
+const FRASES_CAMBIO = {
+  mago: ['¡Abracadabra! ✨', 'Abracadabra! ✨'], capa: ['¡Súper Volt al rescate! 🦸', 'Super Volt to the rescue! 🦸'],
+  admin: ['Modo administrador: revisando el sitio. 🗂️', 'Admin mode: checking the site. 🗂️'], sol: ['Hoy amanecí con estilo. 😎', 'Feeling stylish today. 😎']
+};
+function cambioDeRopa(){
+  const ahora = performance.now();
+  if(ahora < proximoCambio) return;
+  proximoCambio = ahora + 25000 + Math.random() * 20000;
+  if(hablando || accesorio || !chatPanel.hidden || window.Equipo?.ocupado || momento === 'madrugada') return;
+  despertar();
+  const nombre = CAMBIOS[Math.floor(Math.random() * CAMBIOS.length)];
+  if(!MENOS_MOVIMIENTO){ ultimaMagia = 0; magia(); }
+  setTimeout(() => {
+    vestir(nombre, 10);
+    const f = FRASES_CAMBIO[nombre];
+    if(f && Math.random() < .6) setTimeout(() => decir(esEN() ? f[1] : f[0], {expresion: 'feliz', segundos: 2.5}), 500);
+  }, 350);
+}
+
+const puntaMundo = new THREE.Vector3();
 function actualizarFacetas(t){
   const ahora = performance.now();
   if(accesorio && ahora > accesorioHasta) quitarAccesorio();
   if(modoPantalla && ahora > modoHasta) modoPantalla = null;
-  if(accesorio === 'portatil' && cuadrosCara % 2 === 0) dibujarCodigo(t);
+  if(accesorio === 'capa') vestuario.capa.rotation.x = Math.sin(t * 3) * .08 - Math.min(Math.abs(r.x.v) * .02, .35);
+  // La varita del mago suelta brillitos.
+  if(accesorio === 'mago' && Math.random() < .3){
+    vestuario.punta.getWorldPosition(puntaMundo);
+    const k = Math.floor(Math.random() * CHISPAS);
+    chispaVida[k] = .7;
+    chispaPos[k * 3] = puntaMundo.x; chispaPos[k * 3 + 1] = puntaMundo.y; chispaPos[k * 3 + 2] = 0;
+    chispaVel[k * 3] = (Math.random() - .5) * 1.2; chispaVel[k * 3 + 1] = Math.random() * 1.2; chispaVel[k * 3 + 2] = 0;
+  }
+  cambioDeRopa();
 }
 
 // ------------------------------------------------------------------ hora de Colombia
@@ -387,7 +449,7 @@ function horaTexto(){
 let momento = momentoColombia();
 function aplicarMomento(){
   birrete.visible = momento === 'noche' || accesorio === 'birrete';
-  antena.visible = !birrete.visible && accesorio !== 'casco' && accesorio !== 'fiesta';
+  antena.visible = !birrete.visible && !SOMBREROS.has(accesorio);
 }
 aplicarMomento();
 setInterval(() => { momento = momentoColombia(); aplicarMomento(); }, 60000);
@@ -433,6 +495,9 @@ function ponerExpresion(nombre, segundos = 2){
   expresionHasta = segundos ? performance.now() + segundos * 1000 : Infinity;
 }
 function hacerGesto(nombre){ gesto = nombre; gestoInicio = performance.now(); }
+// Por un rato mira hacia un punto de la pantalla en vez de seguir el puntero.
+let mirada = null, miradaHasta = 0;
+function mirarA(x, y, segundos = 2.5){ mirada = {x, y}; miradaHasta = performance.now() + segundos * 1000; }
 
 // ------------------------------------------------------------------ cara
 function rr(x, y, w, h, rad){
@@ -470,10 +535,10 @@ function dibujarCara(t){
   if(modoPantalla === 'codigo'){
     // Lluvia de ceros y unos detrás de los ojos: Volt está programando.
     const dtc = Math.min(t - (dibujarCara.t ?? t), .1); dibujarCara.t = t;
-    cx.save(); cx.shadowBlur = 0; cx.font = '700 26px "Geist Mono", monospace';
+    cx.save(); cx.shadowBlur = 0; cx.font = '700 25px "Geist Mono", monospace';
     lluvia.forEach((g, i) => {
       g.y = (g.y + g.v * dtc) % (H + 120);
-      for(let k = 0; k < 5; k++){ cx.globalAlpha = .1 + k * .09; cx.fillText((i * 7 + k + Math.floor(t * 6)) % 3 ? '1' : '0', g.x, g.y - (4 - k) * 28); }
+      for(let k = 0; k < 5; k++){ cx.globalAlpha = .2 + k * .17; cx.fillText((i * 7 + k + Math.floor(t * 6)) % 3 ? '1' : '0', g.x, g.y - (4 - k) * 28); }
     });
     cx.restore();
   }
@@ -671,6 +736,30 @@ function ajustar(){
 addEventListener('resize', ajustar);
 ajustar();
 
+// ------------------------------------------------------------------ paseos
+// Volt no se queda siempre en el mismo sitio: cada tanto vuela a otro lugar un rato y vuelve.
+const paseo = {x: 0, y: 0, esquina: false}, paseoSuave = {x: 0, y: 0};
+let proximoPaseo = performance.now() + 28000;
+function decidirPaseo(enEsquina){
+  const ahora = performance.now();
+  if(paseo.esquina !== enEsquina){ paseo.x = paseo.y = 0; paseo.esquina = enEsquina; }
+  if(ahora < proximoPaseo || window.Equipo?.ocupado || hablando || !chatPanel.hidden) return;
+  const fuera = paseo.x || paseo.y;
+  proximoPaseo = ahora + (fuera ? 16000 + Math.random() * 18000 : 9000 + Math.random() * 5000);
+  if(fuera){ paseo.x = paseo.y = 0; return; }
+  const movil = innerWidth < 760;
+  const opciones = enEsquina
+    ? [{x: -(innerWidth - (movil ? 116 : 208)), y: 0}, {x: 0, y: -innerHeight * .34}, {x: -innerWidth * .4, y: -innerHeight * .1}]
+    : [{x: -innerWidth * .05, y: innerHeight * .05}, {x: innerWidth * .04, y: -innerHeight * .05}];
+  Object.assign(paseo, opciones[Math.floor(Math.random() * opciones.length)]);
+  // Si estaba dormido, se despierta para ir a dar la vuelta.
+  despertar();
+}
+function despertar(){
+  ultimoMovimiento = performance.now();
+  if(expresion === 'dormido') ponerExpresion('feliz', 1.5);
+}
+
 // ------------------------------------------------------------------ bucle
 const reloj = new THREE.Clock();
 let velScroll = 0, scrollPrevio = scrollY;
@@ -692,6 +781,10 @@ function cuadro(){
     y: hero.y + (esquina.y - hero.y) * p,
     alto: hero.alto + (esquina.alto - hero.alto) * p
   };
+  decidirPaseo(p > .5);
+  paseoSuave.x += (paseo.x - paseoSuave.x) * Math.min(dt * 1.4, 1);
+  paseoSuave.y += (paseo.y - paseoSuave.y) * Math.min(dt * 1.4, 1);
+  pantallaVolt.x += paseoSuave.x; pantallaVolt.y += paseoSuave.y;
   // Con el chat abierto, Volt se acomoda al lado (o encima en celular) para seguir a la vista.
   if(!chatPanel.hidden){
     const c = chatPanel.getBoundingClientRect();
@@ -704,12 +797,13 @@ function cuadro(){
   r.escala.meta = visibleIntro ? pantallaVolt.alto / innerHeight * altoVisible() / ALTO_VOLT : .001;
 
   // Puntero: hacia dónde mira la cabeza y los ojos.
-  const dx = (puntero.x - pantallaVolt.x) / innerWidth, dy = (puntero.y - pantallaVolt.y) / innerHeight;
+  const foco = ahora < miradaHasta ? mirada : puntero;
+  const dx = (foco.x - pantallaVolt.x) / innerWidth, dy = (foco.y - pantallaVolt.y) / innerHeight;
   r.yaw.meta = THREE.MathUtils.clamp(dx * 1.6, -.7, .7);
   r.pitch.meta = THREE.MathUtils.clamp(dy * 1.2, -.45, .5);
   r.mirarX.meta = THREE.MathUtils.clamp(dx * 3, -1, 1);
   r.mirarY.meta = THREE.MathUtils.clamp(dy * 3, -1, 1);
-  r.roll.meta = THREE.MathUtils.clamp(-velScroll / 4000, -.35, .35);
+  r.roll.meta = THREE.MathUtils.clamp(-velScroll / 4000 - r.x.v * .04, -.4, .4);
   if(Math.abs(velScroll) > 2600 && expresion === 'normal') ponerExpresion('sorpresa', .8);
 
   // Encima del puntero.
@@ -732,10 +826,6 @@ function cuadro(){
   if(gesto === 'saludar'){ bDz = -2.5 + Math.sin(g * 14) * .45; if(g > 2.2) gesto = null; }
   else if(gesto === 'celebrar'){ bIz = 2.6 + Math.sin(g * 16) * .25; bDz = -2.6 - Math.sin(g * 16) * .25; if(g > 2) gesto = null; }
   else if(gesto === 'senalar'){ bDz = -1.5; bDx = -.5; if(g > 2.4) gesto = null; }
-  else if(gesto === 'teclear'){
-    bIz = .35; bDz = -.35; bIx = -1.15 + Math.sin(t * 18) * .12; bDx = -1.15 + Math.cos(t * 16) * .12;
-    if(accesorio !== 'portatil') gesto = null;
-  }
   else if(gesto === 'pensar'){ bDz = -.6; bDx = -1.9; if(g > 3) gesto = null; }
   else if(gesto === 'bailar'){
     bIz = 1.2 + Math.sin(g * 10) * 1.1; bDz = -1.2 - Math.cos(g * 10) * 1.1;
@@ -872,7 +962,7 @@ addEventListener('keydown', e => {
 
 // API para el resto de la página.
 window.Volt = {
-  decir, callar, hacerGesto, ponerExpresion, hablarPor, reaccionar, vestir, pantallaModo, magia,
+  decir, callar, hacerGesto, ponerExpresion, hablarPor, reaccionar, vestir, pantallaModo, magia, mirarA,
   posicion: () => ({...pantallaVolt}),
   get momento(){ return momento; }, horaTexto,
   celebrar(){ hacerGesto('celebrar'); explotarChispas(36); r.salto.empujar(-8); },
