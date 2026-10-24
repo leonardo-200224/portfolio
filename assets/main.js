@@ -1163,7 +1163,11 @@ function cargar(){
   const o = {v: 0};
   let escenaLista = !!window.__escenaLista;
   addEventListener('escena-lista', () => escenaLista = true, {once: true});
-  const limite = performance.now() + 4000;
+  // Quien ya vio la intro en esta visita no espera otra vez la carga completa.
+  let repetida = false;
+  try{ repetida = sessionStorage.getItem('intro-vista') === '1'; sessionStorage.setItem('intro-vista', '1'); }catch(e){}
+  const rapido = repetida ? .35 : 1;
+  const limite = performance.now() + (repetida ? 1500 : 3000);
   let paso = 0;
   const avanzarLog = v => {
     while(paso < PASOS.length && v >= (paso + 1) * 24){
@@ -1187,13 +1191,13 @@ function cargar(){
     intro();
     ScrollTrigger.refresh();
   }
-  gsap.to(o, {v: 85, duration: 1.5, ease: 'power2.out', onUpdate: pintar, onComplete: function esperar(){
+  gsap.to(o, {v: 85, duration: .9 * rapido, ease: 'power2.out', onUpdate: pintar, onComplete: function esperar(){
     if(!escenaLista && performance.now() < limite){ gsap.delayedCall(.1, esperar); return; }
-    gsap.to(o, {v: 100, duration: .4, ease: 'power1.out', onUpdate: pintar, onComplete: () => {
+    gsap.to(o, {v: 100, duration: .25 * rapido, ease: 'power1.out', onUpdate: pintar, onComplete: () => {
       log.lastElementChild?.classList.add('ok');
       gsap.timeline()
-        .to('.loader > *', {y: -30, opacity: 0, stagger: .06, duration: .45, ease: 'power3.in', delay: .25})
-        .to('#loader', {clipPath: 'circle(0% at 50% 50%)', duration: .9, ease: 'expo.inOut'}, '-=.1')
+        .to('.loader > *', {y: -30, opacity: 0, stagger: .05, duration: .35, ease: 'power3.in', delay: .1})
+        .to('#loader', {clipPath: 'circle(0% at 50% 50%)', duration: .7, ease: 'expo.inOut'}, '-=.1')
         .add(terminar, '-=.45');
     }});
   }});
