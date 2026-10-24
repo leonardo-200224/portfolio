@@ -264,7 +264,7 @@ function rect(el){
   if(!rects.has(el)) rects.set(el, el.getBoundingClientRect());
   return rects.get(el);
 }
-const ALTO = MOVIL ? 54 : 72;
+const ALTO = MOVIL ? 60 : 86;
 
 class Actor{
   constructor(id, nombre, rol, modelo){
@@ -335,8 +335,8 @@ const chispa = new Actor('chispa', 'Chispa', ['la más juguetona', 'the playful 
 const holo = new Actor('holo', 'Holo', ['el que cuelga las fotos', 'the photo hanger'], crearHolo());
 const ACTORES = [tuerca, brisa, foco, chispa, holo];
 holo.p.alto = ALTO * 1.35;
-chispa.p.alto = ALTO * .6;
-brisa.p.alto = ALTO * .55;
+chispa.p.alto = ALTO * .72;
+brisa.p.alto = ALTO * .8;
 
 // Cable del que baja Tuerca.
 const cable = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshBasicMaterial({color: 0x8E99B0}));
@@ -582,7 +582,7 @@ async function pintura(){
 
 // Holo se materializa junto a una captura, la proyecta en el aire y la "cuelga" de nuevo.
 async function fotos(){
-  const img = elegir(visibles('.repo-foto img, .proy .navegador img', {minAncho: 160, arriba: 220}));
+  const img = elegir(visibles('.repo-foto img, .proy .navegador img', {minAncho: 160, arriba: 170, hasta: .78}));
   if(!img) return false;
   const marco = img.closest('.repo-foto, .navegador') || img;
   const a = holo;
@@ -656,7 +656,8 @@ async function juego(){
 
 // Una tarjeta queda torcida; Tuerca y Foco llegan por los lados y la enderezan.
 async function organizar(){
-  const el = elegir(visibles('.repo, .esp-card, .hito, .proy', {minAncho: 220, hasta: .45}));
+  // Lejos de la esquina de Volt, para que Foco no quede escondido detrás de él.
+  const el = elegir(visibles('.repo, .esp-card, .hito, .proy', {minAncho: 220, hasta: .64}).filter(t => MOVIL || rect(t).right < innerWidth - 200));
   if(!el) return false;
   const r = rect(el);
   const torcida = el.animate([{rotate: '0deg'}, {rotate: '-2.2deg'}], {duration: 700, easing: 'cubic-bezier(.3,1.6,.6,1)', fill: 'forwards'});
