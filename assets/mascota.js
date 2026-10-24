@@ -4,7 +4,6 @@
 // y el cuerpo se mueve con resortes para que todo tenga inercia y rebote.
 import * as THREE from 'three';
 import {RoundedBoxGeometry} from 'three/addons/geometries/RoundedBoxGeometry.js';
-import {RoomEnvironment} from 'three/addons/environments/RoomEnvironment.js';
 
 const canvas = document.getElementById('volt');
 const hit = document.getElementById('voltHit');
@@ -25,14 +24,10 @@ renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.1;
 
 const escena = new THREE.Scene();
-// El reflejo ambiental hace que el plástico brille, pero generarlo cuesta. En equipos
-// modestos y celulares se omite y las luces de la escena bastan.
+// Volt se ilumina solo con las luces de la escena, sin reflejo ambiental: así el plástico se ve
+// gris perla, con sombras azul oscuro abajo y el borde cian de la luz trasera, igual en todos
+// los equipos. En los modestos solo se baja la resolución (ver ajustar).
 const MODESTO = (navigator.hardwareConcurrency || 8) <= 4 || (navigator.deviceMemory || 8) <= 4 || matchMedia('(pointer: coarse)').matches;
-if(!MODESTO){
-  const pmrem = new THREE.PMREMGenerator(renderer);
-  escena.environment = pmrem.fromScene(new RoomEnvironment(), .04).texture;
-  pmrem.dispose();
-}
 
 const camara = new THREE.PerspectiveCamera(30, 1, .1, 50);
 camara.position.set(0, 0, 10);
