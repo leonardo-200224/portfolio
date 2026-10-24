@@ -50,7 +50,7 @@ escena.add(clave);
 const luzChip = new THREE.PointLight(COLORES.cian, 8, 9, 1.6);
 luzChip.position.set(0, 1.4, 0);
 escena.add(luzChip);
-const luzSenal = new THREE.PointLight(COLORES.senal, 3, 9, 1.8);
+const luzSenal = new THREE.PointLight(COLORES.senal, 1, 9, 1.8);
 luzSenal.position.set(-3.5, 1.2, 3);
 escena.add(luzSenal);
 
@@ -157,7 +157,7 @@ chip.add(patas);
 // Halo azul debajo del chip.
 const halo = new THREE.Mesh(
   new THREE.PlaneGeometry(9, 9),
-  new THREE.MeshBasicMaterial({map: BRILLO, color: COLORES.azul, transparent: true, opacity: .55, blending: THREE.AdditiveBlending, depthWrite: false})
+  new THREE.MeshBasicMaterial({map: BRILLO, color: COLORES.azul, transparent: true, opacity: .3, blending: THREE.AdditiveBlending, depthWrite: false})
 );
 halo.rotation.x = -Math.PI / 2;
 halo.position.y = .01;
@@ -192,12 +192,12 @@ function crearPista(puntos2d, conPulso, colorPulso){
 
   const p = {linea, pad, puntos, tramos, largo, distancia: Math.hypot(fin.x, fin.z)};
   if(conPulso){
-    const color = new THREE.Color(colorPulso).multiplyScalar(2.6);
+    const color = new THREE.Color(colorPulso).multiplyScalar(1.25);
     const sprite = new THREE.Sprite(new THREE.SpriteMaterial({map: BRILLO, color, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false}));
-    sprite.scale.setScalar(.38);
+    sprite.scale.setScalar(.2);
     const cola = new THREE.Sprite(sprite.material.clone());
-    cola.material.opacity = .45;
-    cola.scale.setScalar(.24);
+    cola.material.opacity = .25;
+    cola.scale.setScalar(.12);
     placa.add(sprite, cola);
     p.pulso = sprite; p.cola = cola;
     p.vel = aleat(2.2, 4.2);
@@ -218,7 +218,7 @@ function puntoEn(p, d, destino){
 }
 
 // Pistas que salen de cada pata con quiebres a 45°, como en una placa real.
-const PALETA = [COLORES.cian, COLORES.cian, COLORES.azul, COLORES.azul, COLORES.senal];
+const PALETA = [COLORES.cian, COLORES.azul, COLORES.azul];
 const escalaMovil = movil() ? .8 : 1;
 LADOS.forEach(([dx, dz]) => {
   for(let i = 0; i < PATAS; i++){
@@ -236,12 +236,12 @@ LADOS.forEach(([dx, dz]) => {
     if(Math.random() < .5){ const d2 = aleat(.3, 1); u += d2; v -= d2 * lateral; pts.push([u, v]); u += aleat(.5, 2); pts.push([u, v]); }
     // u es "hacia afuera" y v es "a lo largo del lado"; se pasan a x/z.
     const xz = pts.map(([uu, vv]) => dx ? [dx * uu, vv] : [vv, dz * uu]);
-    crearPista(xz, Math.random() < .7, PALETA[Math.floor(Math.random() * PALETA.length)]);
+    crearPista(xz, Math.random() < .3, PALETA[Math.floor(Math.random() * PALETA.length)]);
   }
 });
 
 // Pistas sueltas en la placa, lejos del chip, para dar profundidad.
-for(let i = 0; i < (GAMA_BAJA ? 20 : 46); i++){
+for(let i = 0; i < (GAMA_BAJA ? 12 : 22); i++){
   const ang = Math.random() * Math.PI * 2, r = aleat(4.5, 11);
   let x = Math.cos(ang) * r, z = Math.sin(ang) * r;
   const pts = [[x, z]];
@@ -249,7 +249,7 @@ for(let i = 0; i < (GAMA_BAJA ? 20 : 46); i++){
     if(s % 2 === 0) x += aleat(-2.5, 2.5); else z += aleat(-2.5, 2.5);
     pts.push([x, z]);
   }
-  crearPista(pts, Math.random() < .25, PALETA[Math.floor(Math.random() * PALETA.length)]);
+  crearPista(pts, Math.random() < .08, PALETA[Math.floor(Math.random() * PALETA.length)]);
 }
 
 // Puntos de la placa (rejilla de vías).
@@ -260,11 +260,11 @@ for(let i = 0; i < (GAMA_BAJA ? 20 : 46); i++){
   }
   const geo = new THREE.BufferGeometry();
   geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
-  placa.add(new THREE.Points(geo, new THREE.PointsMaterial({color: 0x24345C, size: .035, sizeAttenuation: true})));
+  placa.add(new THREE.Points(geo, new THREE.PointsMaterial({color: 0x18223A, size: .03, sizeAttenuation: true})));
 }
 
 // Partículas que flotan sobre la placa.
-const PART = GAMA_BAJA ? 90 : movil() ? 140 : 260;
+const PART = GAMA_BAJA ? 30 : movil() ? 45 : 70;
 const partGeo = new THREE.BufferGeometry();
 const partPos = new Float32Array(PART * 3), partVel = new Float32Array(PART);
 for(let i = 0; i < PART; i++){
@@ -273,7 +273,7 @@ for(let i = 0; i < PART; i++){
 }
 partGeo.setAttribute('position', new THREE.BufferAttribute(partPos, 3));
 const particulas = new THREE.Points(partGeo, new THREE.PointsMaterial({
-  map: BRILLO, color: new THREE.Color(COLORES.cian).multiplyScalar(1.4), size: .09, transparent: true, opacity: .55,
+  map: BRILLO, color: new THREE.Color(COLORES.cian), size: .06, transparent: true, opacity: .25,
   blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false
 }));
 placa.add(particulas);
@@ -281,7 +281,7 @@ placa.add(particulas);
 // ---------- posprocesado ----------
 const compositor = new EffectComposer(renderer);
 compositor.addPass(new RenderPass(escena, camara));
-const bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), .75, .45, .22);
+const bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), .32, .35, .55);
 compositor.addPass(bloom);
 compositor.addPass(new OutputPass());
 
@@ -367,15 +367,15 @@ function cuadro(){
   const factor = 1 + encima * 1.8;
 
   const latido = .5 + .5 * Math.sin(t * 2.2);
-  luzChip.intensity = 3 + latido * 2 + encima * 8;
-  halo.material.opacity = (.16 + latido * .1 + encima * .25) * ei;
+  luzChip.intensity = 2 + latido * .8 + encima * 5;
+  halo.material.opacity = (.08 + latido * .05 + encima * .18) * ei;
   borde.material.color.setHex(COLORES.azul).multiplyScalar(1.8 + latido * .8 + encima * 1.5);
 
   pistas.forEach(p => {
     // Las pistas se encienden del centro hacia afuera durante la intro.
     const encendido = suave((ip * 14 - p.distancia) / 3);
-    p.linea.material.opacity = encendido * (p.pulso ? .95 : .6);
-    if(!p.pulso){ p.pad.material.opacity = encendido * .5; return; }
+    p.linea.material.opacity = encendido * (p.pulso ? .5 : .3);
+    if(!p.pulso){ p.pad.material.opacity = encendido * .3; return; }
 
     if(p.espera > 0){ p.espera -= dt; p.pulso.visible = p.cola.visible = false; }
     else{
@@ -388,7 +388,7 @@ function cuadro(){
     // El pad del extremo destella cuando llega un pulso.
     p.flash = Math.max((p.flash || 0) - dt * 1.6, 0);
     p.pad.material.color.setHex(COLORES.pistaViva).lerp(p.pulso.material.color, p.flash);
-    p.pad.material.opacity = encendido * (.55 + p.flash);
+    p.pad.material.opacity = encendido * (.35 + p.flash * .6);
   });
 
   // Partículas suben y reaparecen abajo.
@@ -397,7 +397,7 @@ function cuadro(){
     if(partPos[i * 3 + 1] > 6) partPos[i * 3 + 1] = 0;
   }
   partGeo.attributes.position.needsUpdate = true;
-  particulas.material.opacity = .55 * ei;
+  particulas.material.opacity = .25 * ei;
 
   if(usarBloom) compositor.render(); else renderer.render(escena, camara);
   vigilarRendimiento(dt);

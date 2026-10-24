@@ -203,7 +203,7 @@ main,.nav{position:relative;z-index:2}
 @media (max-width:420px){.osc{width:52px}}
 .hora{padding-left:12px;margin-left:2px;border-left:1px solid var(--linea2);color:var(--texto);font-variant-numeric:tabular-nums}
 @media (max-width:420px){.hora{display:none}}
-.hero-nombre{font-family:var(--f-titulo);font-weight:800;font-size:clamp(40px,6.6vw,110px);line-height:.92;letter-spacing:-.045em}
+.hero-nombre{font-family:var(--f-titulo);font-weight:800;font-size:clamp(40px,min(6.6vw,12vh),110px);line-height:.92;letter-spacing:-.045em}
 .hero-nombre .linea{display:block;overflow:hidden;padding-bottom:.06em;white-space:nowrap}
 .hero-nombre .grad .ch{background:linear-gradient(100deg,var(--azul),var(--cian) 60%,#B8F2FF);-webkit-background-clip:text;background-clip:text;color:transparent}
 [data-split] .ch{display:inline-block;will-change:transform}
