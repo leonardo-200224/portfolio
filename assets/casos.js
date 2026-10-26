@@ -16,7 +16,7 @@ const CASOS = [
     titulo: ['Cotizador web', 'Web quoting app'],
     lema: ['Del Excel copiado a mano al PDF oficial en dos clics.', 'From a hand-copied Excel file to the official PDF in two clicks.'],
     stack: 'Node.js · Express · PostgreSQL · JWT · pdf-lib · Render · Neon',
-    captura: 'img/cotizador/cotizacion.jpg',
+    captura: 'img/cotizador/cotizacion.webp',
     nodos: [
       {id: 'u', t: ['Vendedor', 'Salesperson'], s: ['Navegador', 'Browser'], c: 0, f: 1},
       {id: 'api', t: ['API Express', 'Express API'], s: ['JWT · límite de intentos', 'JWT · rate limiting'], c: 1, f: 1, clave: true},
@@ -68,7 +68,7 @@ const CASOS = [
     titulo: ['Lector de facturas con IA supervisada', 'Invoice reader with supervised AI'],
     lema: ['La IA ayuda, pero una persona tiene la última palabra.', 'AI helps, but a person has the final say.'],
     stack: 'Python · PostgreSQL · Google Drive API · Google Sheets API · Gemini · systemd · Raspberry Pi 5',
-    captura: 'img/facturas/grafica.jpg',
+    captura: 'img/facturas/grafica.webp',
     nodos: [
       {id: 'drive', t: ['Google Drive', 'Google Drive'], s: ['Facturas en PDF', 'PDF invoices'], c: 0, f: 1},
       {id: 'pi', t: ['Lector · Pi 5', 'Reader · Pi 5'], s: ['Cada 15 min · systemd', 'Every 15 min · systemd'], c: 1, f: 1, clave: true},
@@ -132,7 +132,7 @@ const CASOS = [
     titulo: ['Nómina quincenal', 'Biweekly payroll'],
     lema: ['55 netos iguales a la nómina real. Al peso.', '55 net amounts matching the real payroll. To the peso.'],
     stack: 'Excel · VBA',
-    captura: 'img/nomina/turnos.jpg',
+    captura: 'img/nomina/turnos.webp',
     // Es el libro real (hojas, columnas y formato) con empleados ficticios, no una captura de la nómina.
     capturaNota: ['El libro real, con empleados ficticios', 'The real workbook, with fictional employees'],
     nodos: [
@@ -191,7 +191,7 @@ const CASOS = [
     titulo: ['Alertas de vencimientos', 'Expiration alerts'],
     lema: ['Que nadie se quede sin poder subir a la obra por un papel vencido.', 'So nobody is kept off the job site by an expired document.'],
     stack: 'Excel · VBA · Windows Task Scheduler · Email',
-    captura: 'img/alertas/dashboard.jpg',
+    captura: 'img/alertas/dashboard.webp',
     capturaNota: ['El libro real, con personal ficticio', 'The real workbook, with fictional staff'],
     nodos: [
       {id: 'tarea', t: ['Tarea programada', 'Scheduled task'], s: ['Todos los días', 'Every day'], c: 0, f: 1},
@@ -235,7 +235,7 @@ const CASOS = [
     titulo: ['Dormify', 'Dormify'],
     lema: ['Encontrar dónde vivir cerca de la universidad, sin buscar en veinte grupos.', 'Finding a place near campus without searching twenty groups.'],
     stack: 'Python · FastAPI · SQLAlchemy · Pydantic · PostgreSQL · JWT · JavaScript',
-    captura: 'img/github/dormify.jpg',
+    captura: 'img/github/dormify.webp',
     codigo: 'https://github.com/leonardo-200224/DORMIFY',
     nodos: [
       {id: 'spa', t: ['SPA', 'SPA'], s: ['JavaScript · Bootstrap', 'JavaScript · Bootstrap'], c: 0, f: 1},
@@ -279,7 +279,7 @@ const CASOS = [
     titulo: ['RiwiMediCare API', 'RiwiMediCare API'],
     lema: ['Cada solicitud de medicamentos con dueño, estado e historial.', 'Every medicine request with an owner, a status and a history.'],
     stack: 'Node.js · TypeScript · Express · Sequelize · PostgreSQL · JWT · Swagger',
-    captura: 'img/github/medicare-respuesta.jpg',
+    captura: 'img/github/medicare-respuesta.webp',
     codigo: 'https://github.com/leonardo-200224/-Prueba-M5_2_NodeJS_Final',
     nodos: [
       {id: 'cli', t: ['Cliente', 'Client'], s: ['Clínica o bodega', 'Clinic or warehouse'], c: 0, f: 0},

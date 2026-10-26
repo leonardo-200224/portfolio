@@ -515,22 +515,22 @@ requestAnimationFrame(cuadroEsfera);
 
 // =================================================================== repositorios de GitHub
 const REPOS = [
-  {nombre:'Dormify', repo:'DORMIFY', tipo:'backend', caso:'dormify', img:'dormify.jpg', tags:['FastAPI','PostgreSQL','SQLAlchemy','JWT'],
+  {nombre:'Dormify', repo:'DORMIFY', tipo:'backend', caso:'dormify', img:'dormify', tags:['FastAPI','PostgreSQL','SQLAlchemy','JWT'],
    es:'Plataforma de alojamiento para universitarios: arriendos, directorio de servicios y foro de la comunidad.',
    en:'Student housing platform: rentals, a services directory and a community forum.'},
-  {nombre:'RiwiMediCare API', repo:'-Prueba-M5_2_NodeJS_Final', tipo:'backend', caso:'medicare', img:'medicare.jpg', foco:'center 80%', tags:['Express','TypeScript','Sequelize','Swagger'],
+  {nombre:'RiwiMediCare API', repo:'-Prueba-M5_2_NodeJS_Final', tipo:'backend', caso:'medicare', img:'medicare', foco:'center 80%', tags:['Express','TypeScript','Sequelize','Swagger'],
    es:'API REST que reemplaza correos y hojas de cálculo en las solicitudes de medicamentos entre clínicas y bodegas.',
    en:'REST API that replaces emails and spreadsheets for medicine requests between clinics and warehouses.'},
-  {nombre:'GestionCall', repo:'GestionCall', tipo:'backend', estrellas:2, img:'gestioncall.jpg', tags:['Flask','Chart.js','JavaScript'],
+  {nombre:'GestionCall', repo:'GestionCall', tipo:'backend', estrellas:2, img:'gestioncall', tags:['Flask','Chart.js','JavaScript'],
    es:'Gestión de clientes para un call center con estados de cada caso y estadísticas en tiempo real.',
    en:'Customer management for a call center with case tracking and real-time statistics.'},
-  {nombre:'TicketSystem SPA', repo:'ticket-system-spa', tipo:'frontend', img:'tickets.jpg', tags:['JavaScript','Vite','Axios','json-server'],
+  {nombre:'TicketSystem SPA', repo:'ticket-system-spa', tipo:'frontend', img:'tickets', tags:['JavaScript','Vite','Axios','json-server'],
    es:'Tickets de soporte técnico con tres roles, sesión persistente y cierre de sesión por inactividad.',
    en:'Tech support tickets with three roles, persistent sessions and inactivity logout.'},
   {nombre:'API de reservas', nombreEn:'Reservations API', repo:'Actividad_nest_week_5', tipo:'backend', rutas:[['GET', '/reservations'], ['POST', '/reservations']], tags:['NestJS','TypeScript','Postman'],
    es:'API de reservas para un restaurante para dominar el ciclo de NestJS: middleware, guard, pipe, interceptor y filtros.',
    en:'Restaurant reservations API to master the NestJS lifecycle: middleware, guard, pipe, interceptor and filters.'},
-  {nombre:'Rick & Morty SPA', repo:'spa-final', tipo:'frontend', img:'rick-morty.jpg', tags:['JavaScript','SPA','localStorage'],
+  {nombre:'Rick & Morty SPA', repo:'spa-final', tipo:'frontend', img:'rick-morty', tags:['JavaScript','SPA','localStorage'],
    es:'SPA en JavaScript puro con router propio, CRUD de personajes y manejo de errores de la API.',
    en:'Plain JavaScript SPA with its own router, character CRUD and API error handling.'}
 ];
@@ -573,8 +573,8 @@ function mostrarSitio(i, animar = true){
   $$('#webLista .web-tab').forEach((b, k) => { b.classList.toggle('activo', k === i); b.setAttribute('aria-selected', k === i); });
   const esc = $('webEscritorio'), cel = $('webCelular');
   const cambiar = () => {
-    esc.src = `img/trabajos/${s.id}-escritorio.jpg`;
-    cel.src = `img/trabajos/${s.id}-celular.jpg`;
+    esc.src = `img/trabajos/${s.id}-escritorio.webp`;
+    cel.src = `img/trabajos/${s.id}-celular.webp`;
     esc.alt = cel.alt = `${s.titulo[idioma === 'en' ? 1 : 0]} — ${L('captura real, marca oculta', 'real screenshot, brand hidden')}`;
   };
   if(!animar || !ANIMA || MENOS_MOVIMIENTO){ cambiar(); return; }
@@ -614,7 +614,7 @@ function pintarRepos(){
     // Captura del proyecto corriendo en local con los datos de prueba de su propio repositorio.
     // Sin captura (API sin interfaz): sus rutas reales y el recorrido de cada petición en Nest.
     const rutas = r.rutas ? `<div class="repo-foto repo-rutas" aria-hidden="true">${r.rutas.map(([v, p]) => `<code><b class="m-${v.toLowerCase()}">${v}</b>${p}</code>`).join('')}<small>middleware → guard → pipe → controller → interceptor</small></div>` : '';
-    const foto = r.img ? `<div class="repo-foto"><img src="img/github/${r.img}" alt="" loading="lazy" decoding="async" width="1440" height="900"${r.foco ? ` style="object-position:${r.foco}"` : ''}></div>` : '';
+    const foto = r.img ? `<div class="repo-foto"><img src="img/github/${r.img}.webp" srcset="img/github/${r.img}-800.webp 800w, img/github/${r.img}.webp 1414w" sizes="(max-width: 640px) 92vw, (max-width: 1000px) 46vw, 30vw" alt="" loading="lazy" decoding="async" width="1440" height="900"${r.foco ? ` style="object-position:${r.foco}"` : ''}></div>` : '';
     a.innerHTML = `${foto}${rutas}<div class="repo-top">${ICONO_REPO}${r.estrellas ? `<span class="repo-estrellas">★ ${r.estrellas}</span>` : ''}</div>
       <h3></h3><p></p><ul class="tags"></ul>${acciones}`;
     a.querySelector('h3').textContent = idioma === 'en' && r.nombreEn ? r.nombreEn : r.nombre;
@@ -772,9 +772,8 @@ const COMANDOS = {
   },
   contacto: () => enlaces().map(([tipo, url]) => [`  ${t('canal.' + tipo).padEnd(22)} ${enlace(url, url.replace(/^mailto:|\?.*$/g, '').replace('https://', ''))}`, 'sal', true]),
   equipo: () => {
-    if(!window.Equipo) return [L('El equipo todavía se está preparando. Intenta en unos segundos.', 'The team is still getting ready. Try again in a few seconds.')];
-    if(!window.Equipo.ocupado) setTimeout(() => window.Equipo.alguna(), 600);
-    return [[L('El equipo de Volt:', 'Volt’s team:'), 'acento'], ...window.Equipo.miembros.map(a => `  ▸ ${a.nombre.padEnd(8)} ${L(a.rol[0], a.rol[1])}`), [L('Mira la página: alguno va a salir a trabajar.', 'Watch the page: one of them is about to get to work.'), 'ok']];
+    cargarEquipo().then(() => setTimeout(() => { if(window.Equipo && !window.Equipo.ocupado) window.Equipo.alguna(); }, 900));
+    return [[L('El equipo de Volt:', 'Volt’s team:'), 'acento'], ...[['Tuerca', ['ingeniero de mantenimiento', 'maintenance engineer']], ['Brisa', ['dron de limpieza', 'cleaning drone']], ['Foco', ['el pintor del equipo', 'the team painter']], ['Chispa', ['la más juguetona', 'the playful one']], ['Holo', ['el que cuelga las fotos', 'the photo hanger']]].map(([nombre, rol]) => ({nombre, rol})).map(a => `  ▸ ${a.nombre.padEnd(8)} ${L(a.rol[0], a.rol[1])}`), [L('Mira la página: alguno va a salir a trabajar.', 'Watch the page: one of them is about to get to work.'), 'ok']];
   },
   volt: () => { window.Volt?.decir(L('¿Me llamaste? Estoy aquí abajo.', 'You called? I’m down here.'), {expresion: 'feliz', gesto: 'saludar'}); return [L('Volt fue notificado. Míralo.', 'Volt was notified. Look at him.')]; },
   whoami: () => [L('un visitante con buen gusto', 'a visitor with great taste')],
@@ -986,6 +985,69 @@ let lienzoLimpio = true;
 
 // =================================================================== sección activa
 // Resalta en el menú el enlace de la sección que se está viendo.
+// =================================================================== menú
+// Rodillo: cada letra del enlace va en su propio span para poder rodar con retraso.
+function prepararRodillos(){
+  $$('.nav nav .rodillo').forEach(el => {
+    const texto = el.textContent;
+    el.textContent = '';
+    [...texto].forEach((ch, i) => {
+      const c = document.createElement('span');
+      c.className = 'c'; c.style.setProperty('--i', i); c.textContent = ch;
+      el.appendChild(c);
+    });
+  });
+}
+prepararRodillos();
+addEventListener('idioma-cambiado', prepararRodillos);
+
+// Cortina: al elegir una sección, una cortina sube con su nombre en grande, la página salta
+// detrás y la cortina se retira hacia arriba revelándola.
+const cortina = document.createElement('div');
+cortina.className = 'cortina';
+cortina.setAttribute('aria-hidden', 'true');
+cortina.innerHTML = '<div class="cortina-in"><span class="cortina-num"></span><p class="cortina-txt"></p><i class="cortina-linea"></i></div>';
+document.body.appendChild(cortina);
+let enCortina = false;
+function irConCortina(enlace){
+  const destino = document.querySelector(enlace.getAttribute('href'));
+  if(!destino) return;
+  if(!window.gsap || enCortina){ irA(enlace.getAttribute('href')); return; }
+  enCortina = true;
+  const enlaces = $$('.nav nav a'), n = enlaces.indexOf(enlace) + 1;
+  const num = cortina.querySelector('.cortina-num'), txt = cortina.querySelector('.cortina-txt'), linea = cortina.querySelector('.cortina-linea');
+  num.innerHTML = '<span>' + String(n).padStart(2, '0') + ' / ' + String(enlaces.length).padStart(2, '0') + '</span>';
+  txt.textContent = '';
+  [...enlace.textContent].forEach(ch => txt.appendChild(Object.assign(document.createElement('span'), {textContent: ch})));
+  const letras = txt.children;
+  tono(520, .12, 'sine', .025);
+  gsap.timeline({onComplete: () => { enCortina = false; gsap.set(cortina, {visibility: 'hidden'}); }})
+    .set(cortina, {visibility: 'visible', clipPath: 'inset(100% 0% 0% 0%)'})
+    .set(letras, {yPercent: 110}).set(num.firstChild, {yPercent: 110}).set(linea, {scaleX: 0})
+    .to(cortina, {clipPath: 'inset(0% 0% 0% 0%)', duration: .6, ease: 'expo.inOut'})
+    .to(letras, {yPercent: 0, duration: .6, stagger: .028, ease: 'expo.out'}, '-=.28')
+    .to(num.firstChild, {yPercent: 0, duration: .5, ease: 'expo.out'}, '<')
+    .to(linea, {scaleX: 1, duration: .7, ease: 'expo.out'}, '<.1')
+    // Con la pantalla cubierta, la página salta a la sección sin que se vea el recorrido.
+    .add(() => {
+      if(lenis) lenis.scrollTo(destino, {immediate: true, force: true});
+      else destino.scrollIntoView();
+      ScrollTrigger.update();
+    })
+    .to({}, {duration: .18})
+    .to(letras, {yPercent: -110, duration: .45, stagger: .018, ease: 'expo.in'})
+    .to([num.firstChild, linea], {opacity: 0, duration: .3}, '<')
+    .to(cortina, {clipPath: 'inset(0% 0% 100% 0%)', duration: .7, ease: 'expo.inOut'}, '-=.25')
+    .set([num.firstChild, linea], {opacity: 1});
+}
+// Se escucha en captura para que el enlace no use el scroll normal.
+document.querySelector('.nav nav')?.addEventListener('click', e => {
+  const a = e.target.closest('a[href^="#"]');
+  if(!a) return;
+  e.preventDefault(); e.stopPropagation();
+  irConCortina(a);
+}, true);
+
 function marcarSeccion(nombre){
   const href = {sobre:'#sobre-mi', trayectoria:'#trayectoria', proyectos:'#proyectos', github:'#proyectos', terminal:'#terminal', contacto:'#contacto'}[nombre];
   $$('.nav nav a').forEach(a => a.classList.toggle('activo', a.getAttribute('href') === href));
@@ -1120,14 +1182,19 @@ function intro(){
 
 // Volt se carga después de la intro: así no compite con la escena 3D en la carga inicial.
 // Espera a que el navegador quede libre: así el texto de la portada responde primero.
+function cargarEquipo(){
+  return window.Equipo ? Promise.resolve() : import('./equipo.js').catch(() => {});
+}
 function cargarVolt(){
   const ir = () => cargarVoltYa();
-  setTimeout(() => 'requestIdleCallback' in window ? requestIdleCallback(ir, {timeout: 2500}) : ir(), 1200);
+  setTimeout(() => 'requestIdleCallback' in window ? requestIdleCallback(ir, {timeout: 1200}) : ir(), 500);
 }
 function cargarVoltYa(){
   import('./mascota.js')
     // El equipo de ayudantes llega después, cuando Volt ya está en pantalla.
-    .then(() => setTimeout(() => import('./equipo.js').catch(() => {}), 3000))
+    // En celulares el equipo no se carga solo: taparía el texto y sería una tercera escena 3D.
+    // Se carga cuando se pide desde la terminal.
+    .then(() => { if(innerWidth >= 760) setTimeout(cargarEquipo, 3000); })
     .catch(() => { $('voltHit')?.remove(); });
 }
 
@@ -1268,7 +1335,7 @@ const visorImg = visor.querySelector('img'), visorPie = visor.querySelector('.vi
 let cerrarHolo = null, focoPrevio = null;
 
 function abrirVisor(img){
-  const src = img.currentSrc || img.src;
+  const src = img.src || img.currentSrc;
   if(!src) return;
   focoPrevio = document.activeElement;
   visorImg.src = src;

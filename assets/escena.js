@@ -28,7 +28,8 @@ const movil = () => innerWidth / innerHeight < 0.8;
 const GAMA_BAJA = (navigator.hardwareConcurrency || 8) <= 4 || (navigator.deviceMemory || 8) <= 4 || matchMedia('(pointer: coarse)').matches;
 let usarBloom = !GAMA_BAJA;
 let topeDpr = GAMA_BAJA ? 1 : 1.5;
-const dpr = () => Math.min(devicePixelRatio, movil() ? Math.min(topeDpr, 1.25) : topeDpr);
+// Además del tope por equipo, nunca más de unos 2,3 millones de píxeles por cuadro.
+const dpr = () => Math.min(devicePixelRatio, movil() ? Math.min(topeDpr, 1.25) : topeDpr) * Math.min(1, Math.sqrt(2300000 / (innerWidth * innerHeight)) / Math.max(devicePixelRatio, 1));
 
 renderer.setPixelRatio(dpr());
 renderer.setSize(innerWidth, innerHeight);
@@ -328,17 +329,26 @@ function vigilarRendimiento(dt){
 let opacidadPrevia = '';
 const reloj = new THREE.Clock();
 let primerCuadro = true;
+// Fundido de entrada: la escena aparece suave cuando sus shaders ya están listos.
+let aparece = 0;
+// En equipos modestos el fondo se dibuja a 30 cuadros por segundo: casi no se nota y es la mitad de trabajo.
+const PASO_MIN = GAMA_BAJA ? 1 / 31 : 0;
+let acumulado = 0;
 
 function cuadro(){
   requestAnimationFrame(cuadro);
-  const dt = Math.min(reloj.getDelta(), .05);
+  acumulado += reloj.getDelta();
+  if(acumulado < PASO_MIN) return;
+  const dt = Math.min(acumulado, .05);
+  acumulado = 0;
   const t = reloj.elapsedTime;
+  aparece = Math.min(aparece + dt * 1.6, 1);
 
   // Progreso del scroll en alturas de pantalla.
   const s = scrollY / innerHeight;
   const visible = 1 - THREE.MathUtils.smoothstep(s, .85, 1.7);
   // Solo se escribe la opacidad si cambió: escribir estilos en cada cuadro obliga al navegador a recalcular.
-  const opacidad = visible.toFixed(2);
+  const opacidad = (visible * aparece).toFixed(2);
   if(opacidad !== opacidadPrevia){ canvas.style.opacity = opacidad; opacidadPrevia = opacidad; }
   if(visible <= 0 && !primerCuadro) return;
 
@@ -399,8 +409,12 @@ function cuadro(){
   partGeo.attributes.position.needsUpdate = true;
   particulas.material.opacity = .25 * ei;
 
-  if(usarBloom) compositor.render(); else renderer.render(escena, camara);
+  // El resplandor tiene sus propios shaders: se activa unos cuadros después del primero para
+  // repartir el trabajo en vez de hacerlo todo de golpe.
+  if(usarBloom && aparece >= 1) compositor.render(); else renderer.render(escena, camara);
   vigilarRendimiento(dt);
   if(primerCuadro){ primerCuadro = false; avisarLista(); }
 }
-cuadro();
+canvas.style.opacity = 0;
+// Los shaders se preparan en segundo plano (si el navegador lo permite) y luego arranca el bucle.
+renderer.compileAsync(escena, camara).catch(() => {}).then(() => requestAnimationFrame(cuadro));

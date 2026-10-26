@@ -708,10 +708,24 @@ const altoVisible = () => 2 * camara.position.z * Math.tan(THREE.MathUtils.degTo
 const ALTO_VOLT = 2.25; // unidades de mundo de la punta de la antena a la llama
 
 // Dónde vive Volt: grande en el hero, pequeño en la esquina al bajar.
+// En celular Volt va entre el menú y la pastilla de la portada; si la pantalla es baja, se
+// achica para caber ahí en vez de tapar el nombre. La posición de la pastilla se toma con
+// offsetTop (no la mueven las animaciones) y se recalcula al cambiar el tamaño.
+let topePastilla = 0;
+function medirPastilla(){
+  let el = document.querySelector('.hero-pre'), y = 0;
+  while(el){ y += el.offsetTop; el = el.offsetParent; }
+  topePastilla = y;
+}
+medirPastilla();
+addEventListener('resize', medirPastilla);
+document.fonts?.ready.then(medirPastilla);
 function puestos(){
   const movil = innerWidth < 760;
+  const menu = 64, libre = topePastilla ? topePastilla - menu - 14 : innerHeight * .3;
+  const altoMovil = Math.max(96, Math.min(220, innerHeight * .28, libre / 1.08));
   return {
-    hero: movil ? {x: innerWidth * .5, y: innerHeight * .25, alto: Math.min(220, innerHeight * .28)}
+    hero: movil ? {x: innerWidth * .5, y: menu + altoMovil * .56, alto: altoMovil}
                 : {x: innerWidth * .73, y: innerHeight * .44, alto: Math.min(360, innerHeight * .46)},
     esquina: movil ? {x: innerWidth - 58, y: innerHeight - 84, alto: 104}
                    : {x: innerWidth - 104, y: innerHeight - 128, alto: 150}
@@ -723,7 +737,9 @@ let pantallaVolt = {x: 0, y: 0, alto: 0};
 
 function ajustar(){
   // En equipos modestos Volt se dibuja a menor resolución; casi no se nota y libera la tarjeta gráfica.
-  renderer.setPixelRatio(Math.min(devicePixelRatio, MODESTO ? 1.25 : 1.75));
+  // Volt ocupa poco de la pantalla: con 1,25 se ve igual de nítido y en monitores grandes se
+  // limitan los píxeles totales para que el fondo 3D y él no compitan.
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 1.25) * Math.min(1, Math.sqrt(2600000 / (innerWidth * innerHeight)) / Math.max(devicePixelRatio, 1)));
   renderer.setSize(innerWidth, innerHeight);
   camara.aspect = innerWidth / innerHeight;
   camara.updateProjectionMatrix();
@@ -909,7 +925,16 @@ function poner(el, prop, valor){
   el._ultimo[prop] = valor;
   el.style.setProperty(prop, valor);
 }
-cuadro();
+// Antes del primer cuadro se preparan en segundo plano los shaders de Volt y de todo su
+// vestuario (se hace visible un instante para que entre en la preparación), así ni la
+// entrada ni los cambios de ropa congelan la página.
+const piezasOcultas = [...Object.values(vestuario.piezas).flat(), birrete].filter(o => !o.visible);
+piezasOcultas.forEach(o => { o.visible = true; });
+const voltListo = renderer.compileAsync(escena, camara).catch(() => {}).then(() => {
+  piezasOcultas.forEach(o => { o.visible = false; });
+  aplicarMomento();
+  cuadro();
+});
 
 // ------------------------------------------------------------------ eventos
 hit.addEventListener('click', () => {
@@ -929,7 +954,7 @@ function entrar(){
     setTimeout(saludarSegunLaHora, 700);
   }, 600);
 }
-if(window.__introHecha) entrar(); else addEventListener('intro', entrar, {once: true});
+if(window.__introHecha) voltListo.then(entrar); else addEventListener('intro', () => voltListo.then(entrar), {once: true});
 
 function saludarSegunLaHora(){
   const en = esEN(), h = horaTexto();

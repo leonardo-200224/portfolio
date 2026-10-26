@@ -348,6 +348,11 @@ const foco = new Actor('foco', 'Foco', ['el pintor del equipo', 'the team painte
 const chispa = new Actor('chispa', 'Chispa', ['la más juguetona', 'the playful one'], crearChispa());
 const holo = new Actor('holo', 'Holo', ['el que cuelga las fotos', 'the photo hanger'], crearHolo());
 const ACTORES = [tuerca, brisa, foco, chispa, holo];
+// Los materiales se compilan con el navegador libre, para que la primera escena no dé un tirón.
+(window.requestIdleCallback || (f => setTimeout(f, 1500)))(() => {
+  ACTORES.forEach(a => { a.g.visible = true; });
+  renderer.compileAsync(escena, camara).catch(() => {}).then(() => ACTORES.forEach(a => { if(!a.hit || a.hit.hidden) a.g.visible = false; }));
+});
 holo.p.alto = ALTO * 1.35;
 chispa.p.alto = ALTO * .72;
 brisa.p.alto = ALTO * .8;
@@ -770,7 +775,8 @@ async function reunion(){
   // Se paran a los lados de Volt, a la altura de su pecho, donde haya espacio.
   const cerca = v.alto * .42 + ALTO * .55, lejos = cerca + ALTO * 1.05;
   const cabe = x => x > ALTO * .6 && x < innerWidth - ALTO * .6;
-  const lado = v.x > innerWidth / 2 ? -1 : 1;
+  // Se paran del lado derecho si caben: a la izquierda de Volt suele estar el texto.
+  const lado = cabe(v.x + lejos) ? 1 : -1;
   let x1 = v.x + lado * cerca, x2 = v.x + lado * lejos;
   if(!cabe(x2)) x2 = v.x - lado * cerca;
   const y = Math.min(v.y + v.alto * .12, innerHeight - ALTO * .7);
